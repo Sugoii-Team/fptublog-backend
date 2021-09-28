@@ -11,15 +11,9 @@ import java.sql.SQLException;
 @Service
 public class DataSource {
 
-    private static final String CONFIG_FILE_PATH;
-    private static final HikariConfig CONFIG;
-    private static final HikariDataSource DATA_SOURCE;
-
-    static {
-        CONFIG_FILE_PATH = ResourcesUtil.getAbsolutePath("db.properties");
-        CONFIG = new HikariConfig(CONFIG_FILE_PATH);
-        DATA_SOURCE = new HikariDataSource(CONFIG);
-    }
+    private static final String CONFIG_FILE_PATH = ResourcesUtil.getAbsolutePath("db.properties");
+    private static final HikariConfig CONFIG = new HikariConfig(CONFIG_FILE_PATH);
+    private static final HikariDataSource DATA_SOURCE = new HikariDataSource(CONFIG);
 
     public static Connection getConnection() throws SQLException {
         return DATA_SOURCE.getConnection();

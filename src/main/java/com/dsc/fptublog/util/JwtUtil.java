@@ -26,18 +26,15 @@ public class JwtUtil {
     }
 
     public static JWTVerifier getVerifier() {
-        JWTVerifier verifier = JWT.require(SIGNATURE_ALGORITHM)
+        return JWT.require(SIGNATURE_ALGORITHM)
                 .withIssuer(ISSUER)
                 .build();
-        return verifier;
     }
 
     public static DecodedJWT getDecodedJWT(String token) {
         JWTVerifier verifier = getVerifier();
-        DecodedJWT jwt = verifier.verify(token);
-        return jwt;
+        return verifier.verify(token);
     }
-
 
     public static String createJWT(AccountEntity account) {
         // Get the current time
@@ -49,22 +46,23 @@ public class JwtUtil {
         Date expirationDate = new Date(currentTimeInMillis + expirationTimeInMillis);
 
         // Determine account role
-        String role = "";
+        Role role = null;
         if (account instanceof StudentEntity) {
-            role = "student";
+            role = Role.STUDENT;
         } else if (account instanceof LecturerEntity) {
-            role = "lecturer";
+            role = Role.LECTURER;
+        } else {
+            role = Role.ADMIN;
         }
 
         // Create and Sign a Token
-        String token = JWT.create()
+        return JWT.create()
                 .withIssuer(ISSUER)
                 .withIssuedAt(now)
                 .withExpiresAt(expirationDate)
                 .withSubject(account.getId())
-                .withClaim("role", role)
+                .withClaim("role", role.name())
                 .sign(SIGNATURE_ALGORITHM);
-        return token;
     }
 
     public static AccountEntity getAccountFromToken(String token) {
@@ -73,10 +71,10 @@ public class JwtUtil {
         AccountEntity account = null;
         String id = jwt.getSubject();
 
-        String role = jwt.getClaim("role").asString();
-        if ("student".equals(role)) {
+        Role role = Role.valueOf(jwt.getClaim("role").asString());
+        if (Role.STUDENT.equals(role)) {
             account = StudentEntity.builder().id(id).build();
-        } else if ("lecturer".equals(role)) {
+        } else if (Role.LECTURER.equals(role)) {
             account = LecturerEntity.builder().id(id).build();
         }
 

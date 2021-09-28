@@ -25,64 +25,55 @@ public class ImplAuthService implements IAuthService {
     private IStudentDAO studentDAO;
 
     @Inject
-    private IMajorDAO majorDAO;
-
-    @Inject
     private ILecturerDAO lecturerDAO;
 
-    @Inject
-    private IAccountStatusDAO accountStatusDAO;
-
     @Override
-    public AccountEntity getAccount(String email, String name, String avatarUrl) throws SQLException {
-        // Get account by email from DB
+    public AccountEntity getAccountByEmail(String email) throws SQLException {
+        // find account by email from DB
         AccountEntity account = null;
-        connectionWrapper.beginTransaction();
-        account = accountDAO.getByEmail(email);
-        connectionWrapper.commit();
-        connectionWrapper.close();
+        try {
+            connectionWrapper.beginTransaction();
+            account = accountDAO.getByEmail(email);
+            connectionWrapper.commit();
+        } finally {
+            connectionWrapper.close();
+        }
 
-        if (account != null) {
-            // If existed account, determine its role
-            StudentEntity student = null;
+        if (account == null) {
+            return account;
+        }
+
+        // check account is Student
+        StudentEntity student = null;
+        try {
             connectionWrapper.beginTransaction();
             student = studentDAO.getByAccount(account);
             connectionWrapper.commit();
-
-            if (student != null) {
-                return student;
-            }
-
-            LecturerEntity lecturer = null;
-            connectionWrapper.beginTransaction();
-            lecturer = lecturerDAO.getByAccount(account);
-            connectionWrapper.commit();
-
-            if (lecturer != null) {
-                return lecturer;
-            }
-        } else {
-            // If not existed account, create new registration for this email
-            StudentEntity student = null;
-            try {
-                connectionWrapper.beginTransaction();
-                student = StudentEntity.builder()
-                        .email(email)
-                        .firstName(name.substring(0, Math.min(name.length(), 10)))
-                        .lastName("")
-                        .status(accountStatusDAO.getByName("activated"))
-                        .major(majorDAO.getByName("Software Engineering"))
-                        .avatarUrl(avatarUrl)
-                        .build();
-                student = studentDAO.createByStudent(student);
-                connectionWrapper.commit();
-            } catch (SQLException ex) {
-                log.error(ex);
-                connectionWrapper.rollback();
-            }
+        } finally {
+            connectionWrapper.close();
+        }
+        if (student != null) {
             return student;
         }
 
+        // check account is Lecturer
+        LecturerEntity lecturer = null;
+        try {
+            connectionWrapper.beginTransaction();
+            lecturer = lecturerDAO.getByAccount(account);
+            connectionWrapper.commit();
+        } finally {
+            connectionWrapper.close();
+        }
+        if (lecturer != null) {
+            return lecturer;
+        }
+
+        return null;
+    }
+
+    @Override
+    public AccountEntity createNewAccount(String email, String name, String avatarUrl) {
         return null;
     }
 }
