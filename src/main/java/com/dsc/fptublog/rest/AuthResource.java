@@ -1,7 +1,7 @@
 package com.dsc.fptublog.rest;
 
 import com.dsc.fptublog.entity.AccountEntity;
-import com.dsc.fptublog.service.IAuthService;
+import com.dsc.fptublog.service.interfaces.IAuthService;
 import com.dsc.fptublog.util.JwtUtil;
 import com.dsc.fptublog.util.ResourcesUtil;
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;

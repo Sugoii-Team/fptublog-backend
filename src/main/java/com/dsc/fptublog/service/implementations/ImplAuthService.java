@@ -1,8 +1,9 @@
-package com.dsc.fptublog.service;
+package com.dsc.fptublog.service.implementations;
 
 import com.dsc.fptublog.dao.interfaces.*;
 import com.dsc.fptublog.database.ConnectionWrapper;
 import com.dsc.fptublog.entity.*;
+import com.dsc.fptublog.service.interfaces.IAuthService;
 import org.jvnet.hk2.annotations.Service;
 
 import javax.inject.Inject;

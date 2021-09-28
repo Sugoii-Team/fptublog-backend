@@ -1,4 +1,4 @@
-package com.dsc.fptublog.service;
+package com.dsc.fptublog.service.interfaces;
 
 import com.dsc.fptublog.entity.AccountEntity;
 import org.jvnet.hk2.annotations.Contract;
