@@ -2,6 +2,7 @@ package com.dsc.fptublog.dao.implementations;
 
 import com.dsc.fptublog.dao.interfaces.ITagDAO;
 import com.dsc.fptublog.database.ConnectionWrapper;
+import com.dsc.fptublog.entity.BlogTagEntity;
 import com.dsc.fptublog.entity.TagEntity;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.jvnet.hk2.annotations.Service;
@@ -12,6 +13,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 
 @Service
@@ -37,7 +39,8 @@ public class ImplTagDAO implements ITagDAO {
             result = statement.executeQuery();
             if (result.next()) {
                 String name = result.getNString("name");
-                TagEntity tag = new TagEntity(id, name, new ArrayList<>());
+                List<BlogTagEntity> blogTags = null;
+                TagEntity tag = new TagEntity(id, name, blogTags);
                 return tag;
             }
         }

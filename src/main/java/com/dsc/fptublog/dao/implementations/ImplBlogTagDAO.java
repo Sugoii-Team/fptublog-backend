@@ -14,6 +14,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 
 @Service
@@ -29,7 +30,7 @@ public class ImplBlogTagDAO implements IBlogTagDAO {
 
 
     @Override
-    public boolean getByBlogAndTag(BlogEntity blog) throws SQLException {
+    public void getByBlogAndTag(BlogEntity blog) throws SQLException {
         Connection connection = connectionWrapper.getConnection();
         if (connection != null) {
             String sql = "SELECT id, blog_id, tag_id "
@@ -45,15 +46,13 @@ public class ImplBlogTagDAO implements IBlogTagDAO {
                 String tagId = result.getString("tag_id");
                 BlogTagEntity blogTags = new BlogTagEntity(id, blogId, tagId);
                 TagEntity tag = tagDAO.getById(tagId);
-                System.out.println(blogTags);
-                System.out.println(tag);
+                blog.setBlogTags(new ArrayList<>());
+                tag.setBlogTags(new ArrayList<>());
                 blog.getBlogTags().add(blogTags);
                 tag.getBlogTags().add(blogTags);
             }
-            return true;
         }
 
-        return false;
     }
 
 }

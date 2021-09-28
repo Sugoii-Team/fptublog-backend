@@ -9,5 +9,5 @@ import java.sql.SQLException;
 @Contract
 public interface IBlogTagDAO {
 
-    public boolean getByBlogAndTag(BlogEntity blog) throws SQLException;
+    public void getByBlogAndTag(BlogEntity blog) throws SQLException;
 }

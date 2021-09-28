@@ -2,10 +2,7 @@ package com.dsc.fptublog.dao.implementations;
 
 import com.dsc.fptublog.dao.interfaces.*;
 import com.dsc.fptublog.database.ConnectionWrapper;
-import com.dsc.fptublog.entity.AccountEntity;
-import com.dsc.fptublog.entity.BlogEntity;
-import com.dsc.fptublog.entity.BlogStatusEntity;
-import com.dsc.fptublog.entity.CategoryEntity;
+import com.dsc.fptublog.entity.*;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.jvnet.hk2.annotations.Service;
 
@@ -115,9 +112,10 @@ public class ImplBlogDAO implements IBlogDAO {
                 AccountEntity reviewer = accountDAO.getById(reviewerId);
                 long reviewDateTime = result.getLong("review_datetime");
                 int views = result.getInt("views");
+                List<BlogTagEntity> blogTags = null;
                 BlogEntity blog = new BlogEntity(blogId, author, title, content, postedDateTime, status, category,
-                        reviewer, reviewDateTime, views, new ArrayList<>());
-                boolean getBlogTagSuccessful = blogTagDAO.getByBlogAndTag(blog);
+                        reviewer, reviewDateTime, views,blogTags);
+                blogTagDAO.getByBlogAndTag(blog);
                 return blog;
             }
         }
@@ -165,7 +163,7 @@ public class ImplBlogDAO implements IBlogDAO {
                 int views = result.getInt("views");
                 BlogEntity blog = new BlogEntity(id, author, title, content, postedDateTime, status, category,
                         reviewer, reviewDateTime, views, new ArrayList<>());
-                boolean getBlogTagSuccessful = blogTagDAO.getByBlogAndTag(blog);
+                blogTagDAO.getByBlogAndTag(blog);
                 blogList.add(blog);
             }
             return blogList;
