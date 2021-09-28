@@ -10,5 +10,5 @@ public interface IAuthService {
 
     AccountEntity getAccountByEmail(String email) throws SQLException;
 
-    AccountEntity createNewAccount(String email, String name, String avatarUrl);
+    AccountEntity createNewAccount(String email, String name, String avatarUrl) throws SQLException;
 }

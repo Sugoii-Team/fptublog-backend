@@ -8,7 +8,5 @@ import java.sql.SQLException;
 @Contract
 public interface IMajorDAO {
 
-    public MajorEntity getById(String id) throws SQLException;
-
     public MajorEntity getByName(String name) throws SQLException;
 }

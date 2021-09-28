@@ -21,18 +21,41 @@ public class ImplStudentDAO implements IStudentDAO {
     private ConnectionWrapper connectionWrapper;
 
     @Override
-    public StudentEntity createByStudent(StudentEntity studentEntity) throws SQLException {
-        return null;
-    }
+    public StudentEntity createFromAccount(AccountEntity account, String majorId) throws SQLException {
+        if (account == null) {
+            return null;
+        }
 
-    @Override
-    public StudentEntity getById(String id) throws SQLException {
-        return null;
-    }
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return null;
+        }
 
-    @Override
-    public StudentEntity getByEmail(String email) throws SQLException {
-        return null;
+        StudentEntity result = null;
+
+        String sql = "INSERT INTO account_student (id, major_id) " +
+                "VALUES (?, ?)";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, account.getId());
+            stm.setString(2, majorId);
+
+            int effectedRow = stm.executeUpdate();
+            if (effectedRow > 0) {
+                result = StudentEntity.builder()
+                        .id(account.getId())
+                        .email(account.getEmail())
+                        .alternativeEmail(account.getAlternativeEmail())
+                        .firstName(account.getFirstName())
+                        .lastName(account.getLastName())
+                        .avatarUrl(account.getAvatarUrl())
+                        .statusId(account.getStatusId())
+                        .majorId(majorId)
+                        .build();
+            }
+        }
+
+        return result;
     }
 
     @Override
@@ -76,15 +99,5 @@ public class ImplStudentDAO implements IStudentDAO {
         }
 
         return result;
-    }
-
-    @Override
-    public boolean updateByStudent(StudentEntity studentEntity) {
-        return false;
-    }
-
-    @Override
-    public StudentEntity deleteById(String id) {
-        return null;
     }
 }

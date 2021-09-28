@@ -9,15 +9,8 @@ import java.sql.SQLException;
 @Contract
 public interface IStudentDAO {
 
-    public StudentEntity createByStudent(StudentEntity studentEntity) throws SQLException;
-
-    public StudentEntity getById(String id) throws SQLException;
-
-    public StudentEntity getByEmail(String email) throws SQLException;
+    public StudentEntity createFromAccount(AccountEntity account, String majorId) throws SQLException;
 
     public StudentEntity getByAccount(AccountEntity account) throws SQLException;
 
-    public boolean updateByStudent(StudentEntity studentEntity);
-
-    public StudentEntity deleteById(String id);
 }

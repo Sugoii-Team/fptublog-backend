@@ -20,36 +20,17 @@ public class ImplMajorDAO implements IMajorDAO {
     private ConnectionWrapper connectionWrapper;
 
     @Override
-    public MajorEntity getById(String id) throws SQLException {
-        Connection connection = connectionWrapper.getConnection();
-        MajorEntity result = null;
-        if (connection != null) {
-            String sql = "SELECT name " +
-                    "FROM major " +
-                    "WHERE id = ?";
-
-            PreparedStatement stm = connection.prepareStatement(sql);
-            stm.setString(1, id);
-
-            ResultSet resultSet = stm.executeQuery();
-            if (resultSet.next()) {
-                String name = resultSet.getNString("name");
-                result = new MajorEntity(id, name);
-            }
-        }
-        return result;
-    }
-
-    @Override
     public MajorEntity getByName(String name) throws SQLException {
         Connection connection = connectionWrapper.getConnection();
-        MajorEntity result = null;
-        if (connection != null) {
-            String sql = "SELECT id " +
-                         "FROM major " +
-                         "WHERE name = ?";
+        if (connection == null) {
+            return null;
+        }
 
-            PreparedStatement stm = connection.prepareStatement(sql);
+        MajorEntity result = null;
+        String sql = "SELECT id " +
+                "FROM major " +
+                "WHERE name = ?";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setNString(1, name);
 
             ResultSet resultSet = stm.executeQuery();
@@ -58,6 +39,7 @@ public class ImplMajorDAO implements IMajorDAO {
                 result = new MajorEntity(id, name);
             }
         }
+
         return result;
     }
 }

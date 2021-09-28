@@ -19,11 +19,6 @@ public class ImplAccountDAO implements IAccountDAO {
     private ConnectionWrapper connectionWrapper;
 
     @Override
-    public AccountEntity getById(String id) throws SQLException {
-        return null;
-    }
-
-    @Override
     public AccountEntity getByEmail(String email) throws SQLException {
         Connection connection = connectionWrapper.getConnection();
         if (connection == null) {
@@ -66,17 +61,47 @@ public class ImplAccountDAO implements IAccountDAO {
     }
 
     @Override
-    public boolean deleteById(String id) throws SQLException {
-        return false;
-    }
+    public AccountEntity createForNewEmail(String email, String name, String avatarUrl, String statusId)
+            throws SQLException {
+        if (email == null || name == null) {
+            return null;
+        }
 
-    @Override
-    public boolean updateByAccount(AccountEntity updatedAccount) throws SQLException {
-        return false;
-    }
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return null;
+        }
 
-    @Override
-    public AccountEntity createByAccount(AccountEntity account) throws SQLException {
+        AccountEntity result = null;
+
+        String sql = "INSERT INTO account (email, alternative_email, firstname, lastname, avatar_url, status_id) " +
+                "OUTPUT inserted.id " +
+                "VALUES (?, ?, ?, ?, ?, ?)";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, email);
+            stm.setString(2, email); // because alternative_email is unique => can't be NULL is 2 different rows
+            stm.setNString(3, name);
+            stm.setNString(4, "");
+            stm.setString(5, avatarUrl);
+            stm.setString(6, statusId);
+
+            ResultSet resultSet = stm.executeQuery();
+            if (resultSet.next()) {
+                String id = resultSet.getString(1);
+
+                result  = AccountEntity.builder()
+                        .id(id)
+                        .email(email)
+                        .alternativeEmail(email)
+                        .firstName(name)
+                        .lastName("")
+                        .avatarUrl(avatarUrl)
+                        .statusId(statusId)
+                        .build();
+            }
+        }
+
         return null;
     }
 }

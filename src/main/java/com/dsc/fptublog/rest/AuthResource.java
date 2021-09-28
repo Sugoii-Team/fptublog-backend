@@ -74,7 +74,7 @@ public class AuthResource {
                             .build();
                 }
             }
-        } catch (GeneralSecurityException | IOException ex) {
+        } catch (GeneralSecurityException | IOException | SQLException ex) {
             log.error(ex);
         }
         return Response.status(Response.Status.NOT_ACCEPTABLE)
