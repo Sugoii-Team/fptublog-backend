@@ -6,7 +6,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 @Contract
-public interface ConnectionWrapper {
+public interface ConnectionWrapper{
 
     public void beginTransaction() throws SQLException;
 

@@ -1,10 +1,11 @@
-package com.dsc.fptublog.service;
+package com.dsc.fptublog.service.implementation;
 
 import com.dsc.fptublog.dao.interfaces.*;
 import com.dsc.fptublog.database.ConnectionWrapper;
 import com.dsc.fptublog.entity.AccountEntity;
 import com.dsc.fptublog.entity.LecturerEntity;
 import com.dsc.fptublog.entity.StudentEntity;
+import com.dsc.fptublog.service.interfaces.IAuthService;
 import lombok.extern.log4j.Log4j;
 import org.jvnet.hk2.annotations.Service;
 
@@ -77,8 +78,10 @@ public class ImplAuthService implements IAuthService {
                 student = studentDAO.createByStudent(student);
                 connectionWrapper.commit();
             } catch (SQLException ex) {
-                log.error(ex);
                 connectionWrapper.rollback();
+                throw ex;
+            }finally {
+                connectionWrapper.close();
             }
             return student;
         }
