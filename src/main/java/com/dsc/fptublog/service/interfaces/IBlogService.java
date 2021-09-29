@@ -8,7 +8,8 @@ import java.util.List;
 
 @Contract
 public interface IBlogService {
-    public BlogEntity getByName(String name);
+
+    public BlogEntity getById(String name) throws SQLException;
 
     public List<BlogEntity> getAllBlogs() throws SQLException;
 }

@@ -11,6 +11,8 @@ import java.sql.SQLException;
 public interface IBlogStatusDAO {
     public BlogStatusEntity getById(String id) throws SQLException;
 
+    public BlogStatusEntity getByName(String name) throws SQLException;
+
     public boolean deleteById(String deletedBlogStatusId) throws SQLException;
 
     public boolean updateByBlogStatus(BlogStatusEntity updatedBlogStatus) throws SQLException;

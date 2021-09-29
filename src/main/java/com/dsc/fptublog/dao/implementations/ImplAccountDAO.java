@@ -103,4 +103,46 @@ public class ImplAccountDAO implements IAccountDAO {
 
         return result;
     }
+
+    @Override
+    public AccountEntity getById(String id) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return null;
+        }
+
+        AccountEntity result = null;
+
+        String sql = "SELECT email, alternative_email, firstname, lastname, avatar_url, description, status_id " +
+                "FROM account " +
+                "WHERE id = ?";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, id);
+
+            ResultSet resultSet = stm.executeQuery();
+            if (resultSet.next()) {
+                String email = resultSet.getString(1);
+                String alternativeEmail = resultSet.getString(2);
+                String firstName = resultSet.getNString(3);
+                String lastName = resultSet.getNString(4);
+                String avatarUrl = resultSet.getString(5);
+                String description = resultSet.getNString(6);
+                String statusId = resultSet.getString(7);
+
+                result = AccountEntity.builder()
+                        .id(id)
+                        .email(email)
+                        .alternativeEmail(alternativeEmail)
+                        .firstName(firstName)
+                        .lastName(lastName)
+                        .avatarUrl(avatarUrl)
+                        .description(description)
+                        .statusId(statusId)
+                        .build();
+            }
+        }
+
+        return result;
+    }
 }

@@ -8,7 +8,9 @@ import java.sql.SQLException;
 @Contract
 public interface IAccountDAO {
 
-    public AccountEntity getByEmail(String email) throws SQLException;
+    AccountEntity getByEmail(String email) throws SQLException;
 
-    public AccountEntity createForNewEmail(String email, String name, String avatarUrl, String statusId) throws SQLException;
+    AccountEntity createForNewEmail(String email, String name, String avatarUrl, String statusId) throws SQLException;
+
+    AccountEntity getById(String id) throws SQLException;
 }

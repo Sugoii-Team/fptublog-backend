@@ -47,6 +47,32 @@ public class ImplBlogStatusDAO implements IBlogStatusDAO {
     }
 
     @Override
+    public BlogStatusEntity getByName(String name) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return null;
+        }
+
+        BlogStatusEntity result = null;
+
+        String sql = "SELECT id "
+                + "FROM blog_status "
+                + "Where name = ?";
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, name);
+
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                String id = resultSet.getString(1);
+                result = new BlogStatusEntity(id, name);
+            }
+        }
+
+        return result;
+    }
+
+    @Override
     public boolean deleteById(String deletedBlogStatusId) throws SQLException {
         Connection connection = connectionWrapper.getConnection();
         if (connection == null) {
