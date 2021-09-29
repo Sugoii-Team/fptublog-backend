@@ -102,6 +102,6 @@ public class ImplAccountDAO implements IAccountDAO {
             }
         }
 
-        return null;
+        return result;
     }
 }
