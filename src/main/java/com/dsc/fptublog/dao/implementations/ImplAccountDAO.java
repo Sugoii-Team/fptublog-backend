@@ -1,7 +1,6 @@
 package com.dsc.fptublog.dao.implementations;
 
 import com.dsc.fptublog.dao.interfaces.IAccountDAO;
-import com.dsc.fptublog.dao.interfaces.IAccountStatusDAO;
 import com.dsc.fptublog.database.ConnectionWrapper;
 import com.dsc.fptublog.entity.AccountEntity;
 import org.glassfish.jersey.process.internal.RequestScoped;

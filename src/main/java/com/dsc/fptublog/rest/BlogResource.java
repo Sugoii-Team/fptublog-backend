@@ -15,19 +15,19 @@ import java.sql.SQLException;
 import java.util.List;
 
 @Log4j
-@Path("/HomePage")
-public class LoadBlog {
+@Path("/blogs")
+public class BlogResource {
 
     @Inject
     private IBlogService blogService;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response loadBlogToFrontEnd() {
+    public Response getAllBlogs() {
         List<BlogEntity> blogList = null;
         try {
             blogList = blogService.getAllBlogs();
-            return Response.status(200).entity(blogList).build();
+            return Response.ok(blogList).build();
         } catch (SQLException ex) {
             log.error(ex);
             return Response.status(Response.Status.EXPECTATION_FAILED).entity("LOAD DATABASE FAILED").build();

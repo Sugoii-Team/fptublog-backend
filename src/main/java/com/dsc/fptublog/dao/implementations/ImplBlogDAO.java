@@ -22,7 +22,6 @@ public class ImplBlogDAO implements IBlogDAO {
     @Inject
     private ConnectionWrapper connectionWrapper;
 
-
     @Inject
     private IAccountDAO accountDAO;
 
@@ -38,7 +37,7 @@ public class ImplBlogDAO implements IBlogDAO {
 
     @Override
     public BlogEntity insertByBlog(BlogEntity newBlog) throws SQLException {
-        Connection connection = connectionWrapper.getConnection();
+        /*Connection connection = connectionWrapper.getConnection();
         if (connection != null) {
             String sql = "INSERT INTO blog (author_id, title, content, posted_datetime, status_id, category_id, reviewer_id, review_datetime, views) "
                     + "OUTPUT inserted.id " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -59,13 +58,13 @@ public class ImplBlogDAO implements IBlogDAO {
                 newBlog.setId(result.getString(1));
                 return newBlog;
             }
-        }
+        }*/
         return null;
     }
 
     @Override
     public boolean updateByBlog(BlogEntity updatedBlog) throws SQLException {
-        Connection connection = connectionWrapper.getConnection();
+        /*Connection connection = connectionWrapper.getConnection();
         if (connection != null) {
             String sql = "UPDATE blog "
                     + "SET title = ?, content = ?, status_id = ?, category_id = ?, reviewer_id = ?, review_datetime = ?, view = ? "
@@ -84,13 +83,13 @@ public class ImplBlogDAO implements IBlogDAO {
             if (effectRow > 0) {
                 return true;
             }
-        }
+        }*/
         return false;
     }
 
     @Override
     public BlogEntity getById(String blogId) throws SQLException {
-        Connection connection = connectionWrapper.getConnection();
+        /*Connection connection = connectionWrapper.getConnection();
         if (connection != null) {
             String sql = "SELECT author_id, title, content, posted_datetime, status_id, category_id, reviewer_id, review_datetime, views "
                     + "FROM blog " + "WHERE id = ?";
@@ -118,13 +117,13 @@ public class ImplBlogDAO implements IBlogDAO {
                 blogTagDAO.getByBlogAndTag(blog);
                 return blog;
             }
-        }
+        }*/
         return null;
     }
 
     @Override
     public boolean deletedById(String blogId) throws SQLException {
-        Connection connection = connectionWrapper.getConnection();
+        /*Connection connection = connectionWrapper.getConnection();
         if (connection != null) {
             String sql = "DELETE " + "FROM blog " + "WHERE id = ?";
             PreparedStatement stm = connection.prepareStatement(sql);
@@ -133,42 +132,45 @@ public class ImplBlogDAO implements IBlogDAO {
             if (effectRow > 0) {
                 return true;
             }
-        }
+        }*/
         return false;
     }
 
     @Override
     public List<BlogEntity> getAllBlogs() throws SQLException {
         Connection connection = connectionWrapper.getConnection();
-        if (connection != null) {
-            String sql = "SELECT id, author_id, title, content, posted_datetime, status_id, category_id, reviewer_id, review_datetime, views "
-                    + "FROM blog";
-            PreparedStatement stm = connection.prepareStatement(sql);
-            ResultSet result = stm.executeQuery();
-            List<BlogEntity> blogList = new ArrayList<>();
-            while (result.next()) {
-                String id = result.getString("id");
-                String authorID = result.getString("author_id");
-                AccountEntity author = accountDAO.getById(authorID);
-                String title = result.getNString("title");
-                String content = result.getNString("content");
-                Long postedDateTime = result.getLong("posted_datetime");
-                String statusID = result.getString("status_id");
-                BlogStatusEntity status = blogStatusDAO.getById(statusID);
-                String categoryId = result.getString("category_id");
-                CategoryEntity category = categoryDAO.getById(categoryId);
-                String reviewerId = result.getString("reviewer_id");
-                AccountEntity reviewer = accountDAO.getById(reviewerId);
-                long reviewDateTime = result.getLong("review_datetime");
-                int views = result.getInt("views");
-                BlogEntity blog = new BlogEntity(id, author, title, content, postedDateTime, status, category,
-                        reviewer, reviewDateTime, views, new ArrayList<>());
-                blogTagDAO.getByBlogAndTag(blog);
-                blogList.add(blog);
-            }
-            return blogList;
+        if (connection == null) {
+            return null;
         }
-        return null;
+
+        List<BlogEntity> result = null;
+
+        String sql = "SELECT id, author_id, title, content, created_datetime, status_id, category_id, reviewer_id, review_datetime, views "
+                + "FROM blog";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            ResultSet resultSet = stm.executeQuery();
+            while (resultSet.next()) {
+                String id = resultSet.getString(1);
+                String authorId = resultSet.getString(2);
+                String title = resultSet.getNString(3);
+                String content = resultSet.getNString(4);
+                long createdDatetime = resultSet.getLong(5);
+                String statusId = resultSet.getString(6);
+                String categoryId = resultSet.getString(7);
+                String reviewerId = resultSet.getString(8);
+                long reviewDatetime = resultSet.getLong(9);
+                int views = resultSet.getInt(10);
+
+                if (result == null) {
+                    result = new ArrayList<>();
+                }
+                result.add(new BlogEntity(id, authorId, title, content, createdDatetime,
+                        statusId, categoryId, reviewerId, reviewDatetime, views));
+            }
+        }
+
+        return result;
     }
 
 

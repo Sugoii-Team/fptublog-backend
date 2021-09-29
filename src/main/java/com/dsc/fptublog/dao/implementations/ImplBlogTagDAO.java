@@ -31,7 +31,7 @@ public class ImplBlogTagDAO implements IBlogTagDAO {
 
     @Override
     public void getByBlogAndTag(BlogEntity blog) throws SQLException {
-        Connection connection = connectionWrapper.getConnection();
+        /*Connection connection = connectionWrapper.getConnection();
         if (connection != null) {
             String sql = "SELECT id, blog_id, tag_id "
                     + "FROM blog_tag "
@@ -51,8 +51,7 @@ public class ImplBlogTagDAO implements IBlogTagDAO {
                 blog.getBlogTags().add(blogTags);
                 tag.getBlogTags().add(blogTags);
             }
-        }
+        }*/
 
     }
-
 }
