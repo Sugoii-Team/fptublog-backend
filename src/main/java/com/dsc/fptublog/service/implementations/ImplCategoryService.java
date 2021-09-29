@@ -4,10 +4,12 @@ import com.dsc.fptublog.dao.interfaces.ICategoryDAO;
 import com.dsc.fptublog.database.ConnectionWrapper;
 import com.dsc.fptublog.entity.CategoryEntity;
 import com.dsc.fptublog.service.interfaces.ICategoryService;
+import org.jvnet.hk2.annotations.Service;
 
 import javax.inject.Inject;
 import java.sql.SQLException;
 
+@Service
 public class ImplCategoryService implements ICategoryService {
 
     @Inject

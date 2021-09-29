@@ -2,7 +2,9 @@ package com.dsc.fptublog.rest;
 
 
 import com.dsc.fptublog.entity.BlogEntity;
+import com.dsc.fptublog.entity.TagEntity;
 import com.dsc.fptublog.service.interfaces.IBlogService;
+import com.dsc.fptublog.service.interfaces.ITagService;
 import lombok.extern.log4j.Log4j;
 
 import javax.inject.Inject;
@@ -21,6 +23,9 @@ public class BlogResource {
 
     @Inject
     private IBlogService blogService;
+
+    @Inject
+    private ITagService tagService;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -47,5 +52,21 @@ public class BlogResource {
             return Response.status(Response.Status.EXPECTATION_FAILED).entity("LOAD DATABASE FAILED").build();
         }
         return Response.ok(blog).build();
+    }
+
+    @GET
+    @Path("/{id}/tags")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAllTagsOfBlog(@PathParam("id") String blogId) {
+        List<TagEntity> tagList;
+
+        try {
+            tagList = tagService.getAllTagsOfBlog(blogId);
+        } catch (SQLException ex) {
+            log.error(ex);
+            return Response.status(Response.Status.EXPECTATION_FAILED).entity("LOAD DATABASE FAILED").build();
+        }
+
+        return Response.ok(tagList).build();
     }
 }

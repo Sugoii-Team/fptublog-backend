@@ -11,6 +11,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequestScoped
@@ -38,6 +40,38 @@ public class ImplTagDAO implements ITagDAO {
             if (resultSet.next()) {
                 String name = resultSet.getNString(1);
                 result = new TagEntity(id, name);
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<TagEntity> getByIdList(List<String> idList) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return null;
+        }
+
+        List<TagEntity> result = null;
+
+        String sql = "SELECT name " +
+                "FROM tag " +
+                "WHERE id = ?";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            for (String id : idList) {
+                stm.setString(1, id);
+
+                ResultSet resultSet = stm.executeQuery();
+                if (resultSet.next()) {
+                    String name = resultSet.getNString(1);
+
+                    if (result == null) {
+                        result = new ArrayList<>();
+                    }
+                    result.add(new TagEntity(id, name));
+                }
             }
         }
 
