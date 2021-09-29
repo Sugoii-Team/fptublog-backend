@@ -12,5 +12,4 @@ public interface IAccountStatusDAO {
 
     public AccountStatusEntity getByName(String name) throws SQLException;
 
-    public boolean updateByAccountStatus(AccountStatusEntity accountStatus) throws SQLException;
 }

@@ -20,43 +20,48 @@ public class ImplBlogStatusDAO implements IBlogStatusDAO {
     @Inject
     private ConnectionWrapper connectionWrapper;
 
-
     @Override
     public BlogStatusEntity getById(String id) throws SQLException {
         Connection connection = connectionWrapper.getConnection();
-        PreparedStatement statement = null;
-        ResultSet result = null;
-        if (connection != null) {
-            String sql = "SELECT name "
-                    + "FROM blog_status "
-                    + "Where id = ?";
+        if (connection == null) {
+            return null;
+        }
 
-            statement = connection.prepareStatement(sql);
+        BlogStatusEntity result = null;
+
+        String sql = "SELECT name "
+                + "FROM blog_status "
+                + "Where id = ?";
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, id);
 
-            result = statement.executeQuery();
-            if (result.next()) {
-                String name = result.getString("name");
-                BlogStatusEntity blogStatus = new BlogStatusEntity(id, name);
-                return blogStatus;
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                String name = resultSet.getString("name");
+                result = new BlogStatusEntity(id, name);
             }
         }
-        return null;
+
+        return result;
     }
 
     @Override
     public boolean deleteById(String deletedBlogStatusId) throws SQLException {
         Connection connection = connectionWrapper.getConnection();
-        if (connection != null) {
-            String sql = "DELETE "
-                    + "FROM blog_status "
-                    + "WHERE id = ?";
+        if (connection == null) {
+            return false;
+        }
 
-            PreparedStatement stm = connection.prepareStatement(sql);
+        String sql = "DELETE "
+                + "FROM blog_status "
+                + "WHERE id = ?";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setString(1, deletedBlogStatusId);
 
-            int effectRow = stm.executeUpdate();
-            if (effectRow > 0) {
+            int effectedRow = stm.executeUpdate();
+            if (effectedRow > 0) {
                 return true;
             }
         }
@@ -68,34 +73,39 @@ public class ImplBlogStatusDAO implements IBlogStatusDAO {
     @Override
     public boolean updateByBlogStatus(BlogStatusEntity updatedBlogStatus) throws SQLException {
         Connection connection = connectionWrapper.getConnection();
-        if (connection != null) {
-            String sql = "UPDATE blog_status "
-                    + "SET name = ? "
-                    + "WHERE id = ?";
+        if (connection == null) {
+            return false;
+        }
 
-            PreparedStatement stm = connection.prepareStatement(sql);
+        String sql = "UPDATE blog_status "
+                + "SET name = ? "
+                + "WHERE id = ?";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setString(1, updatedBlogStatus.getName());
-
 
             int effectRow = stm.executeUpdate();
             if (effectRow > 0) {
                 return true;
             }
         }
+
         return false;
     }
 
     @Override
     public BlogStatusEntity insertByBlogStatus(BlogStatusEntity blogStatus) throws SQLException {
         Connection connection = connectionWrapper.getConnection();
-        if (connection != null) {
-            String sql = "INSERT INTO blog_status (name) " +
-                    "OUTPUT inserted.id " +
-                    "VALUES (?)";
+        if (connection == null) {
+            return null;
+        }
 
-            PreparedStatement stm = connection.prepareStatement(sql);
+        String sql = "INSERT INTO blog_status (name) " +
+                "OUTPUT inserted.id " +
+                "VALUES (?)";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setString(1, blogStatus.getName());
-
 
             ResultSet resultSet = stm.executeQuery();
             if (resultSet.next()) {

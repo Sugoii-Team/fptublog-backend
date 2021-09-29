@@ -1,11 +1,9 @@
 package com.dsc.fptublog.dao.interfaces;
 
-
 import com.dsc.fptublog.entity.TagEntity;
 import org.jvnet.hk2.annotations.Contract;
 
 import java.sql.SQLException;
-
 
 @Contract
 public interface ITagDAO {

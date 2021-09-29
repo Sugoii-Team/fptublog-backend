@@ -2,7 +2,6 @@ package com.dsc.fptublog.dao.implementations;
 
 import com.dsc.fptublog.dao.interfaces.ITagDAO;
 import com.dsc.fptublog.database.ConnectionWrapper;
-import com.dsc.fptublog.entity.BlogTagEntity;
 import com.dsc.fptublog.entity.TagEntity;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.jvnet.hk2.annotations.Service;
@@ -12,9 +11,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-
 
 @Service
 @RequestScoped
@@ -25,37 +21,41 @@ public class ImplTagDAO implements ITagDAO {
     @Override
     public TagEntity getById(String id) throws SQLException {
         Connection connection = connectionWrapper.getConnection();
-        PreparedStatement statement = null;
-        ResultSet result = null;
+        if (connection == null) {
+            return null;
+        }
 
-        if (connection != null) {
-            String sql = "SELECT name "
-                    + "FROM tag "
-                    + "Where id = ?";
+        TagEntity result = null;
 
-            statement = connection.prepareStatement(sql);
-            statement.setString(1, id);
+        String sql = "SELECT name "
+                + "FROM tag "
+                + "Where id = ?";
 
-            result = statement.executeQuery();
-            if (result.next()) {
-                String name = result.getNString("name");
-                List<BlogTagEntity> blogTags = null;
-                TagEntity tag = new TagEntity(id, name, blogTags);
-                return tag;
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, id);
+
+            ResultSet resultSet = stm.executeQuery();
+            if (resultSet.next()) {
+                String name = resultSet.getNString(1);
+                result = new TagEntity(id, name);
             }
         }
-        return null;
+
+        return result;
     }
 
     @Override
     public boolean deleteById(String deletedTagId) throws SQLException {
         Connection connection = connectionWrapper.getConnection();
-        if (connection != null) {
-            String sql = "DELETE "
-                    + "FROM tag "
-                    + "WHERE id = ?";
+        if (connection == null) {
+            return false;
+        }
 
-            PreparedStatement stm = connection.prepareStatement(sql);
+        String sql = "DELETE "
+                + "FROM tag "
+                + "WHERE id = ?";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setString(1, deletedTagId);
 
             int effectRow = stm.executeUpdate();
@@ -63,6 +63,7 @@ public class ImplTagDAO implements ITagDAO {
                 return true;
             }
         }
+
         return false;
 
     }
@@ -70,38 +71,43 @@ public class ImplTagDAO implements ITagDAO {
     @Override
     public boolean updateByTag(TagEntity updatedTag) throws SQLException {
         Connection connection = connectionWrapper.getConnection();
-        if (connection != null) {
-            String sql = "UPDATE tag "
-                    + "SET name = ? "
-                    + "WHERE id = ?";
+        if (connection == null) {
+            return false;
+        }
 
-            PreparedStatement stm = connection.prepareStatement(sql);
+        String sql = "UPDATE tag "
+                + "SET name = ? "
+                + "WHERE id = ?";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setString(1, updatedTag.getName());
-
 
             int effectRow = stm.executeUpdate();
             if (effectRow > 0) {
                 return true;
             }
         }
+
         return false;
     }
 
     @Override
     public TagEntity insertByTag(TagEntity tag) throws SQLException {
         Connection connection = connectionWrapper.getConnection();
-        if (connection != null) {
-            String sql = "INSERT INTO tag (name) " +
-                    "OUTPUT inserted.id " +
-                    "VALUES (?)";
+        if (connection == null) {
+            return null;
+        }
 
-            PreparedStatement stm = connection.prepareStatement(sql);
-            stm.setString(1, tag.getName());
+        String sql = "INSERT INTO tag (name) " +
+                "OUTPUT inserted.id " +
+                "VALUES (?)";
 
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setNString(1, tag.getName());
 
             ResultSet resultSet = stm.executeQuery();
             if (resultSet.next()) {
-                tag.setId(resultSet.getNString(1));
+                tag.setId(resultSet.getString(1));
                 return tag;
             }
         }

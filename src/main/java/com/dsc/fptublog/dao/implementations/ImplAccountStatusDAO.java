@@ -22,14 +22,18 @@ public class ImplAccountStatusDAO implements IAccountStatusDAO {
 
     @Override
     public AccountStatusEntity getById(String id) throws SQLException {
-        AccountStatusEntity result = null;
         Connection connection = connectionWrapper.getConnection();
         if (connection != null) {
-            String sql = "SELECT name "
-                    + "FROM account_status "
-                    + "WHERE id = ?";
+            return null;
+        }
 
-            PreparedStatement stm = connection.prepareStatement(sql);
+        AccountStatusEntity result = null;
+
+        String sql = "SELECT name "
+                + "FROM account_status "
+                + "WHERE id = ?";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setString(1, id);
 
             ResultSet resultSet = stm.executeQuery();
@@ -38,19 +42,24 @@ public class ImplAccountStatusDAO implements IAccountStatusDAO {
                 result = new AccountStatusEntity(id, name);
             }
         }
+
         return result;
     }
 
     @Override
     public AccountStatusEntity getByName(String name) throws SQLException {
-        AccountStatusEntity result = null;
         Connection connection = connectionWrapper.getConnection();
         if (connection != null) {
-            String sql = "SELECT id "
-                    + "FROM account_status "
-                    + "WHERE name = ?";
+            return null;
+        }
 
-            PreparedStatement stm = connection.prepareStatement(sql);
+        AccountStatusEntity result = null;
+
+        String sql = "SELECT id "
+                + "FROM account_status "
+                + "WHERE name = ?";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setString(1, name);
 
             ResultSet resultSet = stm.executeQuery();
@@ -59,26 +68,7 @@ public class ImplAccountStatusDAO implements IAccountStatusDAO {
                 result = new AccountStatusEntity(id, name);
             }
         }
+
         return result;
-    }
-
-    @Override
-    public boolean updateByAccountStatus(AccountStatusEntity accountStatus) throws SQLException {
-        Connection connection = connectionWrapper.getConnection();
-        if (connection != null) {
-            String sql = "UPDATE account_status " +
-                    "SET name = ? " +
-                    "WHERE id = ?";
-
-            PreparedStatement stm = connection.prepareStatement(sql);
-            stm.setString(1, accountStatus.getName());
-            stm.setString(2, accountStatus.getId());
-
-            int effectRow = stm.executeUpdate();
-            if (effectRow > 0) {
-                return true;
-            }
-        }
-        return false;
     }
 }
