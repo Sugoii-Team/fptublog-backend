@@ -45,12 +45,12 @@ public class AuthResource {
     @Inject
     private IAuthService authService;
 
-
-
     @POST
+    @Path("/registration")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    public Response authenticate(@FormParam("id_token") String idTokenString) {
+    public Response createRegistration(@FormParam("id_token") String idTokenString) {
+
         GoogleIdTokenVerifier verifier =
                 new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), GsonFactory.getDefaultInstance())
                         .setAudience(Collections.singleton(CLIENT_ID))
@@ -66,7 +66,7 @@ public class AuthResource {
                 String avatarUrl = (String) payload.get("picture");
 
                 // call service to resolve this gmail info
-                AccountEntity account = authService.getAccount(email, name, avatarUrl);
+                AccountEntity account = authService.createNewAccount(email, name, avatarUrl);
                 if (account != null) {
                     String token = JwtUtil.createJWT(account);
                     return Response.ok(account)
@@ -77,6 +77,42 @@ public class AuthResource {
         } catch (GeneralSecurityException | IOException | SQLException ex) {
             log.error(ex);
         }
-        return Response.status(Response.Status.NOT_ACCEPTABLE).entity("Invalid id_token").build();
+        return Response.status(Response.Status.NOT_ACCEPTABLE)
+                .entity("Invalid id_token")
+                .build();
+    }
+
+    @POST
+    @Path("/login")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public Response getAuthentication(@FormParam("id_token") String idTokenString) {
+
+        GoogleIdTokenVerifier verifier =
+                new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), GsonFactory.getDefaultInstance())
+                        .setAudience(Collections.singleton(CLIENT_ID))
+                        .build();
+        try {
+            GoogleIdToken idToken = verifier.verify(idTokenString);
+            if (idToken != null) {
+                // get some gmail info from token
+                GoogleIdToken.Payload payload = idToken.getPayload();
+                String email = payload.getEmail();
+
+                // call service to resolve this gmail info
+                AccountEntity account = authService.getAccountByEmail(email);
+                if (account != null) {
+                    String token = JwtUtil.createJWT(account);
+                    return Response.ok(account)
+                            .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                            .build();
+                }
+            }
+        } catch (GeneralSecurityException | IOException | SQLException ex) {
+            log.error(ex);
+        }
+        return Response.status(Response.Status.NOT_ACCEPTABLE)
+                .entity("Invalid id_token")
+                .build();
     }
 }

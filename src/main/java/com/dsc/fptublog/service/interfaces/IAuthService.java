@@ -8,5 +8,7 @@ import java.sql.SQLException;
 @Contract
 public interface IAuthService {
 
-    public AccountEntity getAccount(String email, String name, String avatarUrl) throws SQLException;
+    AccountEntity getAccountByEmail(String email) throws SQLException;
+
+    AccountEntity createNewAccount(String email, String name, String avatarUrl) throws SQLException;
 }

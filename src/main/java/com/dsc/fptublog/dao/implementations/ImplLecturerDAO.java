@@ -1,14 +1,9 @@
 package com.dsc.fptublog.dao.implementations;
 
-import com.dsc.fptublog.dao.interfaces.IAccountDAO;
-import com.dsc.fptublog.dao.interfaces.ILecturerAwardDAO;
 import com.dsc.fptublog.dao.interfaces.ILecturerDAO;
-import com.dsc.fptublog.dao.interfaces.ILecturerFieldDAO;
 import com.dsc.fptublog.database.ConnectionWrapper;
 import com.dsc.fptublog.entity.AccountEntity;
-import com.dsc.fptublog.entity.LecturerAwardEntity;
 import com.dsc.fptublog.entity.LecturerEntity;
-import com.dsc.fptublog.entity.LecturerFieldEntity;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.jvnet.hk2.annotations.Service;
 
@@ -17,7 +12,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
 
 @Service
 @RequestScoped
@@ -25,15 +19,6 @@ public class ImplLecturerDAO implements ILecturerDAO {
 
     @Inject
     private ConnectionWrapper connectionWrapper;
-
-    @Inject
-    private IAccountDAO accountDAO;
-
-    @Inject
-    private ILecturerFieldDAO lecturerFieldDAO;
-
-    @Inject
-    private ILecturerAwardDAO lecturerAwardDAO;
 
     @Override
     public LecturerEntity getById(String id) {
@@ -52,23 +37,34 @@ public class ImplLecturerDAO implements ILecturerDAO {
         }
 
         Connection connection = connectionWrapper.getConnection();
-        LecturerEntity result = null;
-        if (connection != null) {
-            String sql = "SELECT id " +
-                         "FROM account_lecturer " +
-                         "WHERE id = ?";
+        if (connection == null) {
+            return null;
+        }
 
-            PreparedStatement stm = connection.prepareStatement(sql);
+        LecturerEntity result = null;
+
+        String sql = "SELECT id " +
+                "FROM account_lecturer " +
+                "WHERE id = ?";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setString(1, account.getId());
 
             ResultSet resultSet = stm.executeQuery();
             if (resultSet.next()) {
-                List<LecturerFieldEntity> lecturerFieldList = lecturerFieldDAO.getByLecturerId(account.getId());
-                List<LecturerAwardEntity> lecturerAwardList = lecturerAwardDAO.getByLecturerId(account.getId());
-
-                result = new LecturerEntity(account, lecturerFieldList, lecturerAwardList);
+                result = LecturerEntity.builder()
+                        .id(account.getId())
+                        .email(account.getEmail())
+                        .alternativeEmail(account.getAlternativeEmail())
+                        .firstName(account.getFirstName())
+                        .lastName(account.getLastName())
+                        .avatarUrl(account.getAvatarUrl())
+                        .description(account.getDescription())
+                        .statusId(account.getStatusId())
+                        .build();
             }
         }
+
         return result;
     }
 }

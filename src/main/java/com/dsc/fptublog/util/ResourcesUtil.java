@@ -8,7 +8,6 @@ public class ResourcesUtil {
     public static String getAbsolutePath(String filename) {
         ClassLoader classLoader = ResourcesUtil.class.getClassLoader();
         URL url = classLoader.getResource(filename);
-        assert url != null : "FileNotFound: " + filename;
         File file = new File(url.getFile());
         return file.getAbsolutePath().replaceAll("%20", " ");
     }
