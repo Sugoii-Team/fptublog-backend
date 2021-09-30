@@ -82,4 +82,21 @@ public class ImplTagService implements ITagService {
 
         return tag;
     }
+
+    @Override
+    public TagEntity createTag(TagEntity newTag) throws SQLException {
+        try {
+            connectionWrapper.beginTransaction();
+
+            newTag = tagDAO.insertByTag(newTag);
+
+            connectionWrapper.commit();
+        } catch (SQLException ex) {
+            connectionWrapper.rollback();
+            throw ex;
+        } finally {
+            connectionWrapper.close();
+        }
+        return newTag;
+    }
 }

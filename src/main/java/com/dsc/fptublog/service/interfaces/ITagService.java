@@ -14,4 +14,6 @@ public interface ITagService {
     List<TagEntity> getTags() throws SQLException;
 
     TagEntity getTag(String id) throws SQLException;
+
+    TagEntity createTag(TagEntity newTag) throws SQLException;
 }
