@@ -12,6 +12,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.sql.SQLException;
+import java.util.List;
 
 @Log4j
 @Path("/categories")
@@ -34,6 +35,21 @@ public class CategoryResource {
         }
 
         return Response.ok(category).build();
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getCategories() {
+        List<CategoryEntity> categoryList;
+
+        try {
+            categoryList = categoryService.getCategories();
+        } catch (SQLException ex) {
+            log.error(ex);
+            return Response.status(Response.Status.EXPECTATION_FAILED).entity("LOAD DATABASE FAILED").build();
+        }
+
+        return Response.ok(categoryList).build();
     }
 
 }
