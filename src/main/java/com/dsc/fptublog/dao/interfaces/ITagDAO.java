@@ -8,13 +8,15 @@ import java.util.List;
 
 @Contract
 public interface ITagDAO {
-    public TagEntity getById(String id) throws SQLException;
+    TagEntity getById(String id) throws SQLException;
 
-    public List<TagEntity> getByIdList(List<String> idList) throws SQLException;
+    List<TagEntity> getByIdList(List<String> idList) throws SQLException;
 
-    public boolean deleteById(String deletedTagId) throws SQLException;
+    List<TagEntity> getAll() throws SQLException;
 
-    public boolean updateByTag(TagEntity updatedTag) throws SQLException;
+    boolean deleteById(String deletedTagId) throws SQLException;
 
-    public TagEntity insertByTag(TagEntity tag) throws SQLException;
+    boolean updateByTag(TagEntity updatedTag) throws SQLException;
+
+    TagEntity insertByTag(TagEntity tag) throws SQLException;
 }

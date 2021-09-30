@@ -79,6 +79,35 @@ public class ImplTagDAO implements ITagDAO {
     }
 
     @Override
+    public List<TagEntity> getAll() throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return null;
+        }
+
+        List<TagEntity> result = null;
+
+        String sql = "SELECT id, name " +
+                "FROM tag ";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            ResultSet resultSet = stm.executeQuery();
+
+            while (resultSet.next()) {
+                String id = resultSet.getString(1);
+                String name = resultSet.getNString(2);
+
+                if (result == null) {
+                    result = new ArrayList<>();
+                }
+                result.add(new TagEntity(id, name));
+            }
+        }
+
+        return result;
+    }
+
+    @Override
     public boolean deleteById(String deletedTagId) throws SQLException {
         Connection connection = connectionWrapper.getConnection();
         if (connection == null) {

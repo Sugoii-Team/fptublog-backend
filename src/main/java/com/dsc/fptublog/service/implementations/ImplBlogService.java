@@ -67,4 +67,26 @@ public class ImplBlogService implements IBlogService {
             return approvedStatus.getId().equals(blog.getStatusId());
         }).collect(Collectors.toList());
     }
+
+    @Override
+    public BlogEntity createBlog(BlogEntity newBlog) throws SQLException {
+        BlogStatusEntity pendingStatus;
+
+        try {
+            connectionWrapper.beginTransaction();
+
+            pendingStatus = blogStatusDAO.getByName("pending");
+            newBlog.setStatusId(pendingStatus.getId());
+            newBlog = blogDAO.insertByBlog(newBlog);
+
+            connectionWrapper.commit();
+        } catch (SQLException ex) {
+            connectionWrapper.rollback();
+            throw ex;
+        } finally {
+            connectionWrapper.close();
+        }
+
+        return newBlog;
+    }
 }

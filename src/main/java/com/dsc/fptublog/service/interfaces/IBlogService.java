@@ -9,7 +9,9 @@ import java.util.List;
 @Contract
 public interface IBlogService {
 
-    public BlogEntity getById(String name) throws SQLException;
+    BlogEntity getById(String name) throws SQLException;
 
-    public List<BlogEntity> getAllBlogs() throws SQLException;
+    List<BlogEntity> getAllBlogs() throws SQLException;
+
+    BlogEntity createBlog(BlogEntity newBlog) throws SQLException;
 }
