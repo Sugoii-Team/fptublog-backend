@@ -24,7 +24,13 @@ public class BasicSecurityContext implements SecurityContext {
 
     @Override
     public boolean isUserInRole(String role) {
-        return account instanceof StudentEntity || account instanceof LecturerEntity;
+        if (account instanceof StudentEntity) {
+            return Role.STUDENT.equals(role);
+        }
+        if (account instanceof LecturerEntity) {
+            return Role.LECTURER.equals(role);
+        }
+        return false;
     }
 
     @Override
