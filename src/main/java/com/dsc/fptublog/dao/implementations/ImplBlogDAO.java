@@ -111,8 +111,18 @@ public class ImplBlogDAO implements IBlogDAO {
                 long reviewDatetime = resultSet.getLong(8);
                 int views = resultSet.getInt(9);
 
-                result = new BlogEntity(blogId, authorId, title, content, createdDatetime,
-                        statusId, categoryId, reviewerId, reviewDatetime, views);
+                result = BlogEntity.builder()
+                        .id(blogId)
+                        .authorId(authorId)
+                        .title(title)
+                        .content(content)
+                        .createdDateTime(createdDatetime)
+                        .statusId(statusId)
+                        .categoryId(categoryId)
+                        .reviewerId(reviewerId)
+                        .reviewDateTime(reviewDatetime)
+                        .views(views)
+                        .build();
             }
         }
 
@@ -171,8 +181,18 @@ public class ImplBlogDAO implements IBlogDAO {
                 if (result == null) {
                     result = new ArrayList<>();
                 }
-                result.add(new BlogEntity(id, authorId, title, content, createdDatetime,
-                        statusId, categoryId, reviewerId, reviewDatetime, views));
+                result.add(BlogEntity.builder()
+                        .id(id)
+                        .authorId(authorId)
+                        .title(title)
+                        .content(content)
+                        .createdDateTime(createdDatetime)
+                        .statusId(statusId)
+                        .categoryId(categoryId)
+                        .reviewerId(reviewerId)
+                        .reviewDateTime(reviewDatetime)
+                        .views(views)
+                        .build());
             }
         }
 
