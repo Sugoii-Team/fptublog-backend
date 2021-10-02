@@ -19,4 +19,6 @@ public interface ITagDAO {
     boolean updateByTag(TagEntity updatedTag) throws SQLException;
 
     TagEntity insertByTag(TagEntity tag) throws SQLException;
+
+    List<TagEntity> insertIfNotExistedByTagList(List<TagEntity> tagList) throws SQLException;
 }

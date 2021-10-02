@@ -9,7 +9,12 @@ import lombok.extern.log4j.Log4j;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.sql.SQLException;
@@ -80,5 +85,31 @@ public class BlogResource {
             return Response.status(Response.Status.EXPECTATION_FAILED).entity("LOAD DATABASE FAILED").build();
         }
         return Response.ok(newBlog).build();
+    }
+
+    @POST
+    @Path("/{id}/tags")
+    @RolesAllowed({Role.STUDENT, Role.LECTURER})
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response addTagsForBlog(@PathParam("id") String id, List<TagEntity> tagList) {
+        try {
+            if (blogService.createTagListForBlog(id, tagList)) {
+                return Response
+                        .ok("Insert Tag list for blog " + id + " successfully!")
+                        .build();
+            } else {
+                return Response
+                        .status(Response.Status.EXPECTATION_FAILED)
+                        .entity("Insert Tag list for blog " + id + " fail")
+                        .build();
+            }
+        } catch (SQLException ex) {
+            log.error(ex);
+            return Response
+                    .status(Response.Status.EXPECTATION_FAILED)
+                    .entity("LOAD DATABASE FAILED")
+                    .build();
+        }
     }
 }

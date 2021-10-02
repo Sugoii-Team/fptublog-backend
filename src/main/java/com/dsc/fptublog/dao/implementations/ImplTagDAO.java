@@ -177,4 +177,36 @@ public class ImplTagDAO implements ITagDAO {
 
         return null;
     }
+
+    @Override
+    public List<TagEntity> insertIfNotExistedByTagList(List<TagEntity> tagList) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return null;
+        }
+
+        String sql =
+                "IF EXISTS (SELECT id FROM tag WHERE name = ?) " +
+                        "SELECT id FROM tag WHERE name = ? " +
+                "ELSE " +
+                        "INSERT INTO tag (name) " +
+                        "OUTPUT inserted.id " +
+                        "VALUES (?)";
+
+        try (PreparedStatement stm = connection.prepareCall(sql)) {
+            for (var tag : tagList) {
+                stm.setNString(1, tag.getName());
+                stm.setNString(2, tag.getName());
+                stm.setNString(3, tag.getName());
+
+                ResultSet resultSet = stm.executeQuery();
+                if (resultSet.next()) {
+                    tag.setId(resultSet.getString(1));
+                } else {
+                    return null;
+                }
+            }
+        }
+        return tagList;
+    }
 }

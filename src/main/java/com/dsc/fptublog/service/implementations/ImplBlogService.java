@@ -2,9 +2,12 @@ package com.dsc.fptublog.service.implementations;
 
 import com.dsc.fptublog.dao.interfaces.IBlogDAO;
 import com.dsc.fptublog.dao.interfaces.IBlogStatusDAO;
+import com.dsc.fptublog.dao.interfaces.IBlogTagDAO;
+import com.dsc.fptublog.dao.interfaces.ITagDAO;
 import com.dsc.fptublog.database.ConnectionWrapper;
 import com.dsc.fptublog.entity.BlogEntity;
 import com.dsc.fptublog.entity.BlogStatusEntity;
+import com.dsc.fptublog.entity.TagEntity;
 import com.dsc.fptublog.service.interfaces.IBlogService;
 import org.jvnet.hk2.annotations.Service;
 
@@ -24,6 +27,12 @@ public class ImplBlogService implements IBlogService {
 
     @Inject
     private IBlogStatusDAO blogStatusDAO;
+
+    @Inject
+    private IBlogTagDAO blogTagDAO;
+
+    @Inject
+    private ITagDAO tagDAO;
 
     @Override
     public BlogEntity getById(String id) throws SQLException {
@@ -88,5 +97,29 @@ public class ImplBlogService implements IBlogService {
         }
 
         return newBlog;
+    }
+
+    @Override
+    public boolean createTagListForBlog(String blogId, List<TagEntity> tagList) throws SQLException {
+        boolean result = false;
+        try {
+            connectionWrapper.beginTransaction();
+
+            // check existed tagList. If not existed, insert new
+            tagList = tagDAO.insertIfNotExistedByTagList(tagList);
+            if (tagList != null) {
+                // Don't need to check exist blogId because JDBC will throw exception for us
+                result = blogTagDAO.createByBlogIdAndTagList(blogId, tagList);
+            }
+
+            connectionWrapper.commit();
+        } catch (SQLException ex) {
+            connectionWrapper.rollback();
+            throw ex;
+        } finally {
+            connectionWrapper.close();
+        }
+
+        return result;
     }
 }
