@@ -32,7 +32,7 @@ public class AuthFilter implements ContainerRequestFilter {
     private void abortWithUnauthorized(ContainerRequestContext requestContext) {
         // Abort the filter chain with a 401 status code response
         // The WWW-Authenticate header is sent along with the response
-        Response respone = Response.status(Response.Status.UNAUTHORIZED) // 401 Unauthorized
+        Response respone = Response.status(Response.Status.UNAUTHORIZED)
                 .header(HttpHeaders.WWW_AUTHENTICATE, AUTHENTICATION_SCHEME + " realm=\"" + REALM + "\"")
                 .entity("You cannot access this resource")
                 .build();

@@ -48,4 +48,55 @@ public class ImplTagService implements ITagService {
 
         return tagList;
     }
+
+    @Override
+    public List<TagEntity> getTags() throws SQLException {
+        List<TagEntity> tagList;
+
+        try {
+            connectionWrapper.beginTransaction();
+
+            tagList = tagDAO.getAll();
+
+            connectionWrapper.commit();
+        } finally {
+            connectionWrapper.close();
+        }
+
+        return tagList;
+    }
+
+    @Override
+    public TagEntity getTag(String id) throws SQLException {
+        TagEntity tag;
+
+        try {
+            connectionWrapper.beginTransaction();
+
+            tag = tagDAO.getById(id);
+
+            connectionWrapper.commit();
+        } finally {
+            connectionWrapper.close();
+        }
+
+        return tag;
+    }
+
+    @Override
+    public TagEntity createTag(TagEntity newTag) throws SQLException {
+        try {
+            connectionWrapper.beginTransaction();
+
+            newTag = tagDAO.insertByTag(newTag);
+
+            connectionWrapper.commit();
+        } catch (SQLException ex) {
+            connectionWrapper.rollback();
+            throw ex;
+        } finally {
+            connectionWrapper.close();
+        }
+        return newTag;
+    }
 }

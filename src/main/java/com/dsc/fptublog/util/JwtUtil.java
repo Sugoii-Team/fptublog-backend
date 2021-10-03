@@ -4,6 +4,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
+import com.dsc.fptublog.config.Role;
 import com.dsc.fptublog.entity.AccountEntity;
 import com.dsc.fptublog.entity.LecturerEntity;
 import com.dsc.fptublog.entity.StudentEntity;
@@ -46,7 +47,7 @@ public class JwtUtil {
         Date expirationDate = new Date(currentTimeInMillis + expirationTimeInMillis);
 
         // Determine account role
-        Role role = null;
+        String role = null;
         if (account instanceof StudentEntity) {
             role = Role.STUDENT;
         } else if (account instanceof LecturerEntity) {
@@ -61,7 +62,7 @@ public class JwtUtil {
                 .withIssuedAt(now)
                 .withExpiresAt(expirationDate)
                 .withSubject(account.getId())
-                .withClaim("role", role.name())
+                .withClaim("role", role)
                 .sign(SIGNATURE_ALGORITHM);
     }
 
@@ -71,7 +72,7 @@ public class JwtUtil {
         AccountEntity account = null;
         String id = jwt.getSubject();
 
-        Role role = Role.valueOf(jwt.getClaim("role").asString());
+        String role = jwt.getClaim("role").asString();
         if (Role.STUDENT.equals(role)) {
             account = StudentEntity.builder().id(id).build();
         } else if (Role.LECTURER.equals(role)) {
@@ -86,7 +87,7 @@ public class JwtUtil {
         return jwt.getExpiresAt();
     }
 
-    public static Boolean isTokenExpired(String token) {
+    public static boolean isTokenExpired(String token) {
         Date expiration = getExpirationDateFromToken(token);
         return expiration.before(new Date());
     }

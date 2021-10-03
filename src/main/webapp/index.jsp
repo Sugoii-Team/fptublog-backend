@@ -14,9 +14,6 @@
         const xhr = new XMLHttpRequest();
         xhr.open('POST', 'http://localhost:8080/fptu-blog/api/auth/login');
         xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-        xhr.onload = function() {
-            console.log('Signed in as: ' + xhr.responseText);
-        };
         xhr.send('id_token=' + id_token);
     }
 </script>

@@ -10,4 +10,5 @@ import lombok.NoArgsConstructor;
 public class CategoryEntity {
     private String id;
     private String name;
+    private String fieldId;
 }
