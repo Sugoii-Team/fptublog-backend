@@ -3,6 +3,7 @@ package com.dsc.fptublog.dao.implementations;
 import com.dsc.fptublog.dao.interfaces.IBlogTagDAO;
 import com.dsc.fptublog.database.ConnectionWrapper;
 import com.dsc.fptublog.entity.BlogTagEntity;
+import com.dsc.fptublog.entity.TagEntity;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.jvnet.hk2.annotations.Service;
 
@@ -51,5 +52,29 @@ public class ImplBlogTagDAO implements IBlogTagDAO {
         }
 
         return result;
+    }
+
+    @Override
+    public boolean createByBlogIdAndTagList(String blogId, List<TagEntity> tagList) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return false;
+        }
+
+        String sql = "INSERT INTO blog_tag (blog_id, tag_id) " +
+                "VALUES (?, ?)";
+
+        int effectedRow = 0;
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            for (TagEntity tag : tagList) {
+                stm.setString(1, blogId);
+                stm.setString(2, tag.getId());
+
+                effectedRow += stm.executeUpdate();
+            }
+        }
+
+        return effectedRow == tagList.size();
     }
 }
