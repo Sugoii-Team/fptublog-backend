@@ -33,4 +33,24 @@ public class ImplAccountService implements IAccountService {
 
         return account;
     }
+
+    @Override
+    public boolean updateByAccount(AccountEntity account) throws SQLException {
+        boolean result;
+
+        try {
+            connectionWrapper.beginTransaction();
+
+            result = accountDAO.updateByAccount(account);
+
+            connectionWrapper.commit();
+        } catch (SQLException ex) {
+            connectionWrapper.rollback();
+            throw ex;
+        } finally {
+            connectionWrapper.close();
+        }
+
+        return result;
+    }
 }
