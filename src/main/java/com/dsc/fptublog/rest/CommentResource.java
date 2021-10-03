@@ -6,10 +6,7 @@ import com.dsc.fptublog.service.interfaces.ICommentService;
 import lombok.extern.log4j.Log4j;
 
 import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.sql.SQLException;
@@ -34,5 +31,19 @@ public class CommentResource {
             return Response.status(Response.Status.EXPECTATION_FAILED).entity("LOAD DATABASE FAILED").build();
         }
         return Response.ok(commentsList).build();
+    }
+
+    @POST
+    @Path("/{id}/comments")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response createComment(CommentEntity newComment){
+        try{
+            newComment = commentService.insertComment(newComment);
+        }catch (SQLException ex){
+            log.error(ex);
+            return Response.status(Response.Status.EXPECTATION_FAILED).entity("LOAD DATABASE FAILED").build();
+        }
+        return Response.ok(newComment).build();
     }
 }

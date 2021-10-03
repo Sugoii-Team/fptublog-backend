@@ -32,4 +32,23 @@ public class ImplCommentService implements ICommentService {
         }
         return commentsList;
     }
+
+    @Override
+    public CommentEntity insertComment(CommentEntity newComment) throws SQLException {
+        CommentEntity comment;
+        try{
+            connectionWrapper.beginTransaction();
+            comment = commentDAO.insertComment(newComment);
+            connectionWrapper.commit();
+        }catch (SQLException ex){
+            connectionWrapper.rollback();
+            throw ex;
+        }
+        finally {
+            connectionWrapper.close();
+        }
+        return comment;
+    }
+
+
 }

@@ -19,6 +19,7 @@ public class BasicSecurityContext implements SecurityContext {
 
     @Override
     public Principal getUserPrincipal() {
+
         return () -> account.getId();
     }
 

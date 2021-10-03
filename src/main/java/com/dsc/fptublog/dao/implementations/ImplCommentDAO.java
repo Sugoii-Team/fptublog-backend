@@ -20,37 +20,36 @@ public class ImplCommentDAO implements ICommentDAO {
     private ConnectionWrapper connectionWrapper;
 
     @Override
-    public CommentEntity insertNewComment(String blogId, String authorId, String content, long postedDatetime, String statusId, String replyTo) throws SQLException {
+    public CommentEntity insertComment(CommentEntity newBlog) throws SQLException {
         Connection connection = connectionWrapper.getConnection();
         CommentEntity comment = null;
-        if (blogId == null || authorId == null) {
+        if (newBlog.getBlogId() == null || newBlog.getAuthorId() == null) {
             return null;
         }
-        if (connection != null) {
+        if (connection == null) {
             return null;
         }
-        String sql = "INSERT INTO comment (blog_id, author_id, content, posted_datetime, posted_datetime, reply_to "
+        String sql = "INSERT INTO comment (blog_id, author_id, content, posted_datetime, status_id, reply_to) "
                 + "OUTPUT inserted.id "
                 + "VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
-            stm.setString(1, blogId);
-            stm.setString(2, authorId);
-            stm.setNString(3, content);
-            stm.setLong(4, postedDatetime);
-            stm.setString(5, statusId);
-            stm.setString(6, replyTo);
-
+            stm.setString(1, newBlog.getBlogId());
+            stm.setString(2, newBlog.getAuthorId());
+            stm.setNString(3, newBlog.getContent());
+            stm.setLong(4, newBlog.getPostedDatetime());
+            stm.setString(5, newBlog.getStatusId());
+            stm.setString(6, newBlog.getReplyTo());
             ResultSet resultSet = stm.executeQuery();
             if (resultSet.next()) {
                 String id = resultSet.getString(1);
                 comment = CommentEntity.builder()
                         .id(id)
-                        .blogId(blogId)
-                        .authorId(authorId)
-                        .content(content)
-                        .postedDatetime(postedDatetime)
-                        .statusId(statusId)
-                        .replyTo(replyTo)
+                        .blogId(newBlog.getBlogId())
+                        .authorId(newBlog.getBlogId())
+                        .content(newBlog.getContent())
+                        .postedDatetime(newBlog.getPostedDatetime())
+                        .statusId(newBlog.getStatusId())
+                        .replyTo(newBlog.getReplyTo())
                         .build();
 
             }
@@ -96,4 +95,5 @@ public class ImplCommentDAO implements ICommentDAO {
         }
         return commentsList;
     }
+
 }

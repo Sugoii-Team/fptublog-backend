@@ -9,7 +9,8 @@ import java.util.List;
 
 @Contract
 public interface ICommentDAO {
-    public CommentEntity insertNewComment(String blogId, String authorId, String content, long postedDatetime, String statusId, String replyTo) throws SQLException;
 
     public List<CommentEntity> getAllCommentsByBlogId(String blogId) throws SQLException;
+
+    public CommentEntity insertComment(CommentEntity newBlog) throws SQLException;
 }
