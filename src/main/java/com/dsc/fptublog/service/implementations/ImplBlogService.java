@@ -86,6 +86,12 @@ public class ImplBlogService implements IBlogService {
 
             pendingStatus = blogStatusDAO.getByName("pending");
             newBlog.setStatusId(pendingStatus.getId());
+
+            long createdDateTime = System.currentTimeMillis();
+            newBlog.setCreatedDateTime(createdDateTime);
+
+            newBlog.setViews(0);
+
             newBlog = blogDAO.insertByBlog(newBlog);
 
             connectionWrapper.commit();
