@@ -13,4 +13,7 @@ public interface IAccountDAO {
     AccountEntity createForNewEmail(String email, String name, String avatarUrl, String statusId) throws SQLException;
 
     AccountEntity getById(String id) throws SQLException;
+
+    public boolean updateByAccount(AccountEntity updatedAccount) throws SQLException;
+
 }

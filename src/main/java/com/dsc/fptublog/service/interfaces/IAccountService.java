@@ -9,4 +9,7 @@ import java.sql.SQLException;
 public interface IAccountService {
 
     AccountEntity getById(String id) throws SQLException;
+
+    boolean updateByAccount(AccountEntity updatedAccount) throws SQLException;
+
 }
