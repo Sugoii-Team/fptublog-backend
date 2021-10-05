@@ -17,4 +17,6 @@ public interface IBlogService {
     BlogEntity createBlog(BlogEntity newBlog) throws SQLException;
 
     boolean createTagListForBlog(String blogId, List<TagEntity> tagList) throws SQLException;
+
+    List<BlogEntity> getReviewingBlogsOfLecturer(String lecturerId) throws SQLException;
 }

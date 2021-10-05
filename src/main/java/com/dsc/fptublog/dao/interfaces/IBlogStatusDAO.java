@@ -9,13 +9,13 @@ import java.sql.SQLException;
 
 @Contract
 public interface IBlogStatusDAO {
-    public BlogStatusEntity getById(String id) throws SQLException;
+    BlogStatusEntity getById(String id) throws SQLException;
 
-    public BlogStatusEntity getByName(String name) throws SQLException;
+    BlogStatusEntity getByName(String name) throws SQLException;
 
-    public boolean deleteById(String deletedBlogStatusId) throws SQLException;
+    boolean deleteById(String deletedBlogStatusId) throws SQLException;
 
-    public boolean updateByBlogStatus(BlogStatusEntity updatedBlogStatus) throws SQLException;
+    boolean updateByBlogStatus(BlogStatusEntity updatedBlogStatus) throws SQLException;
 
-    public BlogStatusEntity insertByBlogStatus(BlogStatusEntity blogStatus) throws SQLException;
+    BlogStatusEntity insertByBlogStatus(BlogStatusEntity blogStatus) throws SQLException;
 }

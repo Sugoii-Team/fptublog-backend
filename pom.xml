@@ -139,7 +139,7 @@
                 <version>2.2</version>
                 <configuration>
                     <url>http://localhost:8080/manager/text</url>
-                    <path>/fptu-blog</path>
+                    <path>/fptu-blogs</path>
                     <username>admin</username>
                     <password>admin</password>
                 </configuration>
