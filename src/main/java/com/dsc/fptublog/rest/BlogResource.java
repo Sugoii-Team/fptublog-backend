@@ -112,4 +112,19 @@ public class BlogResource {
                     .build();
         }
     }
+
+    @GET
+    @Path("/lecturers/{lecturer_id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getReviewingBlogs(@PathParam("lecturer_id") String lecturerId) {
+        List<BlogEntity> reviewingBlogs;
+
+        try {
+            reviewingBlogs = blogService.getReviewingBlogsOfLecturer(lecturerId);
+        } catch (SQLException ex) {
+            log.error(ex);
+            return Response.status(Response.Status.EXPECTATION_FAILED).entity("LOAD DATABASE FAILED").build();
+        }
+        return Response.ok(reviewingBlogs).build();
+    }
 }
