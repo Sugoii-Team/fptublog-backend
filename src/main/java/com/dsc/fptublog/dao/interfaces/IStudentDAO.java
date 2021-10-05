@@ -11,6 +11,8 @@ public interface IStudentDAO {
 
     StudentEntity createFromAccount(AccountEntity account, String majorId) throws SQLException;
 
+    StudentEntity insertByAccountIdAndMajorIdAndSchoolYear(String accountId, String majorId, short schoolYear) throws SQLException;
+
     StudentEntity getByAccount(AccountEntity account) throws SQLException;
 
 }

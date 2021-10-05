@@ -59,6 +59,33 @@ public class ImplStudentDAO implements IStudentDAO {
     }
 
     @Override
+    public StudentEntity insertByAccountIdAndMajorIdAndSchoolYear(String accountId, String majorId, short schoolYear)
+            throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return null;
+        }
+
+        StudentEntity result = null;
+
+        String sql = "INSERT INTO account_student (id, major_id, school_year) " +
+                "VALUES (?, ?, ?)";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, accountId);
+            stm.setString(2, majorId);
+            stm.setShort(3, schoolYear);
+
+            int effectedRow = stm.executeUpdate();
+            if (effectedRow > 0) {
+                result = new StudentEntity(schoolYear, majorId);
+            }
+        }
+
+        return result;
+    }
+
+    @Override
     public StudentEntity getByAccount(AccountEntity account) throws SQLException {
         if (account == null) {
             return null;

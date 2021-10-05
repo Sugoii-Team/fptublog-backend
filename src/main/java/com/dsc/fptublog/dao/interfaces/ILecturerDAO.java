@@ -14,4 +14,6 @@ public interface ILecturerDAO {
     LecturerEntity getByEmail(String email) throws SQLException;
 
     LecturerEntity getByAccount(AccountEntity account) throws SQLException;
+
+    LecturerEntity insertById(String id) throws SQLException;
 }

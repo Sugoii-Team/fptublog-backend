@@ -67,4 +67,28 @@ public class ImplLecturerDAO implements ILecturerDAO {
 
         return result;
     }
+
+    @Override
+    public LecturerEntity insertById(String id) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return null;
+        }
+
+        LecturerEntity result = null;
+
+        String sql = "INSERT INTO account_lecturer (id)" +
+                "VALUES (?)";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, id);
+
+            int effectedRow = stm.executeUpdate();
+            if (effectedRow > 0) {
+                result = new LecturerEntity();
+            }
+        }
+
+        return result;
+    }
 }
