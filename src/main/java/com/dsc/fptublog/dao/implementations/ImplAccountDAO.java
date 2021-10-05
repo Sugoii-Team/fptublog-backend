@@ -145,4 +145,31 @@ public class ImplAccountDAO implements IAccountDAO {
 
         return result;
     }
+
+    @Override
+    public boolean updateByAccount(AccountEntity updatedAccount) throws SQLException {
+        Connection connection =  connectionWrapper.getConnection();
+        if (connection == null) {
+            return false;
+        }
+        String sql = "UPDATE account "
+                + "SET alternative_email = ?, firstname = ?, lastname = ?, password = ?, avatar_url = ?, description = ? "
+                + "WHERE id = ?";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, updatedAccount.getAlternativeEmail());
+            stm.setString(2, updatedAccount.getFirstName());
+            stm.setString(3, updatedAccount.getLastName());
+            stm.setString(4, updatedAccount.getPassword());
+            stm.setString(5, updatedAccount.getAvatarUrl());
+            stm.setString(6, updatedAccount.getDescription());
+            stm.setString(7, updatedAccount.getId());
+
+            int effectedRow = stm.executeUpdate();
+            if(effectedRow > 0) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
