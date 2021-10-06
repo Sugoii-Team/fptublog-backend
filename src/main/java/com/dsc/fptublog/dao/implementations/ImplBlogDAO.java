@@ -62,7 +62,7 @@ public class ImplBlogDAO implements IBlogDAO {
         }
 
         String sql = "UPDATE blog "
-                + "SET title = ?, content = ?, status_id = ?, category_id = ?, reviewer_id = ?, review_datetime = ?, views = ? "
+                + "SET title = ISNULL(?, title), content = ISNULL(?, content), status_id = ISNULL(?, status_id), category_id = ISNULL(?, category_id), reviewer_id = ISNULL(?, reviewer_id), review_datetime = ISNULL(?, review_datetime), views = ISNULL(?, views) "
                 + "WHERE id = ?";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
@@ -73,13 +73,13 @@ public class ImplBlogDAO implements IBlogDAO {
             stm.setString(5, updatedBlog.getReviewerId());
             stm.setLong(6, updatedBlog.getReviewDateTime());
             stm.setInt(7, updatedBlog.getViews());
+            stm.setString(8, updatedBlog.getId());
 
             int effectRow = stm.executeUpdate();
             if (effectRow > 0) {
                 return true;
             }
         }
-
 
         return false;
     }
