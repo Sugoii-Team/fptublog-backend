@@ -1,5 +1,6 @@
 package com.dsc.fptublog.service.implementations;
 
+import com.dsc.fptublog.config.Role;
 import com.dsc.fptublog.dao.interfaces.*;
 import com.dsc.fptublog.database.ConnectionWrapper;
 import com.dsc.fptublog.entity.*;
@@ -60,6 +61,7 @@ public class ImplAuthService implements IAuthService {
             connectionWrapper.close();
         }
         if (student != null) {
+            student.setRole(Role.STUDENT);
             return student;
         }
 
@@ -74,14 +76,16 @@ public class ImplAuthService implements IAuthService {
         } finally {
             connectionWrapper.close();
         }
-        return lecturer;
+        if (lecturer != null) {
+            lecturer.setRole(Role.LECTURER);
+            return lecturer;
+        }
+        return null;
     }
 
     @Override
     public AccountEntity createNewAccount(String email, String name, String avatarUrl) throws SQLException {
-        AccountEntity result;
-
-        // create new account with default role is Student
+        AccountEntity result = null;
         try {
             connectionWrapper.beginTransaction();
 
@@ -91,13 +95,17 @@ public class ImplAuthService implements IAuthService {
                     name.substring(0, Math.min(10, name.length())),
                     avatarUrl,
                     accountStatus.getId());
-            if (newAccount == null) {
-                return null;
-            }
 
-            // create Student from newAccount with default Major is Software Engineering
-            MajorEntity major = majorDAO.getByName("Software Engineering");
-            result = studentDAO.createFromAccount(newAccount, major.getId());
+            if (newAccount != null) {
+                // determine account is student or lecturer
+                if (email.matches("^.*[0-9]{6}@fpt.edu.vn$")) {
+                    // Create student account
+                    result = createStudent(newAccount);
+                } else {
+                    // create lecturer account
+                    result = createLecturer(newAccount);
+                }
+            }
 
             connectionWrapper.commit();
         } catch (SQLException ex) {
@@ -106,6 +114,32 @@ public class ImplAuthService implements IAuthService {
         } finally {
             connectionWrapper.close();
         }
+
         return result;
+    }
+
+    private StudentEntity createStudent(AccountEntity newAccount) throws SQLException {
+        // Get school year from email string
+        String email = newAccount.getEmail();
+        int index = email.indexOf("@fpt.edu.vn") - 6;
+        short schoolYear = Short.parseShort(email.substring(index, index+2));
+
+        // Set default Major is Software Engineering because Major is not null
+        // User can change it later
+        MajorEntity major = majorDAO.getByName("Software Engineering");
+
+        StudentEntity newStudent = studentDAO.insertByAccountIdAndMajorIdAndSchoolYear(
+                newAccount.getId(), major.getId(), schoolYear);
+        newStudent.setAccountInfo(newAccount);
+        newStudent.setRole(Role.STUDENT);
+
+        return newStudent;
+    }
+    
+    private LecturerEntity createLecturer(AccountEntity newAccount) throws SQLException {
+        LecturerEntity newLecturer = lecturerDAO.insertById(newAccount.getId());
+        newLecturer.setAccountInfo(newAccount);
+        newLecturer.setRole(Role.LECTURER);
+        return newLecturer;
     }
 }

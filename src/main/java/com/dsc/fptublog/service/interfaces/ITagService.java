@@ -10,4 +10,10 @@ import java.util.List;
 public interface ITagService {
 
     List<TagEntity> getAllTagsOfBlog(String blogId) throws SQLException;
+
+    List<TagEntity> getTags() throws SQLException;
+
+    TagEntity getTag(String id) throws SQLException;
+
+    TagEntity createTag(TagEntity newTag) throws SQLException;
 }

@@ -4,10 +4,15 @@ import com.dsc.fptublog.entity.CategoryEntity;
 import org.jvnet.hk2.annotations.Contract;
 
 import java.sql.SQLException;
+import java.util.List;
 
 
 @Contract
 public interface ICategoryDAO {
 
-    public CategoryEntity getById(String id) throws SQLException;
+    CategoryEntity getById(String id) throws SQLException;
+
+    List<CategoryEntity> getAll() throws SQLException;
+
+    List<CategoryEntity> getByFieldIdList(List<String> fieldIdList) throws SQLException;
 }

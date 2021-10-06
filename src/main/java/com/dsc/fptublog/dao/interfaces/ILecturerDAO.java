@@ -9,9 +9,11 @@ import java.sql.SQLException;
 @Contract
 public interface ILecturerDAO {
 
-    public LecturerEntity getById(String id);
+    LecturerEntity getById(String id) throws SQLException;
 
-    public LecturerEntity getByEmail(String email);
+    LecturerEntity getByEmail(String email) throws SQLException;
 
-    public LecturerEntity getByAccount(AccountEntity account) throws SQLException;
+    LecturerEntity getByAccount(AccountEntity account) throws SQLException;
+
+    LecturerEntity insertById(String id) throws SQLException;
 }

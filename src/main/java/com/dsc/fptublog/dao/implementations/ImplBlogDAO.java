@@ -80,6 +80,7 @@ public class ImplBlogDAO implements IBlogDAO {
             }
         }
 
+
         return false;
     }
 
@@ -111,8 +112,18 @@ public class ImplBlogDAO implements IBlogDAO {
                 long reviewDatetime = resultSet.getLong(8);
                 int views = resultSet.getInt(9);
 
-                result = new BlogEntity(blogId, authorId, title, content, createdDatetime,
-                        statusId, categoryId, reviewerId, reviewDatetime, views);
+                result = BlogEntity.builder()
+                        .id(blogId)
+                        .authorId(authorId)
+                        .title(title)
+                        .content(content)
+                        .createdDateTime(createdDatetime)
+                        .statusId(statusId)
+                        .categoryId(categoryId)
+                        .reviewerId(reviewerId)
+                        .reviewDateTime(reviewDatetime)
+                        .views(views)
+                        .build();
             }
         }
 
@@ -171,8 +182,59 @@ public class ImplBlogDAO implements IBlogDAO {
                 if (result == null) {
                     result = new ArrayList<>();
                 }
-                result.add(new BlogEntity(id, authorId, title, content, createdDatetime,
-                        statusId, categoryId, reviewerId, reviewDatetime, views));
+                result.add(BlogEntity.builder()
+                        .id(id)
+                        .authorId(authorId)
+                        .title(title)
+                        .content(content)
+                        .createdDateTime(createdDatetime)
+                        .statusId(statusId)
+                        .categoryId(categoryId)
+                        .reviewerId(reviewerId)
+                        .reviewDateTime(reviewDatetime)
+                        .views(views)
+                        .build());
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<BlogEntity> getByCategoryIdList(List<String> categoryIdList) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return null;
+        }
+
+        List<BlogEntity> result = null;
+
+        String sql = "SELECT id, author_id, title, content, created_datetime, status_id, reviewer_id, review_datetime, views " +
+                "FROM blog " +
+                "WHERE category_id = ?";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            for (var categoryId : categoryIdList) {
+                stm.setString(1, categoryId);
+
+                ResultSet resultSet = stm.executeQuery();
+                if (resultSet.next()) {
+                    String id = resultSet.getString(1);
+                    String authorId = resultSet.getString(2);
+                    String title = resultSet.getNString(3);
+                    String content = resultSet.getNString(4);
+                    long createdDatetime = resultSet.getLong(5);
+                    String statusId = resultSet.getString(6);
+                    String reviewerId = resultSet.getString(7);
+                    long reviewDatetime = resultSet.getLong(8);
+                    int views = resultSet.getInt(9);
+
+                    if (result == null) {
+                        result = new ArrayList<>();
+                    }
+                    result.add(new BlogEntity(id, authorId, title, content, createdDatetime, statusId,
+                            categoryId, reviewerId, reviewDatetime, views));
+                }
             }
         }
 
