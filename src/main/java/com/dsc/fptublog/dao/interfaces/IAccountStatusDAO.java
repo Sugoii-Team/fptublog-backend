@@ -8,8 +8,8 @@ import java.sql.SQLException;
 @Contract
 public interface IAccountStatusDAO {
     
-    public AccountStatusEntity getById(String statusId) throws SQLException;
+    AccountStatusEntity getById(String statusId) throws SQLException;
 
-    public AccountStatusEntity getByName(String name) throws SQLException;
+    AccountStatusEntity getByName(String name) throws SQLException;
 
 }

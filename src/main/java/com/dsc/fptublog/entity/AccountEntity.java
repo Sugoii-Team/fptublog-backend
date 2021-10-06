@@ -19,4 +19,17 @@ public class AccountEntity {
     protected String avatarUrl;
     protected String description;
     protected String statusId;
+    protected String role;
+
+    public void setAccountInfo(AccountEntity account) {
+        this.id = account.getId();
+        this.email = account.getEmail();
+        this.alternativeEmail = account.getAlternativeEmail();
+        this.firstName =  account.getFirstName();
+        this.lastName = account.getLastName();
+        this.password = account.getPassword();
+        this.avatarUrl = account.getAvatarUrl();
+        this.description = account.getDescription();
+        this.statusId = account.getStatusId();
+    }
 }
