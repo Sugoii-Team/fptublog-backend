@@ -10,6 +10,7 @@ import org.jvnet.hk2.annotations.Service;
 
 import javax.inject.Inject;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,7 +29,7 @@ public class ImplTagService implements ITagService {
     @Override
     public List<TagEntity> getAllTagsOfBlog(String blogId) throws SQLException {
         List<BlogTagEntity> blogTagList;
-        List<TagEntity> tagList;
+        List<TagEntity> tagList = Collections.emptyList();
 
         try {
             connectionWrapper.beginTransaction();
@@ -36,11 +37,12 @@ public class ImplTagService implements ITagService {
             // get intermediate table data by blogId
             blogTagList = blogTagDAO.getByBlogId(blogId);
 
-            // et Tag list by tagId from intermediate table
-            List<String> tagIdList = blogTagList.stream().map(BlogTagEntity::getTagId).collect(Collectors.toList());
-
-            tagList = tagDAO.getByIdList(tagIdList);
-
+            if (blogTagList != null) {
+                // get Tag list by tagId from intermediate table
+                List<String> tagIdList = blogTagList.stream().map(BlogTagEntity::getTagId).collect(Collectors.toList());
+                tagList = tagDAO.getByIdList(tagIdList);
+            }
+            
             connectionWrapper.commit();
         } finally {
             connectionWrapper.close();

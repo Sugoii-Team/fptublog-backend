@@ -11,6 +11,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Service
@@ -141,6 +143,34 @@ public class ImplBlogStatusDAO implements IBlogStatusDAO {
         }
 
         return null;
+    }
+
+    @Override
+    public List<BlogStatusEntity> getAll() throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return null;
+        }
+
+        List<BlogStatusEntity> result = null;
+
+        String sql = "SELECT id, name " +
+                "FROM blog_status";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            ResultSet resultSet = stm.executeQuery();
+            while (resultSet.next()) {
+                String id = resultSet.getString(1);
+                String name = resultSet.getString(2);
+
+                if (result == null) {
+                    result = new ArrayList<>();
+                }
+                result.add(new BlogStatusEntity(id, name));
+            }
+        }
+
+        return result;
     }
 }
 

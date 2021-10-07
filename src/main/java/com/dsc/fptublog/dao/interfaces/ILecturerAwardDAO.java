@@ -9,6 +9,6 @@ import java.util.List;
 @Contract
 public interface ILecturerAwardDAO {
 
-    public List<LecturerAwardEntity> getByLecturerId(String lecturerId) throws SQLException;
+    List<LecturerAwardEntity> getByLecturerId(String lecturerId) throws SQLException;
 
 }

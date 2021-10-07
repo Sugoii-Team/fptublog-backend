@@ -62,7 +62,7 @@ public class ImplBlogDAO implements IBlogDAO {
         }
 
         String sql = "UPDATE blog "
-                + "SET title = ?, content = ?, status_id = ?, category_id = ?, reviewer_id = ?, review_datetime = ?, views = ? "
+                + "SET title = ISNULL(?, title), content = ISNULL(?, content), status_id = ISNULL(?, status_id), category_id = ISNULL(?, category_id), reviewer_id = ISNULL(?, reviewer_id), review_datetime = ISNULL(?, review_datetime), views = ISNULL(?, views) "
                 + "WHERE id = ?";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
@@ -73,13 +73,13 @@ public class ImplBlogDAO implements IBlogDAO {
             stm.setString(5, updatedBlog.getReviewerId());
             stm.setLong(6, updatedBlog.getReviewDateTime());
             stm.setInt(7, updatedBlog.getViews());
+            stm.setString(8, updatedBlog.getId());
 
             int effectRow = stm.executeUpdate();
             if (effectRow > 0) {
                 return true;
             }
         }
-
 
         return false;
     }
@@ -174,6 +174,47 @@ public class ImplBlogDAO implements IBlogDAO {
                 }
                 result.add(new BlogEntity(id, authorId, title, content, createdDatetime,
                         statusId, categoryId, reviewerId, reviewDatetime, views));
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<BlogEntity> getByCategoryIdList(List<String> categoryIdList) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return null;
+        }
+
+        List<BlogEntity> result = null;
+
+        String sql = "SELECT id, author_id, title, content, created_datetime, status_id, reviewer_id, review_datetime, views " +
+                "FROM blog " +
+                "WHERE category_id = ?";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            for (var categoryId : categoryIdList) {
+                stm.setString(1, categoryId);
+
+                ResultSet resultSet = stm.executeQuery();
+                if (resultSet.next()) {
+                    String id = resultSet.getString(1);
+                    String authorId = resultSet.getString(2);
+                    String title = resultSet.getNString(3);
+                    String content = resultSet.getNString(4);
+                    long createdDatetime = resultSet.getLong(5);
+                    String statusId = resultSet.getString(6);
+                    String reviewerId = resultSet.getString(7);
+                    long reviewDatetime = resultSet.getLong(8);
+                    int views = resultSet.getInt(9);
+
+                    if (result == null) {
+                        result = new ArrayList<>();
+                    }
+                    result.add(new BlogEntity(id, authorId, title, content, createdDatetime, statusId,
+                            categoryId, reviewerId, reviewDatetime, views));
+                }
             }
         }
 

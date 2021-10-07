@@ -9,5 +9,5 @@ import java.util.List;
 @Contract
 public interface ILecturerFieldDAO {
 
-    public List<LecturerFieldEntity> getByLecturerId(String lecturerId) throws SQLException;
+    List<LecturerFieldEntity> getByLecturerId(String lecturerId) throws SQLException;
 }

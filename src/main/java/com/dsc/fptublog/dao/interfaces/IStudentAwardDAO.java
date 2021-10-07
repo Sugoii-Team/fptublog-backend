@@ -9,5 +9,5 @@ import java.util.List;
 @Contract
 public interface IStudentAwardDAO {
 
-    public List<StudentAwardEntity> getByStudentId(String studentId) throws SQLException;
+    List<StudentAwardEntity> getByStudentId(String studentId) throws SQLException;
 }

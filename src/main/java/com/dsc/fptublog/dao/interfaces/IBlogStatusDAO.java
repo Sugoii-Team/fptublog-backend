@@ -5,17 +5,20 @@ import com.dsc.fptublog.entity.BlogStatusEntity;
 import org.jvnet.hk2.annotations.Contract;
 
 import java.sql.SQLException;
+import java.util.List;
 
 
 @Contract
 public interface IBlogStatusDAO {
-    public BlogStatusEntity getById(String id) throws SQLException;
+    BlogStatusEntity getById(String id) throws SQLException;
 
-    public BlogStatusEntity getByName(String name) throws SQLException;
+    BlogStatusEntity getByName(String name) throws SQLException;
 
-    public boolean deleteById(String deletedBlogStatusId) throws SQLException;
+    boolean deleteById(String deletedBlogStatusId) throws SQLException;
 
-    public boolean updateByBlogStatus(BlogStatusEntity updatedBlogStatus) throws SQLException;
+    boolean updateByBlogStatus(BlogStatusEntity updatedBlogStatus) throws SQLException;
 
-    public BlogStatusEntity insertByBlogStatus(BlogStatusEntity blogStatus) throws SQLException;
+    BlogStatusEntity insertByBlogStatus(BlogStatusEntity blogStatus) throws SQLException;
+
+    List<BlogStatusEntity> getAll() throws SQLException;
 }

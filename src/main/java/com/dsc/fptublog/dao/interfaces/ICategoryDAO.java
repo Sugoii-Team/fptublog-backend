@@ -13,4 +13,6 @@ public interface ICategoryDAO {
     CategoryEntity getById(String id) throws SQLException;
 
     List<CategoryEntity> getAll() throws SQLException;
+
+    List<CategoryEntity> getByFieldIdList(List<String> fieldIdList) throws SQLException;
 }
