@@ -259,4 +259,21 @@ public class ImplBlogService implements IBlogService {
         }
         return result;
     }
+
+    @Override
+    public List<BlogEntity> getAllBlogsOfAuthor(String authorId) throws SQLException {
+        List<BlogEntity> result;
+
+        try {
+            connectionWrapper.beginTransaction();
+
+            result = blogDAO.getByAuthorId(authorId);
+
+            connectionWrapper.commit();
+        } finally {
+            connectionWrapper.close();
+        }
+
+        return result != null ? result : Collections.emptyList();
+    }
 }

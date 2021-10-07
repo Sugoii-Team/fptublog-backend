@@ -26,4 +26,6 @@ public interface IBlogService {
     boolean updateIfNotNull(BlogEntity updatedBlog) throws SQLException;
 
     boolean updateReviewStatus(BlogEntity updatedBlog) throws SQLException;
+
+    List<BlogEntity> getAllBlogsOfAuthor(String authorId) throws SQLException;
 }
