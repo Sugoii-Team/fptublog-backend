@@ -60,18 +60,17 @@ public class ImplAdminDAO implements IAdminDAO {
         }
         int effectRow;
         String sql ="UPDATE account "
-                    +"SET email = ISNULL(?, email), alternative_email = ISNULL(?, alternative_email), firstname = ISNULL(?, firstname), lastname = ISNULL(?, lastname), password = ISNULL(?, password), avatar_url = ISNULL(?, avatar_url), description = ISNULL(?, description), status_id = ISNULL(?, status_id) "
+                    +"SET alternative_email = ISNULL(?, alternative_email), firstname = ISNULL(?, firstname), lastname = ISNULL(?, lastname), password = ISNULL(?, password), avatar_url = ISNULL(?, avatar_url), description = ISNULL(?, description), status_id = ISNULL(?, status_id) "
                     +"WHERE id = ?";
         try (PreparedStatement stm = connection.prepareStatement(sql)){
-            stm.setString(1,account.getEmail());
-            stm.setString(2,account.getAlternativeEmail());
-            stm.setNString(3,account.getFirstName());
-            stm.setNString(4,account.getLastName());
-            stm.setString(5,account.getPassword());
-            stm.setString(6,account.getAvatarUrl());
-            stm.setNString(7,account.getDescription());
-            stm.setString(8,account.getStatusId());
-            stm.setString(9,account.getId());
+            stm.setString(1,account.getAlternativeEmail());
+            stm.setNString(2,account.getFirstName());
+            stm.setNString(3,account.getLastName());
+            stm.setString(4,account.getPassword());
+            stm.setString(5,account.getAvatarUrl());
+            stm.setNString(6,account.getDescription());
+            stm.setString(7,account.getStatusId());
+            stm.setString(8,account.getId());
             effectRow = stm.executeUpdate();
             if(effectRow > 0){
                 return account;

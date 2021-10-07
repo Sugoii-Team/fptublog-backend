@@ -29,7 +29,7 @@ public class ImplMajorDAO implements IMajorDAO {
         MajorEntity result = null;
         String sql = "SELECT name " +
                 "FROM major " +
-                "WHERE name = ?";
+                "WHERE id = ?";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setString(1, id);

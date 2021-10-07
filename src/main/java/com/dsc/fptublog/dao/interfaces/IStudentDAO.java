@@ -15,4 +15,6 @@ public interface IStudentDAO {
 
     StudentEntity getByAccount(AccountEntity account) throws SQLException;
 
+    boolean updateStudent(StudentEntity studentEntity) throws SQLException;
+
 }

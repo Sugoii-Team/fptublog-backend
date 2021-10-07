@@ -127,4 +127,26 @@ public class ImplStudentDAO implements IStudentDAO {
 
         return result;
     }
+
+    @Override
+    public boolean updateStudent(StudentEntity studentEntity) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        int effectRow;
+        if (connection == null) {
+            return false;
+        }
+        String sql = "UPDATE account_student "
+                + "SET school_year = ISNULL(?, school_year), major_id = ISNULL(?, major_id) "
+                + "WHERE id = ?";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setShort(1, studentEntity.getSchoolYear());
+            stm.setString(2, studentEntity.getMajorId());
+            stm.setString(3, studentEntity.getId());
+            effectRow = stm.executeUpdate();
+            if (effectRow > 0) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

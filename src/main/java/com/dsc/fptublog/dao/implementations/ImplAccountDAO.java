@@ -152,9 +152,9 @@ public class ImplAccountDAO implements IAccountDAO {
         if (connection == null) {
             return false;
         }
-        String sql = "UPDATE account "
-                + "SET alternative_email = ?, firstname = ?, lastname = ?, password = ?, avatar_url = ?, description = ? "
-                + "WHERE id = ?";
+        String sql ="UPDATE account "
+                +"SET alternative_email = ISNULL(?, alternative_email), firstname = ISNULL(?, firstname), lastname = ISNULL(?, lastname), password = ISNULL(?, password), avatar_url = ISNULL(?, avatar_url), description = ISNULL(?, description), status_id = ISNULL(?, status_id) "
+                +"WHERE id = ?";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setString(1, updatedAccount.getAlternativeEmail());
@@ -163,7 +163,8 @@ public class ImplAccountDAO implements IAccountDAO {
             stm.setString(4, updatedAccount.getPassword());
             stm.setString(5, updatedAccount.getAvatarUrl());
             stm.setString(6, updatedAccount.getDescription());
-            stm.setString(7, updatedAccount.getId());
+            stm.setString(7, updatedAccount.getStatusId());
+            stm.setString(8, updatedAccount.getId());
 
             int effectedRow = stm.executeUpdate();
             if(effectedRow > 0) {

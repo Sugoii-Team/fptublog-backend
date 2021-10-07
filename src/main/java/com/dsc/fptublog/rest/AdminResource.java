@@ -20,11 +20,7 @@ public class AdminResource {
     @Inject
     private IAdminService adminService;
 
-    @GET
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response login(AdminEntity admin){
-            return  null;
-    }
+
 
     @GET
     @Path("/accounts")
