@@ -149,9 +149,10 @@ public class BlogResource {
 
     @PUT
     @Path("/{id}/review")
+    @RolesAllowed(Role.LECTURER)
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updateBlog(@PathParam("id") String id, BlogEntity updatedblog) {
+    public Response reviewBlog(@PathParam("id") String id, BlogEntity updatedblog) {
         updatedblog.setId(id);
         boolean result;
         try {
