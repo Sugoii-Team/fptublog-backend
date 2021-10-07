@@ -198,7 +198,7 @@ public class ImplBlogDAO implements IBlogDAO {
                 stm.setString(1, categoryId);
 
                 ResultSet resultSet = stm.executeQuery();
-                if (resultSet.next()) {
+                while (resultSet.next()) {
                     String id = resultSet.getString(1);
                     String authorId = resultSet.getString(2);
                     String title = resultSet.getNString(3);

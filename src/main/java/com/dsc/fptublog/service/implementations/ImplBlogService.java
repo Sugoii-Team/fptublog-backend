@@ -174,7 +174,6 @@ public class ImplBlogService implements IBlogService {
             result = blogList.stream()
                     .filter(blog -> pendingStatusId.equals(blog.getStatusId()))
                     .collect(Collectors.toList());
-
             connectionWrapper.commit();
         } finally {
             connectionWrapper.close();
