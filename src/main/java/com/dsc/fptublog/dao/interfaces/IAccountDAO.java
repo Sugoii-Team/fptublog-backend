@@ -4,6 +4,7 @@ import com.dsc.fptublog.entity.AccountEntity;
 import org.jvnet.hk2.annotations.Contract;
 
 import java.sql.SQLException;
+import java.util.List;
 
 @Contract
 public interface IAccountDAO {
@@ -15,5 +16,7 @@ public interface IAccountDAO {
     AccountEntity getById(String id) throws SQLException;
 
     public boolean updateByAccount(AccountEntity updatedAccount) throws SQLException;
+
+    public List<AccountEntity> getAllAccounts() throws SQLException;
 
 }

@@ -7,6 +7,8 @@ import org.glassfish.jersey.process.internal.RequestScoped;
 import org.jvnet.hk2.annotations.Service;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -172,5 +174,38 @@ public class ImplAccountDAO implements IAccountDAO {
             }
         }
         return false;
+    }
+
+    @Override
+    public List<AccountEntity> getAllAccounts() throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        List<AccountEntity> accountList = null;
+        if (connection == null) {
+            return null;
+        }
+        String sql = "SELECT id, email, alternative_email, firstname, lastname, status_id "
+                + "FROM account";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            ResultSet result = stm.executeQuery();
+            while (result.next()) {
+                String id = result.getString(1);
+                String email = result.getString(2);
+                String alternativeEmail = result.getString(3);
+                String firstName = result.getNString(4);
+                String lastName = result.getNString(5);
+                String statusId = result.getString(6);
+                if (accountList == null) {
+                    accountList = new ArrayList<>();
+                }
+                accountList.add(AccountEntity.builder()
+                        .id(id)
+                        .email(email)
+                        .alternativeEmail(alternativeEmail)
+                        .firstName(firstName)
+                        .lastName(lastName)
+                        .statusId(statusId).build());
+            }
+        }
+        return accountList;
     }
 }

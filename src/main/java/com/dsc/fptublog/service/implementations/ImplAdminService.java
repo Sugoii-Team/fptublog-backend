@@ -1,5 +1,6 @@
 package com.dsc.fptublog.service.implementations;
 
+import com.dsc.fptublog.dao.interfaces.IAccountDAO;
 import com.dsc.fptublog.dao.interfaces.IAccountStatusDAO;
 import com.dsc.fptublog.dao.interfaces.IAdminDAO;
 import com.dsc.fptublog.database.ConnectionWrapper;
@@ -19,7 +20,7 @@ public class ImplAdminService implements IAdminService {
     private ConnectionWrapper connectionWrapper;
 
     @Inject
-    private IAdminDAO adminDAO;
+    private IAccountDAO accountDAO;
 
     @Inject
     private IAccountStatusDAO accountStatusDAO;
@@ -30,7 +31,7 @@ public class ImplAdminService implements IAdminService {
         List<AccountEntity> accountList;
         try{
             connectionWrapper.beginTransaction();
-            accountList = adminDAO.getAllAccounts();
+            accountList = accountDAO.getAllAccounts();
             connectionWrapper.commit();
         }finally {
             connectionWrapper.close();
@@ -40,21 +41,25 @@ public class ImplAdminService implements IAdminService {
 
     @Override
     public AccountEntity updateAccount(AccountEntity account) throws SQLException{
-        AccountEntity updatedAccount;
         AccountStatusEntity statusEntity;
         try{
             connectionWrapper.beginTransaction();
             statusEntity = accountStatusDAO.getByName("deleted");
-            account.setStatusId(statusEntity.getId());
-            updatedAccount = adminDAO.updateAccount(account);
-            connectionWrapper.commit();
+            if(account.getStatusId().equals(statusEntity.getId())){
+                account.setStatusId(statusEntity.getId());
+            }//end if account status is set to deleted
+            boolean resultUpdate = accountDAO.updateByAccount(account);
+            if(resultUpdate){
+                connectionWrapper.commit();
+                return account;
+            }
         }catch (SQLException ex){
             connectionWrapper.rollback();
             throw ex;
         }finally {
             connectionWrapper.close();
         }
-        return updatedAccount;
+        return null;
     }
 
 
