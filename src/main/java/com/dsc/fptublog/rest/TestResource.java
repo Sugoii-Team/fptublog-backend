@@ -7,8 +7,10 @@ import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
 
 @Path("/test")
 @PermitAll
@@ -17,7 +19,10 @@ public class TestResource {
     @GET
     @RolesAllowed({Role.LECTURER, Role.STUDENT})
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getTest() {
-        return Response.ok("Hello bé Đạt <3 <3 <3").build();
+    public Response getTest(@Context SecurityContext sc) {
+
+        String id = sc.getUserPrincipal().getName();
+
+        return Response.ok(id).build();
     }
 }

@@ -4,12 +4,14 @@ import com.dsc.fptublog.dao.interfaces.IAccountDAO;
 import com.dsc.fptublog.database.ConnectionWrapper;
 import com.dsc.fptublog.entity.AccountEntity;
 import com.dsc.fptublog.service.interfaces.IAccountService;
+import org.glassfish.jersey.process.internal.RequestScoped;
 import org.jvnet.hk2.annotations.Service;
 
 import javax.inject.Inject;
 import java.sql.SQLException;
 
 @Service
+@RequestScoped
 public class ImplAccountService implements IAccountService {
 
     @Inject

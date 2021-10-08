@@ -36,6 +36,8 @@ public class ImplBlogService implements IBlogService {
     @Inject
     private ICategoryDAO categoryDAO;
 
+    @Inject ILecturerDAO lecturerDAO;
+
     @Override
     public BlogEntity getById(String id) throws SQLException {
         BlogEntity blog;
@@ -131,6 +133,27 @@ public class ImplBlogService implements IBlogService {
         return result;
     }
 
+    private List<String> getCategoryOfLecturer(String lecturerId) throws SQLException {
+        // get lecturer's fieldsId
+        List<LecturerFieldEntity> lecturerFieldList = lecturerFieldDAO.getByLecturerId(lecturerId);
+        if (lecturerFieldList == null) {
+            return Collections.emptyList();
+        }
+        List<String> fieldIdList = lecturerFieldList.stream()
+                .map(LecturerFieldEntity::getFieldId)
+                .collect(Collectors.toList());
+
+        // get field's categories
+        List<CategoryEntity> categoryList = categoryDAO.getByFieldIdList(fieldIdList);
+        if (categoryList == null) {
+            return Collections.emptyList();
+        }
+
+        return categoryList.stream()
+                .map(CategoryEntity::getId)
+                .collect(Collectors.toList());
+    }
+
     @Override
     public List<BlogEntity> getReviewingBlogsOfLecturer(String lecturerId) throws SQLException {
         List<BlogEntity> result;
@@ -138,25 +161,8 @@ public class ImplBlogService implements IBlogService {
         try {
             connectionWrapper.beginTransaction();
 
-            // get lecturer's fields Id
-            List<LecturerFieldEntity> lecturerFieldList = lecturerFieldDAO.getByLecturerId(lecturerId);
-            if (lecturerFieldList == null) {
-                return Collections.emptyList();
-            }
-            System.out.println("lecturerFieldList: " + lecturerFieldList);
-            List<String> fieldIdList = lecturerFieldList.stream()
-                    .map(LecturerFieldEntity::getFieldId)
-                    .collect(Collectors.toList());
-
-            // get field's categories
-            List<CategoryEntity> categoryList = categoryDAO.getByFieldIdList(fieldIdList);
-            if (categoryList == null) {
-                return Collections.emptyList();
-            }
-            System.out.println("categoryList: " + categoryList);
-            List<String> categoryIdList = categoryList.stream()
-                    .map(CategoryEntity::getId)
-                    .collect(Collectors.toList());
+            // get lecturer's categoryId list
+            List<String> categoryIdList = getCategoryOfLecturer(lecturerId);
 
             // get pending blogs of these categories
             BlogStatusEntity pendingStatus = blogStatusDAO.getByName("pending");
@@ -165,16 +171,108 @@ public class ImplBlogService implements IBlogService {
             if (blogList == null) {
                 return Collections.emptyList();
             }
-            System.out.println("blogList: " + blogList);
             result = blogList.stream()
                     .filter(blog -> pendingStatusId.equals(blog.getStatusId()))
                     .collect(Collectors.toList());
-
             connectionWrapper.commit();
         } finally {
             connectionWrapper.close();
         }
 
         return result;
+    }
+
+    @Override
+    public List<BlogStatusEntity> getAllBlogStatus() throws SQLException {
+        List<BlogStatusEntity> blogStatusList;
+
+        try {
+            connectionWrapper.beginTransaction();
+
+            blogStatusList = blogStatusDAO.getAll();
+
+            connectionWrapper.commit();
+        } finally {
+            connectionWrapper.close();
+        }
+
+        return blogStatusList;
+    }
+
+    @Override
+    public boolean updateIfNotNull(BlogEntity updatedBlog) throws SQLException {
+        boolean result;
+        try {
+            connectionWrapper.beginTransaction();
+
+            result = blogDAO.updateByBlog(updatedBlog);
+
+            connectionWrapper.commit();
+        } catch (SQLException ex) {
+            connectionWrapper.rollback();
+            throw ex;
+        } finally {
+            connectionWrapper.close();
+        }
+        return result;
+    }
+
+    @Override
+    public boolean updateReviewStatus(BlogEntity updatedBlog) throws SQLException {
+        boolean result = false;
+
+        try {
+            connectionWrapper.beginTransaction();
+
+            // Get full blog info
+            BlogEntity oldBlog = blogDAO.getById(updatedBlog.getId());
+            String pendingStatusId = blogStatusDAO.getByName("pending").getId();
+            if (!pendingStatusId.equals(oldBlog.getStatusId())) {
+                return false;
+            }
+
+            // Get lecturer's categoryId List
+            List<String> categoryIdList = getCategoryOfLecturer(updatedBlog.getReviewerId());
+
+            // Check this lecturer can review this blog
+            if (!categoryIdList.contains(oldBlog.getCategoryId())) {
+                return false;
+            }
+
+            // Check valid new status Id
+            if (blogStatusDAO.getById(updatedBlog.getStatusId()) == null) {
+                return false;
+            }
+
+            // Update review status and datetime
+            long reviewDateTime = System.currentTimeMillis();
+            updatedBlog.setReviewDateTime(reviewDateTime);
+            result = blogDAO.updateByBlog(updatedBlog);
+
+            connectionWrapper.commit();
+        } catch (SQLException ex) {
+            connectionWrapper.rollback();
+            throw ex;
+        } finally {
+            connectionWrapper.close();
+        }
+        return result;
+    }
+
+    @Override
+    public List<BlogEntity> getAllBlogsOfAuthor(String authorId) throws SQLException {
+        List<BlogEntity> result;
+
+        try {
+            connectionWrapper.beginTransaction();
+
+            result = blogDAO.getByAuthorId(authorId);
+
+            connectionWrapper.commit();
+        } finally {
+            connectionWrapper.close();
+        }
+
+        return result != null ? result : Collections.emptyList();
     }
 }

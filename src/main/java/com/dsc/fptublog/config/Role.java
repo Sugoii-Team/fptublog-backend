@@ -6,5 +6,5 @@ public interface Role {
 
     String LECTURER = "LECTURER";
 
-    String ADMIN = "Admin";
+    String ADMIN = "ADMIN";
 }
