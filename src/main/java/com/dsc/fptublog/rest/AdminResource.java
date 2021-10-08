@@ -3,13 +3,17 @@ package com.dsc.fptublog.rest;
 
 import com.dsc.fptublog.config.Role;
 import com.dsc.fptublog.entity.AccountEntity;
-import com.dsc.fptublog.entity.AdminEntity;
 import com.dsc.fptublog.service.interfaces.IAdminService;
 import lombok.extern.log4j.Log4j;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.sql.SQLException;
@@ -21,8 +25,6 @@ public class AdminResource {
 
     @Inject
     private IAdminService adminService;
-
-
 
     @GET
     @Path("/accounts")
