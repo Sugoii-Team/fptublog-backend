@@ -1,9 +1,11 @@
 package com.dsc.fptublog.rest;
 
+import com.dsc.fptublog.config.Role;
 import com.dsc.fptublog.entity.BlogEntity;
 import com.dsc.fptublog.service.interfaces.IBlogService;
 import lombok.extern.log4j.Log4j;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -22,6 +24,7 @@ public class StudentResource {
     private IBlogService blogService;
 
     @GET
+    @RolesAllowed(Role.STUDENT)
     @Path("/{student_id}/blogs")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getOwnBlogs(@PathParam("student_id") String studentId) {
