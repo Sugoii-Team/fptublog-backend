@@ -174,7 +174,6 @@ public class ImplBlogService implements IBlogService {
             result = blogList.stream()
                     .filter(blog -> pendingStatusId.equals(blog.getStatusId()))
                     .collect(Collectors.toList());
-
             connectionWrapper.commit();
         } finally {
             connectionWrapper.close();
@@ -258,5 +257,22 @@ public class ImplBlogService implements IBlogService {
             connectionWrapper.close();
         }
         return result;
+    }
+
+    @Override
+    public List<BlogEntity> getAllBlogsOfAuthor(String authorId) throws SQLException {
+        List<BlogEntity> result;
+
+        try {
+            connectionWrapper.beginTransaction();
+
+            result = blogDAO.getByAuthorId(authorId);
+
+            connectionWrapper.commit();
+        } finally {
+            connectionWrapper.close();
+        }
+
+        return result != null ? result : Collections.emptyList();
     }
 }

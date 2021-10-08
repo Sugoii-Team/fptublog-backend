@@ -198,7 +198,7 @@ public class ImplBlogDAO implements IBlogDAO {
                 stm.setString(1, categoryId);
 
                 ResultSet resultSet = stm.executeQuery();
-                if (resultSet.next()) {
+                while (resultSet.next()) {
                     String id = resultSet.getString(1);
                     String authorId = resultSet.getString(2);
                     String title = resultSet.getNString(3);
@@ -215,6 +215,45 @@ public class ImplBlogDAO implements IBlogDAO {
                     result.add(new BlogEntity(id, authorId, title, content, createdDatetime, statusId,
                             categoryId, reviewerId, reviewDatetime, views));
                 }
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<BlogEntity> getByAuthorId(String authorId) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return null;
+        }
+
+        List<BlogEntity> result = null;
+
+        String sql = "SELECT id, title, content, created_datetime, status_id, category_id, reviewer_id, review_datetime, views " +
+                "FROM blog " +
+                "WHERE author_id = ?";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, authorId);
+
+            ResultSet resultSet = stm.executeQuery();
+            while (resultSet.next()) {
+                String id = resultSet.getString(1);
+                String title = resultSet.getNString(2);
+                String content = resultSet.getNString(3);
+                long createdDatetime = resultSet.getLong(4);
+                String statusId = resultSet.getString(5);
+                String categoryId = resultSet.getString(6);
+                String reviewerId = resultSet.getString(7);
+                long reviewDatetime = resultSet.getLong(8);
+                int views = resultSet.getInt(9);
+
+                if (result == null) {
+                    result = new ArrayList<>();
+                }
+                result.add(new BlogEntity(id, authorId, title, content, createdDatetime, statusId,
+                        categoryId, reviewerId, reviewDatetime, views));
             }
         }
 
