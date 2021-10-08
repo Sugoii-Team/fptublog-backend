@@ -7,6 +7,8 @@ import org.glassfish.jersey.process.internal.RequestScoped;
 import org.jvnet.hk2.annotations.Service;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -144,5 +146,66 @@ public class ImplAccountDAO implements IAccountDAO {
         }
 
         return result;
+    }
+
+    @Override
+    public boolean updateByAccount(AccountEntity updatedAccount) throws SQLException {
+        Connection connection =  connectionWrapper.getConnection();
+        if (connection == null) {
+            return false;
+        }
+        String sql ="UPDATE account "
+                +"SET alternative_email = ISNULL(?, alternative_email), firstname = ISNULL(?, firstname), lastname = ISNULL(?, lastname), password = ISNULL(?, password), avatar_url = ISNULL(?, avatar_url), description = ISNULL(?, description), status_id = ISNULL(?, status_id) "
+                +"WHERE id = ?";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, updatedAccount.getAlternativeEmail());
+            stm.setString(2, updatedAccount.getFirstName());
+            stm.setString(3, updatedAccount.getLastName());
+            stm.setString(4, updatedAccount.getPassword());
+            stm.setString(5, updatedAccount.getAvatarUrl());
+            stm.setString(6, updatedAccount.getDescription());
+            stm.setString(7, updatedAccount.getStatusId());
+            stm.setString(8, updatedAccount.getId());
+
+            int effectedRow = stm.executeUpdate();
+            if(effectedRow > 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public List<AccountEntity> getAllAccounts() throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        List<AccountEntity> accountList = null;
+        if (connection == null) {
+            return null;
+        }
+        String sql = "SELECT id, email, alternative_email, firstname, lastname, status_id "
+                + "FROM account";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            ResultSet result = stm.executeQuery();
+            while (result.next()) {
+                String id = result.getString(1);
+                String email = result.getString(2);
+                String alternativeEmail = result.getString(3);
+                String firstName = result.getNString(4);
+                String lastName = result.getNString(5);
+                String statusId = result.getString(6);
+                if (accountList == null) {
+                    accountList = new ArrayList<>();
+                }
+                accountList.add(AccountEntity.builder()
+                        .id(id)
+                        .email(email)
+                        .alternativeEmail(alternativeEmail)
+                        .firstName(firstName)
+                        .lastName(lastName)
+                        .statusId(statusId).build());
+            }
+        }
+        return accountList;
     }
 }
