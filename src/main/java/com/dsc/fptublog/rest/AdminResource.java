@@ -26,6 +26,7 @@ public class AdminResource {
 
     @GET
     @Path("/accounts")
+    @RolesAllowed(Role.ADMIN)
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllAccounts(){
         List<AccountEntity> accountList;
@@ -40,6 +41,7 @@ public class AdminResource {
 
     @DELETE
     @Path("/accounts")
+    @RolesAllowed(Role.ADMIN)
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteAccount(AccountEntity account){
@@ -54,6 +56,7 @@ public class AdminResource {
 
     @PUT
     @Path("/accounts")
+    @RolesAllowed(Role.ADMIN)
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response updateAccount(AccountEntity account){
