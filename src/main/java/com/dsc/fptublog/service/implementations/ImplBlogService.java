@@ -36,28 +36,21 @@ public class ImplBlogService implements IBlogService {
     @Inject
     private ICategoryDAO categoryDAO;
 
-    @Inject ILecturerDAO lecturerDAO;
-
     @Override
     public BlogEntity getById(String id) throws SQLException {
         BlogEntity blog;
-        BlogStatusEntity approvedStatus;
 
         try {
             connectionWrapper.beginTransaction();
 
             blog = blogDAO.getById(id);
-            approvedStatus = blogStatusDAO.getByName("approved");
 
             connectionWrapper.commit();
         } finally {
             connectionWrapper.close();
         }
 
-        if (approvedStatus.getId().equals(blog.getStatusId())) {
-            return blog;
-        }
-        return null;
+        return blog;
     }
 
     @Override
