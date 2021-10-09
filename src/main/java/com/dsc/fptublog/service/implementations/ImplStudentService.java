@@ -34,12 +34,12 @@ public class ImplStudentService implements IStudentService {
     public StudentEntity getStudent(String id) throws SQLException {
         AccountEntity account;
         StudentEntity student;
-        try{
+        try {
             connectionWrapper.beginTransaction();
             account = accountDAO.getById(id);
             student = studentDAO.getByAccount(account);
             connectionWrapper.commit();
-        }finally {
+        } finally {
             connectionWrapper.close();
         }
         return student;
@@ -53,14 +53,14 @@ public class ImplStudentService implements IStudentService {
             studentEntity.setMajorId(major.getId());
             boolean result1 = accountDAO.updateByAccount(studentEntity);
             boolean result2 = studentDAO.updateStudent(studentEntity);
-            if(result1 && result2){
+            if (result1 && result2) {
                 connectionWrapper.commit();
                 return studentEntity;
             }
-        }catch (SQLException ex){
+        } catch (SQLException ex) {
             connectionWrapper.rollback();
             throw ex;
-        }finally {
+        } finally {
             connectionWrapper.close();
         }
         return null;

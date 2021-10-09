@@ -29,18 +29,18 @@ public class StudentResource {
 
     @Inject
     private IStudentService studentService;
-    
+
     @Inject
     private IBlogService blogService;
 
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getStudent(@PathParam("id")String id){
+    public Response getStudent(@PathParam("id") String id) {
         StudentEntity student;
         try {
             student = studentService.getStudent(id);
-        }catch (SQLException ex){
+        } catch (SQLException ex) {
             log.error(ex);
             return Response.status(Response.Status.EXPECTATION_FAILED).entity("LOAD DATABASE FAILED").build();
         }
@@ -52,16 +52,16 @@ public class StudentResource {
     @RolesAllowed({Role.STUDENT})
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updateStudent(@Context SecurityContext sc, StudentEntity student){
+    public Response updateStudent(@Context SecurityContext sc, StudentEntity student) {
         StudentEntity updatedStudent;
         try {
             // get ID of current student is login
             String currentStudentId = sc.getUserPrincipal().getName();
-            if(!student.getId().equals(currentStudentId)){
+            if (!student.getId().equals(currentStudentId)) {
                 return Response.status(Response.Status.EXPECTATION_FAILED).entity("Update Wrong Student Profile").build();
             }
             updatedStudent = studentService.updateStudent(student);
-        }catch (SQLException ex){
+        } catch (SQLException ex) {
             log.error(ex);
             return Response.status(Response.Status.EXPECTATION_FAILED).entity("LOAD DATABASE FAILED").build();
         }

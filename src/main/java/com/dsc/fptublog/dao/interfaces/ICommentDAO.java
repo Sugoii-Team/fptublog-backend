@@ -1,6 +1,5 @@
 package com.dsc.fptublog.dao.interfaces;
 
-
 import com.dsc.fptublog.entity.CommentEntity;
 import org.jvnet.hk2.annotations.Contract;
 

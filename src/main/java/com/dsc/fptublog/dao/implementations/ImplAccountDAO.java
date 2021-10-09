@@ -6,7 +6,10 @@ import com.dsc.fptublog.entity.AccountEntity;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.jvnet.hk2.annotations.Service;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -91,7 +94,7 @@ public class ImplAccountDAO implements IAccountDAO {
             if (resultSet.next()) {
                 String id = resultSet.getString(1);
 
-                result  = AccountEntity.builder()
+                result = AccountEntity.builder()
                         .id(id)
                         .email(email)
                         .alternativeEmail(email)
@@ -150,13 +153,13 @@ public class ImplAccountDAO implements IAccountDAO {
 
     @Override
     public boolean updateByAccount(AccountEntity updatedAccount) throws SQLException {
-        Connection connection =  connectionWrapper.getConnection();
+        Connection connection = connectionWrapper.getConnection();
         if (connection == null) {
             return false;
         }
-        String sql ="UPDATE account "
-                +"SET alternative_email = ISNULL(?, alternative_email), firstname = ISNULL(?, firstname), lastname = ISNULL(?, lastname), password = ISNULL(?, password), avatar_url = ISNULL(?, avatar_url), description = ISNULL(?, description), status_id = ISNULL(?, status_id) "
-                +"WHERE id = ?";
+        String sql = "UPDATE account "
+                + "SET alternative_email = ISNULL(?, alternative_email), firstname = ISNULL(?, firstname), lastname = ISNULL(?, lastname), password = ISNULL(?, password), avatar_url = ISNULL(?, avatar_url), description = ISNULL(?, description), status_id = ISNULL(?, status_id) "
+                + "WHERE id = ?";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setString(1, updatedAccount.getAlternativeEmail());
@@ -169,7 +172,7 @@ public class ImplAccountDAO implements IAccountDAO {
             stm.setString(8, updatedAccount.getId());
 
             int effectedRow = stm.executeUpdate();
-            if(effectedRow > 0) {
+            if (effectedRow > 0) {
                 return true;
             }
         }

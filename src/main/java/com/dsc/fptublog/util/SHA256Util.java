@@ -8,8 +8,7 @@ public class SHA256Util {
 
     public static byte[] encode(String input) throws NoSuchAlgorithmException {
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        byte[] encodedHash = digest.digest(input.getBytes(StandardCharsets.UTF_8));
-        return encodedHash;
+        return digest.digest(input.getBytes(StandardCharsets.UTF_8));
     }
 
     public static String convertByteToHex(byte[] encodedHash) {

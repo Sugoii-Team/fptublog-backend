@@ -48,7 +48,7 @@ public class AccountResource {
 
         try {
             result = accountService.updateByAccount(account);
-        }catch (SQLException ex){
+        } catch (SQLException ex) {
             log.error(ex);
             return Response.status(Response.Status.EXPECTATION_FAILED).entity("LOAD DATABASE FAILED").build();
         }

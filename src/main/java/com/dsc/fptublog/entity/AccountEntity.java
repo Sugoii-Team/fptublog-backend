@@ -25,7 +25,7 @@ public class AccountEntity {
         this.id = account.getId();
         this.email = account.getEmail();
         this.alternativeEmail = account.getAlternativeEmail();
-        this.firstName =  account.getFirstName();
+        this.firstName = account.getFirstName();
         this.lastName = account.getLastName();
         this.password = account.getPassword();
         this.avatarUrl = account.getAvatarUrl();

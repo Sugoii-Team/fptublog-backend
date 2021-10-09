@@ -1,9 +1,17 @@
 package com.dsc.fptublog.service.implementations;
 
 import com.dsc.fptublog.config.Role;
-import com.dsc.fptublog.dao.interfaces.*;
+import com.dsc.fptublog.dao.interfaces.IAccountDAO;
+import com.dsc.fptublog.dao.interfaces.IAccountStatusDAO;
+import com.dsc.fptublog.dao.interfaces.ILecturerDAO;
+import com.dsc.fptublog.dao.interfaces.IMajorDAO;
+import com.dsc.fptublog.dao.interfaces.IStudentDAO;
 import com.dsc.fptublog.database.ConnectionWrapper;
-import com.dsc.fptublog.entity.*;
+import com.dsc.fptublog.entity.AccountEntity;
+import com.dsc.fptublog.entity.AccountStatusEntity;
+import com.dsc.fptublog.entity.LecturerEntity;
+import com.dsc.fptublog.entity.MajorEntity;
+import com.dsc.fptublog.entity.StudentEntity;
 import com.dsc.fptublog.service.interfaces.IAuthService;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.jvnet.hk2.annotations.Service;
@@ -124,7 +132,7 @@ public class ImplAuthService implements IAuthService {
         // Get school year from email string
         String email = newAccount.getEmail();
         int index = email.indexOf("@fpt.edu.vn") - 6;
-        short schoolYear = Short.parseShort(email.substring(index, index+2));
+        short schoolYear = Short.parseShort(email.substring(index, index + 2));
 
         // Set default Major is Software Engineering because Major is not null
         // User can change it later
@@ -137,7 +145,7 @@ public class ImplAuthService implements IAuthService {
 
         return newStudent;
     }
-    
+
     private LecturerEntity createLecturer(AccountEntity newAccount) throws SQLException {
         LecturerEntity newLecturer = lecturerDAO.insertById(newAccount.getId());
         newLecturer.setAccountInfo(newAccount);

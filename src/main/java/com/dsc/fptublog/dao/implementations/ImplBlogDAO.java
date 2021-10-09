@@ -1,8 +1,8 @@
 package com.dsc.fptublog.dao.implementations;
 
-import com.dsc.fptublog.dao.interfaces.*;
+import com.dsc.fptublog.dao.interfaces.IBlogDAO;
 import com.dsc.fptublog.database.ConnectionWrapper;
-import com.dsc.fptublog.entity.*;
+import com.dsc.fptublog.entity.BlogEntity;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.jvnet.hk2.annotations.Service;
 
@@ -13,7 +13,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
 
 @Service
 @RequestScoped

@@ -44,7 +44,7 @@ public class ImplTagService implements ITagService {
                 List<String> tagIdList = blogTagList.stream().map(BlogTagEntity::getTagId).collect(Collectors.toList());
                 tagList = tagDAO.getByIdList(tagIdList);
             }
-            
+
             connectionWrapper.commit();
         } finally {
             connectionWrapper.close();

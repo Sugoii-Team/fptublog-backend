@@ -1,16 +1,14 @@
 package com.dsc.fptublog.config;
 
 import com.dsc.fptublog.entity.AccountEntity;
-import com.dsc.fptublog.entity.LecturerEntity;
-import com.dsc.fptublog.entity.StudentEntity;
 
 import javax.ws.rs.core.SecurityContext;
 import java.security.Principal;
 
 public class BasicSecurityContext implements SecurityContext {
 
-    private AccountEntity account;
-    private boolean secure;
+    private final AccountEntity account;
+    private final boolean secure;
 
     public BasicSecurityContext(AccountEntity account, boolean secure) {
         this.account = account;
@@ -19,19 +17,12 @@ public class BasicSecurityContext implements SecurityContext {
 
     @Override
     public Principal getUserPrincipal() {
-
-        return () -> account.getId();
+        return account::getId;
     }
 
     @Override
     public boolean isUserInRole(String role) {
-        if (account instanceof StudentEntity) {
-            return Role.STUDENT.equals(role);
-        }
-        if (account instanceof LecturerEntity) {
-            return Role.LECTURER.equals(role);
-        }
-        return false;
+        return role.equals(account.getRole());
     }
 
     @Override

@@ -7,7 +7,7 @@ import java.sql.SQLException;
 
 @Contract
 public interface IAccountStatusDAO {
-    
+
     AccountStatusEntity getById(String statusId) throws SQLException;
 
     AccountStatusEntity getByName(String name) throws SQLException;
