@@ -22,19 +22,17 @@ public class JwtUtil {
     // This JwtUtil using HS256 (HMAC with SHA-256) algorithm to create signature
     private static final String SECRET_KEY = "Real Muthaphuckkin G's";
     private static final Algorithm SIGNATURE_ALGORITHM = Algorithm.HMAC256(SECRET_KEY);
+    private static final JWTVerifier VERIFIER =  JWT.require(SIGNATURE_ALGORITHM).withIssuer(ISSUER).build();
 
     private JwtUtil() {
     }
 
     public static JWTVerifier getVerifier() {
-        return JWT.require(SIGNATURE_ALGORITHM)
-                .withIssuer(ISSUER)
-                .build();
+        return VERIFIER;
     }
 
     public static DecodedJWT getDecodedJWT(String token) {
-        JWTVerifier verifier = getVerifier();
-        return verifier.verify(token);
+        return VERIFIER.verify(token);
     }
 
     public static String createJWT(String subject, String role) {
@@ -56,29 +54,23 @@ public class JwtUtil {
                 .sign(SIGNATURE_ALGORITHM);
     }
 
-    public static AccountEntity getAccountFromToken(String token) {
-        DecodedJWT jwt = getDecodedJWT(token);
-
-        AccountEntity account = null;
-        String id = jwt.getSubject();
-
-        String role = jwt.getClaim("role").asString();
-        if (Role.STUDENT.equals(role)) {
-            account = StudentEntity.builder().id(id).build();
-        } else if (Role.LECTURER.equals(role)) {
-            account = LecturerEntity.builder().id(id).build();
-        }
-
-        return account;
-    }
-
     private static Date getExpirationDateFromToken(String token) {
         DecodedJWT jwt = getDecodedJWT(token);
         return jwt.getExpiresAt();
     }
 
     public static boolean isTokenExpired(String token) {
-        Date expiration = getExpirationDateFromToken(token);
-        return expiration.before(new Date());
+        Date expiredDate = getExpirationDateFromToken(token);
+        return expiredDate.before(new Date());
+    }
+
+    public static String getTokenSubject(String token) {
+        DecodedJWT jwt = getDecodedJWT(token);
+        return jwt.getSubject();
+    }
+
+    public static String getTokenRole(String token) {
+        DecodedJWT jwt = getDecodedJWT(token);
+        return jwt.getClaim("role").asString();
     }
 }

@@ -1,7 +1,6 @@
 package com.dsc.fptublog.filter;
 
 import com.dsc.fptublog.config.BasicSecurityContext;
-import com.dsc.fptublog.entity.AccountEntity;
 import com.dsc.fptublog.util.JwtUtil;
 
 import javax.annotation.Priority;
@@ -59,10 +58,11 @@ public class AuthFilter implements ContainerRequestFilter {
         }
 
         // 5. Getting the User information from token
-        AccountEntity account = JwtUtil.getAccountFromToken(token);
+        String subject = JwtUtil.getTokenSubject(token);
+        String role = JwtUtil.getTokenRole(token);
 
         // 6. Overriding the security context of the current request
         SecurityContext oldContext = requestContext.getSecurityContext();
-        requestContext.setSecurityContext(new BasicSecurityContext(account, oldContext.isSecure()));
+        requestContext.setSecurityContext(new BasicSecurityContext(subject, role, oldContext.isSecure()));
     }
 }
