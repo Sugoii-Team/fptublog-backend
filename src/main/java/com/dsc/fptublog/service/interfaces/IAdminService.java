@@ -1,16 +1,18 @@
 package com.dsc.fptublog.service.interfaces;
 
 import com.dsc.fptublog.entity.AccountEntity;
+import com.dsc.fptublog.entity.AdminEntity;
 import org.jvnet.hk2.annotations.Contract;
 
+import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.List;
 
 @Contract
 public interface IAdminService {
-    public List<AccountEntity> getAllAccounts() throws SQLException;
+    List<AccountEntity> getAllAccounts() throws SQLException;
 
-    public AccountEntity updateAccount(AccountEntity account) throws SQLException;
+    AccountEntity updateAccount(AccountEntity account) throws SQLException;
 
-
+    boolean getAuthentication(AdminEntity admin) throws SQLException, NoSuchAlgorithmException;
 }

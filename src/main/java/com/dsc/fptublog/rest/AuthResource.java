@@ -68,7 +68,7 @@ public class AuthResource {
                 // call service to resolve this gmail info
                 AccountEntity account = authService.createNewAccount(email, name, avatarUrl);
                 if (account != null) {
-                    String token = JwtUtil.createJWT(account);
+                    String token = JwtUtil.createJWT(account.getId(), account.getRole());
                     return Response.ok(account)
                             .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                             .build();
@@ -102,7 +102,7 @@ public class AuthResource {
                 // call service to resolve this gmail info
                 AccountEntity account = authService.getAccountByEmail(email);
                 if (account != null) {
-                    String token = JwtUtil.createJWT(account);
+                    String token = JwtUtil.createJWT(account.getId(), account.getRole());
                     return Response.ok(account)
                             .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                             .build();

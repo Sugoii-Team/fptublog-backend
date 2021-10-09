@@ -37,7 +37,7 @@ public class JwtUtil {
         return verifier.verify(token);
     }
 
-    public static String createJWT(AccountEntity account) {
+    public static String createJWT(String subject, String role) {
         // Get the current time
         long currentTimeInMillis = System.currentTimeMillis();
         Date now = new Date(currentTimeInMillis);
@@ -46,22 +46,12 @@ public class JwtUtil {
         long expirationTimeInMillis = TimeUnit.MINUTES.toMillis(EXPIRATION_LIMIT_IN_MINUTES);
         Date expirationDate = new Date(currentTimeInMillis + expirationTimeInMillis);
 
-        // Determine account role
-        String role = null;
-        if (account instanceof StudentEntity) {
-            role = Role.STUDENT;
-        } else if (account instanceof LecturerEntity) {
-            role = Role.LECTURER;
-        } else {
-            role = Role.ADMIN;
-        }
-
         // Create and Sign a Token
         return JWT.create()
                 .withIssuer(ISSUER)
                 .withIssuedAt(now)
                 .withExpiresAt(expirationDate)
-                .withSubject(account.getId())
+                .withSubject(subject)
                 .withClaim("role", role)
                 .sign(SIGNATURE_ALGORITHM);
     }

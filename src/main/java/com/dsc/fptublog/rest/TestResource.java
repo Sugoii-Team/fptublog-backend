@@ -17,12 +17,9 @@ import javax.ws.rs.core.SecurityContext;
 public class TestResource {
 
     @GET
-    @RolesAllowed({Role.LECTURER, Role.STUDENT})
+    //@RolesAllowed({Role.LECTURER, Role.STUDENT})
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getTest(@Context SecurityContext sc) {
-
-        String id = sc.getUserPrincipal().getName();
-
-        return Response.ok(id).build();
+    public Response getTest() {
+        return Response.ok("{\"name\": \"Hello world!!!\"}").build();
     }
 }
