@@ -3,6 +3,7 @@ package com.dsc.fptublog.dao.implementations;
 import com.dsc.fptublog.dao.interfaces.IAdminDAO;
 import com.dsc.fptublog.database.ConnectionWrapper;
 import com.dsc.fptublog.entity.AdminEntity;
+import org.glassfish.jersey.process.internal.RequestScoped;
 import org.jvnet.hk2.annotations.Service;
 
 import javax.inject.Inject;
@@ -12,6 +13,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 @Service
+@RequestScoped
 public class ImplAdminDAO implements IAdminDAO {
 
     @Inject

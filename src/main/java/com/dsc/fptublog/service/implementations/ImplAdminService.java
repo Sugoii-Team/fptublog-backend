@@ -9,6 +9,7 @@ import com.dsc.fptublog.entity.AccountStatusEntity;
 import com.dsc.fptublog.entity.AdminEntity;
 import com.dsc.fptublog.service.interfaces.IAdminService;
 import com.dsc.fptublog.util.SHA256Util;
+import org.glassfish.jersey.process.internal.RequestScoped;
 import org.jvnet.hk2.annotations.Service;
 
 import javax.inject.Inject;
@@ -17,6 +18,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 @Service
+@RequestScoped
 public class ImplAdminService implements IAdminService {
 
     @Inject

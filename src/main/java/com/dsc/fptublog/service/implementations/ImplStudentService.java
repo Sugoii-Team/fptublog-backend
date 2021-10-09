@@ -8,12 +8,14 @@ import com.dsc.fptublog.entity.AccountEntity;
 import com.dsc.fptublog.entity.MajorEntity;
 import com.dsc.fptublog.entity.StudentEntity;
 import com.dsc.fptublog.service.interfaces.IStudentService;
+import org.glassfish.jersey.process.internal.RequestScoped;
 import org.jvnet.hk2.annotations.Service;
 
 import javax.inject.Inject;
 import java.sql.SQLException;
 
 @Service
+@RequestScoped
 public class ImplStudentService implements IStudentService {
 
     @Inject

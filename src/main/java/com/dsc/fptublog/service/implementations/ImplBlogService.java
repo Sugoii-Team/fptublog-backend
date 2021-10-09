@@ -4,6 +4,7 @@ import com.dsc.fptublog.dao.interfaces.*;
 import com.dsc.fptublog.database.ConnectionWrapper;
 import com.dsc.fptublog.entity.*;
 import com.dsc.fptublog.service.interfaces.IBlogService;
+import org.glassfish.jersey.process.internal.RequestScoped;
 import org.jvnet.hk2.annotations.Service;
 
 import javax.inject.Inject;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequestScoped
 public class ImplBlogService implements IBlogService {
 
     @Inject

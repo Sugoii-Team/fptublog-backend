@@ -5,12 +5,14 @@ import com.dsc.fptublog.dao.interfaces.*;
 import com.dsc.fptublog.database.ConnectionWrapper;
 import com.dsc.fptublog.entity.*;
 import com.dsc.fptublog.service.interfaces.IAuthService;
+import org.glassfish.jersey.process.internal.RequestScoped;
 import org.jvnet.hk2.annotations.Service;
 
 import javax.inject.Inject;
 import java.sql.SQLException;
 
 @Service
+@RequestScoped
 public class ImplAuthService implements IAuthService {
 
     @Inject
