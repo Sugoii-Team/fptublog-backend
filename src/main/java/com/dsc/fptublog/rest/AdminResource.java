@@ -3,7 +3,6 @@ package com.dsc.fptublog.rest;
 
 import com.dsc.fptublog.config.Role;
 import com.dsc.fptublog.entity.AccountEntity;
-import com.dsc.fptublog.entity.AdminEntity;
 import com.dsc.fptublog.service.interfaces.IAdminService;
 import lombok.extern.log4j.Log4j;
 
