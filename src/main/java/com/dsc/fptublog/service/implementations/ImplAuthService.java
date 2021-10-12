@@ -79,6 +79,10 @@ public class ImplAuthService implements IAuthService {
             connectionWrapper.beginTransaction();
 
             // create new Account
+            if (!email.matches("^.*@fpt.edu.vn$")) {
+                return null;
+            }
+
             AccountStatusEntity accountStatus = accountStatusDAO.getByName("activated");
             AccountEntity newAccount = accountDAO.createForNewEmail(email,
                     name.substring(0, Math.min(10, name.length())),
