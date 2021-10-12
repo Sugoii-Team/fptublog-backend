@@ -238,8 +238,13 @@ public class ImplBlogService implements IBlogService {
                 return false;
             }
 
+            // set statusId and reviewerId to oldBlog
+            // to sure that updatedBlog not change the blog's other data
+            oldBlog.setStatusId(updatedBlog.getStatusId());
+            oldBlog.setReviewerId(updatedBlog.getReviewerId());
+
             // Get lecturer's categoryId List
-            List<String> categoryIdList = getCategoryOfLecturer(updatedBlog.getReviewerId());
+            List<String> categoryIdList = getCategoryOfLecturer(oldBlog.getReviewerId());
 
             // Check this lecturer can review this blog
             if (!categoryIdList.contains(oldBlog.getCategoryId())) {
@@ -247,14 +252,14 @@ public class ImplBlogService implements IBlogService {
             }
 
             // Check valid new status Id
-            if (blogStatusDAO.getById(updatedBlog.getStatusId()) == null) {
+            if (blogStatusDAO.getById(oldBlog.getStatusId()) == null) {
                 return false;
             }
 
             // Update review status and datetime
             long reviewDateTime = System.currentTimeMillis();
-            updatedBlog.setReviewDateTime(reviewDateTime);
-            result = blogDAO.updateByBlog(updatedBlog);
+            oldBlog.setReviewDateTime(reviewDateTime);
+            result = blogDAO.updateByBlog(oldBlog);
 
             connectionWrapper.commit();
         } catch (SQLException ex) {
