@@ -158,18 +158,17 @@ public class ImplAccountDAO implements IAccountDAO {
             return false;
         }
         String sql = "UPDATE account "
-                + "SET alternative_email = ISNULL(?, alternative_email), firstname = ISNULL(?, firstname), lastname = ISNULL(?, lastname), password = ISNULL(?, password), avatar_url = ISNULL(?, avatar_url), description = ISNULL(?, description), status_id = ISNULL(?, status_id) "
+                + "SET alternative_email = ISNULL(?, alternative_email), firstname = ISNULL(?, firstname), lastname = ISNULL(?, lastname), avatar_url = ISNULL(?, avatar_url), description = ISNULL(?, description), status_id = ISNULL(?, status_id) "
                 + "WHERE id = ?";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setString(1, updatedAccount.getAlternativeEmail());
             stm.setString(2, updatedAccount.getFirstName());
             stm.setString(3, updatedAccount.getLastName());
-            stm.setString(4, updatedAccount.getPassword());
-            stm.setString(5, updatedAccount.getAvatarUrl());
-            stm.setString(6, updatedAccount.getDescription());
-            stm.setString(7, updatedAccount.getStatusId());
-            stm.setString(8, updatedAccount.getId());
+            stm.setString(4, updatedAccount.getAvatarUrl());
+            stm.setString(5, updatedAccount.getDescription());
+            stm.setString(6, updatedAccount.getStatusId());
+            stm.setString(7, updatedAccount.getId());
 
             int effectedRow = stm.executeUpdate();
             if (effectedRow > 0) {

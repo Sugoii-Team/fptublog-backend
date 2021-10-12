@@ -80,6 +80,7 @@ public class AuthResource {
             }
         } catch (GeneralSecurityException | IOException | SQLException ex) {
             log.error(ex);
+            return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
         }
         return Response.status(Response.Status.NOT_ACCEPTABLE)
                 .entity("Invalid id_token")
@@ -91,6 +92,7 @@ public class AuthResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public Response getAuthentication(@FormParam("id_token") String idTokenString) {
+        Response response;
 
         GoogleIdTokenVerifier verifier =
                 new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), GsonFactory.getDefaultInstance())
@@ -107,16 +109,20 @@ public class AuthResource {
                 AccountEntity account = authService.getAccountByEmail(email);
                 if (account != null) {
                     String token = JwtUtil.createJWT(account.getId(), account.getRole());
-                    return Response.ok(account)
+                    response = Response.ok(account)
                             .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                             .build();
+                } else {
+                    response = Response.status(Response.Status.NOT_ACCEPTABLE).entity("Account is not existed").build();
                 }
+            } else {
+                response = Response.status(Response.Status.NOT_ACCEPTABLE).entity("Invalid id_token").build();
             }
         } catch (GeneralSecurityException | IOException | SQLException ex) {
             log.error(ex);
+            response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
         }
-        return Response.status(Response.Status.NOT_ACCEPTABLE)
-                .entity("Invalid id_token")
-                .build();
+
+        return response;
     }
 }

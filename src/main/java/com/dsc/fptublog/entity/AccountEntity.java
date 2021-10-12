@@ -15,7 +15,6 @@ public class AccountEntity {
     protected String alternativeEmail;
     protected String firstName;
     protected String lastName;
-    protected String password;
     protected String avatarUrl;
     protected String description;
     protected String statusId;
@@ -27,7 +26,6 @@ public class AccountEntity {
         this.alternativeEmail = account.getAlternativeEmail();
         this.firstName = account.getFirstName();
         this.lastName = account.getLastName();
-        this.password = account.getPassword();
         this.avatarUrl = account.getAvatarUrl();
         this.description = account.getDescription();
         this.statusId = account.getStatusId();

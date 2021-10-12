@@ -44,52 +44,31 @@ public class ImplAuthService implements IAuthService {
     @Override
     public AccountEntity getAccountByEmail(String email) throws SQLException {
         // find account by email from DB
-        AccountEntity account;
+        AccountEntity result;
         try {
             connectionWrapper.beginTransaction();
 
-            account = accountDAO.getByEmail(email);
+            AccountEntity account = accountDAO.getByEmail(email);
+            if (account != null) {
+
+                result = studentDAO.getByAccount(account);
+                if (result != null) {
+                    result.setRole(Role.STUDENT);
+                    return result;
+                }
+
+                result = lecturerDAO.getByAccount(account);
+                if (result != null) {
+                    result.setRole(Role.LECTURER);
+                    return result;
+                }
+            }
 
             connectionWrapper.commit();
         } finally {
             connectionWrapper.close();
         }
 
-        if (account == null) {
-            return null;
-        }
-
-        // check account is Student
-        StudentEntity student;
-        try {
-            connectionWrapper.beginTransaction();
-
-            student = studentDAO.getByAccount(account);
-
-            connectionWrapper.commit();
-        } finally {
-            connectionWrapper.close();
-        }
-        if (student != null) {
-            student.setRole(Role.STUDENT);
-            return student;
-        }
-
-        // check account is Lecturer
-        LecturerEntity lecturer;
-        try {
-            connectionWrapper.beginTransaction();
-
-            lecturer = lecturerDAO.getByAccount(account);
-
-            connectionWrapper.commit();
-        } finally {
-            connectionWrapper.close();
-        }
-        if (lecturer != null) {
-            lecturer.setRole(Role.LECTURER);
-            return lecturer;
-        }
         return null;
     }
 
