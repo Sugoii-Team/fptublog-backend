@@ -28,4 +28,6 @@ public interface IBlogService {
     boolean updateReviewStatus(BlogEntity updatedBlog) throws SQLException;
 
     List<BlogEntity> getAllBlogsOfAuthor(String authorId) throws SQLException;
+
+    BlogEntity deleteBlogOfAuthor(String authorId, String blogId) throws SQLException;
 }

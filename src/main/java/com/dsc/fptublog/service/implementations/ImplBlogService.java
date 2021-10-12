@@ -92,7 +92,7 @@ public class ImplBlogService implements IBlogService {
         try {
             connectionWrapper.beginTransaction();
 
-            pendingStatus = blogStatusDAO.getByName("pending");
+            pendingStatus = blogStatusDAO.getByName("pending approved");
             newBlog.setStatusId(pendingStatus.getId());
 
             long createdDateTime = System.currentTimeMillis();
@@ -169,14 +169,16 @@ public class ImplBlogService implements IBlogService {
             List<String> categoryIdList = getCategoryOfLecturer(lecturerId);
 
             // get pending blogs of these categories
-            BlogStatusEntity pendingStatus = blogStatusDAO.getByName("pending");
-            String pendingStatusId = pendingStatus.getId();
+            BlogStatusEntity pendingApprovedStatus = blogStatusDAO.getByName("pending approved");
+            String pendingApprovedStatusId = pendingApprovedStatus.getId();
+            BlogStatusEntity pendingDeletedStatus = blogStatusDAO.getByName("pending deleted");
+            String pendingDeletedStatusId = pendingDeletedStatus.getId();
             List<BlogEntity> blogList = blogDAO.getByCategoryIdList(categoryIdList);
             if (blogList == null) {
                 return Collections.emptyList();
             }
             result = blogList.stream()
-                    .filter(blog -> pendingStatusId.equals(blog.getStatusId()))
+                    .filter(blog -> pendingApprovedStatusId.equals(blog.getStatusId()) || pendingDeletedStatusId.equals(blog.getStatusId()))
                     .collect(Collectors.toList());
             connectionWrapper.commit();
         } finally {
@@ -230,8 +232,9 @@ public class ImplBlogService implements IBlogService {
 
             // Get full blog info
             BlogEntity oldBlog = blogDAO.getById(updatedBlog.getId());
-            String pendingStatusId = blogStatusDAO.getByName("pending").getId();
-            if (!pendingStatusId.equals(oldBlog.getStatusId())) {
+            String pendingApprovedStatusId = blogStatusDAO.getByName("pending approved").getId();
+            String pendingDeletedStatusId = blogStatusDAO.getByName("pending deleted").getId();
+            if (!(pendingApprovedStatusId.equals(oldBlog.getStatusId()) || pendingDeletedStatusId.equals(oldBlog.getStatusId()))) {
                 return false;
             }
 
@@ -277,6 +280,32 @@ public class ImplBlogService implements IBlogService {
             connectionWrapper.close();
         }
 
-        return result != null ? result : Collections.emptyList();
+        return (result != null) ? result : Collections.emptyList();
+    }
+
+    @Override
+    public BlogEntity deleteBlogOfAuthor(String authorId, String blogId) throws SQLException {
+        boolean result = false;
+        BlogEntity deletedBlog;
+        try {
+            connectionWrapper.beginTransaction();
+
+            // get blog by id to check right author
+            deletedBlog = blogDAO.getById(blogId);
+            if (deletedBlog != null && deletedBlog.getAuthorId().equals(authorId)) {
+                String pendingDeletedStatusId = blogStatusDAO.getByName("pending deleted").getId();
+                deletedBlog.setStatusId(pendingDeletedStatusId);
+                result = blogDAO.updateByBlog(deletedBlog);
+            }
+
+            connectionWrapper.commit();
+        } catch (SQLException ex) {
+            connectionWrapper.rollback();
+            throw ex;
+        } finally {
+            connectionWrapper.close();
+        }
+
+        return result ? deletedBlog : null;
     }
 }
