@@ -116,22 +116,6 @@ public class BlogResource {
     }
 
     @GET
-    @RolesAllowed(Role.LECTURER)
-    @Path("/lecturers/{lecturer_id}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getReviewingBlogs(@PathParam("lecturer_id") String lecturerId) {
-        List<BlogEntity> reviewingBlogs;
-
-        try {
-            reviewingBlogs = blogService.getReviewingBlogsOfLecturer(lecturerId);
-        } catch (SQLException ex) {
-            log.error(ex);
-            return Response.status(Response.Status.EXPECTATION_FAILED).entity("LOAD DATABASE FAILED").build();
-        }
-        return Response.ok(reviewingBlogs).build();
-    }
-
-    @GET
     @Path("/status")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllBlogStatus() {
@@ -145,27 +129,5 @@ public class BlogResource {
         }
 
         return Response.ok(blogStatusList).build();
-    }
-
-    @PUT
-    @Path("/{id}/review")
-    @RolesAllowed(Role.LECTURER)
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response reviewBlog(@PathParam("id") String id, BlogEntity updatedblog) {
-        updatedblog.setId(id);
-        boolean result;
-        try {
-            result = blogService.updateReviewStatus(updatedblog);
-        } catch (SQLException ex) {
-            log.error(ex);
-            return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
-        }
-
-        if (result) {
-            return Response.ok("Update successfully!").build();
-        } else {
-            return Response.status(Response.Status.EXPECTATION_FAILED).entity("Update fail!").build();
-        }
     }
 }
