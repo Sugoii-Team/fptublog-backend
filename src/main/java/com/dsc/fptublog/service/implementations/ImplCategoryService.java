@@ -4,6 +4,7 @@ import com.dsc.fptublog.dao.interfaces.ICategoryDAO;
 import com.dsc.fptublog.database.ConnectionWrapper;
 import com.dsc.fptublog.entity.CategoryEntity;
 import com.dsc.fptublog.service.interfaces.ICategoryService;
+import org.glassfish.jersey.process.internal.RequestScoped;
 import org.jvnet.hk2.annotations.Service;
 
 import javax.inject.Inject;
@@ -11,6 +12,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 @Service
+@RequestScoped
 public class ImplCategoryService implements ICategoryService {
 
     @Inject

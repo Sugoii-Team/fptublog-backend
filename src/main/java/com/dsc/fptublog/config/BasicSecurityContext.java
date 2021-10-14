@@ -1,42 +1,33 @@
 package com.dsc.fptublog.config;
 
-import com.dsc.fptublog.entity.AccountEntity;
-import com.dsc.fptublog.entity.LecturerEntity;
-import com.dsc.fptublog.entity.StudentEntity;
-
 import javax.ws.rs.core.SecurityContext;
 import java.security.Principal;
 
 public class BasicSecurityContext implements SecurityContext {
 
-    private AccountEntity account;
-    private boolean secure;
+    private final String subject;
+    private final String role;
+    private final boolean secure;
 
-    public BasicSecurityContext(AccountEntity account, boolean secure) {
-        this.account = account;
+    public BasicSecurityContext(String subject, String role, boolean secure) {
+        this.subject = subject;
+        this.role = role;
         this.secure = secure;
     }
 
     @Override
     public Principal getUserPrincipal() {
-
-        return () -> account.getId();
+        return () -> this.subject;
     }
 
     @Override
     public boolean isUserInRole(String role) {
-        if (account instanceof StudentEntity) {
-            return Role.STUDENT.equals(role);
-        }
-        if (account instanceof LecturerEntity) {
-            return Role.LECTURER.equals(role);
-        }
-        return false;
+        return role.equals(this.role);
     }
 
     @Override
     public boolean isSecure() {
-        return secure;
+        return this.secure;
     }
 
     @Override

@@ -4,14 +4,15 @@ import com.dsc.fptublog.dao.interfaces.ICommentDAO;
 import com.dsc.fptublog.database.ConnectionWrapper;
 import com.dsc.fptublog.entity.CommentEntity;
 import com.dsc.fptublog.service.interfaces.ICommentService;
+import org.glassfish.jersey.process.internal.RequestScoped;
 import org.jvnet.hk2.annotations.Service;
 
 import javax.inject.Inject;
 import java.sql.SQLException;
 import java.util.List;
 
-
 @Service
+@RequestScoped
 public class ImplCommentService implements ICommentService {
 
     @Inject
@@ -36,15 +37,14 @@ public class ImplCommentService implements ICommentService {
     @Override
     public CommentEntity insertComment(CommentEntity newComment) throws SQLException {
         CommentEntity comment;
-        try{
+        try {
             connectionWrapper.beginTransaction();
             comment = commentDAO.insertComment(newComment);
             connectionWrapper.commit();
-        }catch (SQLException ex){
+        } catch (SQLException ex) {
             connectionWrapper.rollback();
             throw ex;
-        }
-        finally {
+        } finally {
             connectionWrapper.close();
         }
         return comment;

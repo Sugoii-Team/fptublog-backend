@@ -12,7 +12,11 @@ import com.google.api.client.json.gson.GsonFactory;
 import lombok.extern.log4j.Log4j;
 
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -50,6 +54,7 @@ public class AuthResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public Response createRegistration(@FormParam("id_token") String idTokenString) {
+        Response response;
 
         GoogleIdTokenVerifier verifier =
                 new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), GsonFactory.getDefaultInstance())
@@ -68,18 +73,21 @@ public class AuthResource {
                 // call service to resolve this gmail info
                 AccountEntity account = authService.createNewAccount(email, name, avatarUrl);
                 if (account != null) {
-                    String token = JwtUtil.createJWT(account);
-                    return Response.ok(account)
-                            .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                    String token = JwtUtil.createJWT(account.getId(), account.getRole());
+                    response = Response.ok(account).header(HttpHeaders.AUTHORIZATION, "Bearer " + token).build();
+                } else {
+                    response = Response.status(Response.Status.NOT_ACCEPTABLE)
+                            .entity("Email is not in FPT edu")
                             .build();
                 }
+            } else {
+                response = Response.status(Response.Status.NOT_ACCEPTABLE).entity("Invalid id_token").build();
             }
         } catch (GeneralSecurityException | IOException | SQLException ex) {
             log.error(ex);
+            response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
         }
-        return Response.status(Response.Status.NOT_ACCEPTABLE)
-                .entity("Invalid id_token")
-                .build();
+        return response;
     }
 
     @POST
@@ -87,6 +95,7 @@ public class AuthResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public Response getAuthentication(@FormParam("id_token") String idTokenString) {
+        Response response;
 
         GoogleIdTokenVerifier verifier =
                 new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), GsonFactory.getDefaultInstance())
@@ -102,17 +111,21 @@ public class AuthResource {
                 // call service to resolve this gmail info
                 AccountEntity account = authService.getAccountByEmail(email);
                 if (account != null) {
-                    String token = JwtUtil.createJWT(account);
-                    return Response.ok(account)
+                    String token = JwtUtil.createJWT(account.getId(), account.getRole());
+                    response = Response.ok(account)
                             .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                             .build();
+                } else {
+                    response = Response.status(Response.Status.NOT_ACCEPTABLE).entity("Account is not existed").build();
                 }
+            } else {
+                response = Response.status(Response.Status.NOT_ACCEPTABLE).entity("Invalid id_token").build();
             }
         } catch (GeneralSecurityException | IOException | SQLException ex) {
             log.error(ex);
+            response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
         }
-        return Response.status(Response.Status.NOT_ACCEPTABLE)
-                .entity("Invalid id_token")
-                .build();
+
+        return response;
     }
 }

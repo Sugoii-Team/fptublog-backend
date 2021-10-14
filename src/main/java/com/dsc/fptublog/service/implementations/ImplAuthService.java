@@ -1,16 +1,26 @@
 package com.dsc.fptublog.service.implementations;
 
 import com.dsc.fptublog.config.Role;
-import com.dsc.fptublog.dao.interfaces.*;
+import com.dsc.fptublog.dao.interfaces.IAccountDAO;
+import com.dsc.fptublog.dao.interfaces.IAccountStatusDAO;
+import com.dsc.fptublog.dao.interfaces.ILecturerDAO;
+import com.dsc.fptublog.dao.interfaces.IMajorDAO;
+import com.dsc.fptublog.dao.interfaces.IStudentDAO;
 import com.dsc.fptublog.database.ConnectionWrapper;
-import com.dsc.fptublog.entity.*;
+import com.dsc.fptublog.entity.AccountEntity;
+import com.dsc.fptublog.entity.AccountStatusEntity;
+import com.dsc.fptublog.entity.LecturerEntity;
+import com.dsc.fptublog.entity.MajorEntity;
+import com.dsc.fptublog.entity.StudentEntity;
 import com.dsc.fptublog.service.interfaces.IAuthService;
+import org.glassfish.jersey.process.internal.RequestScoped;
 import org.jvnet.hk2.annotations.Service;
 
 import javax.inject.Inject;
 import java.sql.SQLException;
 
 @Service
+@RequestScoped
 public class ImplAuthService implements IAuthService {
 
     @Inject
@@ -34,52 +44,31 @@ public class ImplAuthService implements IAuthService {
     @Override
     public AccountEntity getAccountByEmail(String email) throws SQLException {
         // find account by email from DB
-        AccountEntity account;
+        AccountEntity result;
         try {
             connectionWrapper.beginTransaction();
 
-            account = accountDAO.getByEmail(email);
+            AccountEntity account = accountDAO.getByEmail(email);
+            if (account != null) {
+
+                result = studentDAO.getByAccount(account);
+                if (result != null) {
+                    result.setRole(Role.STUDENT);
+                    return result;
+                }
+
+                result = lecturerDAO.getByAccount(account);
+                if (result != null) {
+                    result.setRole(Role.LECTURER);
+                    return result;
+                }
+            }
 
             connectionWrapper.commit();
         } finally {
             connectionWrapper.close();
         }
 
-        if (account == null) {
-            return null;
-        }
-
-        // check account is Student
-        StudentEntity student;
-        try {
-            connectionWrapper.beginTransaction();
-
-            student = studentDAO.getByAccount(account);
-
-            connectionWrapper.commit();
-        } finally {
-            connectionWrapper.close();
-        }
-        if (student != null) {
-            student.setRole(Role.STUDENT);
-            return student;
-        }
-
-        // check account is Lecturer
-        LecturerEntity lecturer;
-        try {
-            connectionWrapper.beginTransaction();
-
-            lecturer = lecturerDAO.getByAccount(account);
-
-            connectionWrapper.commit();
-        } finally {
-            connectionWrapper.close();
-        }
-        if (lecturer != null) {
-            lecturer.setRole(Role.LECTURER);
-            return lecturer;
-        }
         return null;
     }
 
@@ -90,6 +79,10 @@ public class ImplAuthService implements IAuthService {
             connectionWrapper.beginTransaction();
 
             // create new Account
+            if (!email.matches("^.*@fpt.edu.vn$")) {
+                return null;
+            }
+
             AccountStatusEntity accountStatus = accountStatusDAO.getByName("activated");
             AccountEntity newAccount = accountDAO.createForNewEmail(email,
                     name.substring(0, Math.min(10, name.length())),
@@ -122,7 +115,7 @@ public class ImplAuthService implements IAuthService {
         // Get school year from email string
         String email = newAccount.getEmail();
         int index = email.indexOf("@fpt.edu.vn") - 6;
-        short schoolYear = Short.parseShort(email.substring(index, index+2));
+        short schoolYear = Short.parseShort(email.substring(index, index + 2));
 
         // Set default Major is Software Engineering because Major is not null
         // User can change it later
@@ -135,7 +128,7 @@ public class ImplAuthService implements IAuthService {
 
         return newStudent;
     }
-    
+
     private LecturerEntity createLecturer(AccountEntity newAccount) throws SQLException {
         LecturerEntity newLecturer = lecturerDAO.insertById(newAccount.getId());
         newLecturer.setAccountInfo(newAccount);

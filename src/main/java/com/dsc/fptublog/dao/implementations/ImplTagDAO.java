@@ -188,7 +188,7 @@ public class ImplTagDAO implements ITagDAO {
         String sql =
                 "IF EXISTS (SELECT id FROM tag WHERE name = ?) " +
                         "SELECT id FROM tag WHERE name = ? " +
-                "ELSE " +
+                        "ELSE " +
                         "INSERT INTO tag (name) " +
                         "OUTPUT inserted.id " +
                         "VALUES (?)";

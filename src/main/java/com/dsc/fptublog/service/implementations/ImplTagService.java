@@ -6,6 +6,7 @@ import com.dsc.fptublog.database.ConnectionWrapper;
 import com.dsc.fptublog.entity.BlogTagEntity;
 import com.dsc.fptublog.entity.TagEntity;
 import com.dsc.fptublog.service.interfaces.ITagService;
+import org.glassfish.jersey.process.internal.RequestScoped;
 import org.jvnet.hk2.annotations.Service;
 
 import javax.inject.Inject;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequestScoped
 public class ImplTagService implements ITagService {
 
     @Inject
@@ -42,7 +44,7 @@ public class ImplTagService implements ITagService {
                 List<String> tagIdList = blogTagList.stream().map(BlogTagEntity::getTagId).collect(Collectors.toList());
                 tagList = tagDAO.getByIdList(tagIdList);
             }
-            
+
             connectionWrapper.commit();
         } finally {
             connectionWrapper.close();

@@ -12,12 +12,16 @@ import lombok.NoArgsConstructor;
 public class BlogEntity {
     private String id;
     private String authorId;
+    private String thumbnailUrl;
     private String title;
     private String content;
-    private long createdDateTime;
+    private String description;
+    private long updatedDatetime;
     private String statusId;
     private String categoryId;
     private String reviewerId;
     private long reviewDateTime;
+    private String historyId;
+    private long createdDateTime;
     private int views;
 }

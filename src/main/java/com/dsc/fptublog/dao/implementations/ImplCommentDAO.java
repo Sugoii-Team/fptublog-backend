@@ -3,6 +3,7 @@ package com.dsc.fptublog.dao.implementations;
 import com.dsc.fptublog.dao.interfaces.ICommentDAO;
 import com.dsc.fptublog.database.ConnectionWrapper;
 import com.dsc.fptublog.entity.CommentEntity;
+import org.glassfish.jersey.process.internal.RequestScoped;
 import org.jvnet.hk2.annotations.Service;
 
 import javax.inject.Inject;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@RequestScoped
 public class ImplCommentDAO implements ICommentDAO {
 
     @Inject

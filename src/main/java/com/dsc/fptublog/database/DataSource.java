@@ -18,5 +18,4 @@ public class DataSource {
     public static Connection getConnection() throws SQLException {
         return DATA_SOURCE.getConnection();
     }
-
 }

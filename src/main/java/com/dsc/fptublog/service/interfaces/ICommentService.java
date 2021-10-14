@@ -8,7 +8,7 @@ import java.util.List;
 
 @Contract
 public interface ICommentService {
-    public List<CommentEntity> getAllCommentsByBlogId(String blogId) throws SQLException;
+    List<CommentEntity> getAllCommentsByBlogId(String blogId) throws SQLException;
 
-    public CommentEntity insertComment(CommentEntity newComment) throws SQLException;
+    CommentEntity insertComment(CommentEntity newComment) throws SQLException;
 }

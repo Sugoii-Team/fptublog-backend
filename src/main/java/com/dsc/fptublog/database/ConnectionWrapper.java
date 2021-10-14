@@ -6,15 +6,15 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 @Contract
-public interface ConnectionWrapper{
+public interface ConnectionWrapper {
 
-    public void beginTransaction() throws SQLException;
+    void beginTransaction() throws SQLException;
 
-    public void commit() throws SQLException;
+    void commit() throws SQLException;
 
-    public void rollback() throws SQLException;
+    void rollback() throws SQLException;
 
-    public void close() throws SQLException;
+    void close() throws SQLException;
 
-    public Connection getConnection();
+    Connection getConnection();
 }

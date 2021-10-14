@@ -1,8 +1,8 @@
 package com.dsc.fptublog.dao.implementations;
 
-import com.dsc.fptublog.dao.interfaces.IAdminDAO;
+import com.dsc.fptublog.dao.interfaces.IBlogHistoryDAO;
 import com.dsc.fptublog.database.ConnectionWrapper;
-import com.dsc.fptublog.entity.AdminEntity;
+import com.dsc.fptublog.entity.BlogHistory;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.jvnet.hk2.annotations.Service;
 
@@ -14,32 +14,36 @@ import java.sql.SQLException;
 
 @Service
 @RequestScoped
-public class ImplAdminDAO implements IAdminDAO {
+public class ImplBlogHistoryDAO implements IBlogHistoryDAO {
 
     @Inject
     private ConnectionWrapper connectionWrapper;
 
+
     @Override
-    public boolean checkAuthentication(AdminEntity admin) throws SQLException {
+    public BlogHistory insertByBlogHistory(BlogHistory blogHistory) throws SQLException {
         Connection connection = connectionWrapper.getConnection();
         if (connection == null) {
-            return false;
+            return null;
         }
 
-        String sql = "SELECT username " +
-                "FROM admin " +
-                "WHERE username = ? AND password = ?";
+        String sql = "INSERT INTO blog_history (created_datetime, views) " +
+                "OUTPUT inserted.id " +
+                "VALUES (?, ?)";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
-            stm.setString(1, admin.getUsername());
-            stm.setString(2, admin.getPassword());
+            stm.setLong(1, blogHistory.getCreatedDatetime());
+            stm.setInt(2, blogHistory.getViews());
 
             ResultSet resultSet = stm.executeQuery();
             if (resultSet.next()) {
-                return true;
+                String id = resultSet.getString("id");
+                blogHistory.setId(id);
+
+                return blogHistory;
             }
         }
 
-        return false;
+        return null;
     }
 }

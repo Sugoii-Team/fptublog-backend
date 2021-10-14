@@ -7,7 +7,7 @@ import java.sql.SQLException;
 
 @Contract
 public interface IStudentService {
-    public StudentEntity getStudent(String id) throws SQLException;
+    StudentEntity getStudent(String id) throws SQLException;
 
-    public StudentEntity updateStudent(StudentEntity studentEntity) throws SQLException;
+    StudentEntity updateStudent(StudentEntity studentEntity) throws SQLException;
 }
