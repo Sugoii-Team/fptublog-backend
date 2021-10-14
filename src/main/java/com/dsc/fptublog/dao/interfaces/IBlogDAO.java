@@ -19,7 +19,9 @@ public interface IBlogDAO {
 
     List<BlogEntity> getAllBlogs() throws SQLException;
 
-    List<BlogEntity> getByCategoryIdList(List<String> categoryIdList) throws SQLException;
+    /*List<BlogEntity> getByCategoryIdList(List<String> categoryIdList) throws SQLException;*/
+
+    List<BlogEntity> getPendingBlogByCategoryIdList(List<String> categoryIdList) throws SQLException;
 
     List<BlogEntity> getByAuthorId(String authorId) throws SQLException;
 }

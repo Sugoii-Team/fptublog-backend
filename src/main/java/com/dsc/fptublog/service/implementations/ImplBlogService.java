@@ -1,6 +1,7 @@
 package com.dsc.fptublog.service.implementations;
 
 import com.dsc.fptublog.dao.interfaces.IBlogDAO;
+import com.dsc.fptublog.dao.interfaces.IBlogHistoryDAO;
 import com.dsc.fptublog.dao.interfaces.IBlogStatusDAO;
 import com.dsc.fptublog.dao.interfaces.IBlogTagDAO;
 import com.dsc.fptublog.dao.interfaces.ICategoryDAO;
@@ -8,6 +9,7 @@ import com.dsc.fptublog.dao.interfaces.ILecturerFieldDAO;
 import com.dsc.fptublog.dao.interfaces.ITagDAO;
 import com.dsc.fptublog.database.ConnectionWrapper;
 import com.dsc.fptublog.entity.BlogEntity;
+import com.dsc.fptublog.entity.BlogHistory;
 import com.dsc.fptublog.entity.BlogStatusEntity;
 import com.dsc.fptublog.entity.CategoryEntity;
 import com.dsc.fptublog.entity.LecturerFieldEntity;
@@ -47,6 +49,9 @@ public class ImplBlogService implements IBlogService {
     @Inject
     private ICategoryDAO categoryDAO;
 
+    @Inject
+    private IBlogHistoryDAO blogHistoryDAO;
+
     @Override
     public BlogEntity getById(String id) throws SQLException {
         BlogEntity blog;
@@ -67,22 +72,21 @@ public class ImplBlogService implements IBlogService {
     @Override
     public List<BlogEntity> getAllBlogs() throws SQLException {
         List<BlogEntity> blogList = null;
-        BlogStatusEntity approvedStatus;
 
         try {
             connectionWrapper.beginTransaction();
 
             blogList = blogDAO.getAllBlogs();
-            approvedStatus = blogStatusDAO.getByName("approved");
+            if (blogList == null) {
+                blogList = Collections.emptyList();
+            }
 
             connectionWrapper.commit();
         } finally {
             connectionWrapper.close();
         }
 
-        return blogList.stream()
-                .filter(blog -> approvedStatus.getId().equals(blog.getStatusId()))
-                .collect(Collectors.toList());
+        return blogList;
     }
 
     @Override
@@ -92,11 +96,17 @@ public class ImplBlogService implements IBlogService {
         try {
             connectionWrapper.beginTransaction();
 
+            // create blog history list
+            long createdDateTime = System.currentTimeMillis();
+            BlogHistory blogHistory =
+                    blogHistoryDAO.insertByBlogHistory(new BlogHistory(null, createdDateTime, 0));
+            newBlog.setHistoryId(blogHistory.getId());
+
             pendingStatus = blogStatusDAO.getByName("pending approved");
             newBlog.setStatusId(pendingStatus.getId());
 
-            long createdDateTime = System.currentTimeMillis();
             newBlog.setCreatedDateTime(createdDateTime);
+            newBlog.setUpdatedDatetime(createdDateTime);
 
             newBlog.setViews(0);
 
@@ -169,17 +179,10 @@ public class ImplBlogService implements IBlogService {
             List<String> categoryIdList = getCategoryOfLecturer(lecturerId);
 
             // get pending blogs of these categories
-            BlogStatusEntity pendingApprovedStatus = blogStatusDAO.getByName("pending approved");
-            String pendingApprovedStatusId = pendingApprovedStatus.getId();
-            BlogStatusEntity pendingDeletedStatus = blogStatusDAO.getByName("pending deleted");
-            String pendingDeletedStatusId = pendingDeletedStatus.getId();
-            List<BlogEntity> blogList = blogDAO.getByCategoryIdList(categoryIdList);
-            if (blogList == null) {
-                return Collections.emptyList();
+            result = blogDAO.getPendingBlogByCategoryIdList(categoryIdList);
+            if (result == null) {
+                result = Collections.emptyList();
             }
-            result = blogList.stream()
-                    .filter(blog -> pendingApprovedStatusId.equals(blog.getStatusId()) || pendingDeletedStatusId.equals(blog.getStatusId()))
-                    .collect(Collectors.toList());
             connectionWrapper.commit();
         } finally {
             connectionWrapper.close();
@@ -312,5 +315,28 @@ public class ImplBlogService implements IBlogService {
         }
 
         return result ? deletedBlog : null;
+    }
+
+    @Override
+    public BlogEntity updateBlog(String authorId, BlogEntity updatedBlog) throws SQLException {
+        try {
+            connectionWrapper.beginTransaction();
+
+            // TODO get oldBlog, then check authorId is right
+            BlogEntity oldBlog = blogDAO.getById(updatedBlog.getId());
+
+
+            // TODO get 'pending updated' status
+
+            // update to DB
+
+            connectionWrapper.commit();
+        } catch (SQLException ex) {
+            connectionWrapper.rollback();
+            throw ex;
+        } finally {
+            connectionWrapper.close();
+        }
+        return null;
     }
 }

@@ -16,10 +16,12 @@ public class BlogEntity {
     private String title;
     private String content;
     private String description;
-    private long createdDateTime;
+    private long updatedDatetime;
     private String statusId;
     private String categoryId;
     private String reviewerId;
     private long reviewDateTime;
+    private String historyId;
+    private long createdDateTime;
     private int views;
 }

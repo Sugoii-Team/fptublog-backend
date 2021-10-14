@@ -21,6 +21,45 @@ public class ImplBlogDAO implements IBlogDAO {
     @Inject
     private ConnectionWrapper connectionWrapper;
 
+    private BlogEntity getBlogWithContent(ResultSet resultSet) throws SQLException {
+        String id = resultSet.getString("blog_id");
+        String authorId = resultSet.getString("author_id");
+        String thumbnailUrl = resultSet.getString("thumbnail_url");
+        String title = resultSet.getNString("title");
+        String content = resultSet.getNString("content");
+        String description = resultSet.getNString("description");
+        long updatedDatetime = resultSet.getLong("updated_datetime");
+        String statusId = resultSet.getString("status_id");
+        String categoryId = resultSet.getString("category_id");
+        String reviewerId = resultSet.getString("reviewer_id");
+        long reviewDateTime = resultSet.getLong("review_datetime");
+        String historyId = resultSet.getString("blog_history_id");
+        long createdDatetime = resultSet.getLong("created_datetime");
+        int views = resultSet.getInt("views");
+
+        return new BlogEntity(id, authorId, thumbnailUrl, title, content, description, updatedDatetime,
+                statusId, categoryId, reviewerId, reviewDateTime, historyId, createdDatetime, views);
+    }
+
+    private BlogEntity getBlogWithoutContent(ResultSet resultSet) throws SQLException {
+        String id = resultSet.getString("blog_id");
+        String authorId = resultSet.getString("author_id");
+        String thumbnailUrl = resultSet.getString("thumbnail_url");
+        String title = resultSet.getNString("title");
+        String description = resultSet.getNString("description");
+        long updatedDatetime = resultSet.getLong("updated_datetime");
+        String statusId = resultSet.getString("status_id");
+        String categoryId = resultSet.getString("category_id");
+        String reviewerId = resultSet.getString("reviewer_id");
+        long reviewDateTime = resultSet.getLong("review_datetime");
+        String historyId = resultSet.getString("blog_history_id");
+        long createdDatetime = resultSet.getLong("created_datetime");
+        int views = resultSet.getInt("views");
+
+        return new BlogEntity(id, authorId, thumbnailUrl, title, null, description, updatedDatetime,
+                statusId, categoryId, reviewerId, reviewDateTime, historyId, createdDatetime, views);
+    }
+
     @Override
     public BlogEntity insertByBlog(BlogEntity newBlog) throws SQLException {
         Connection connection = connectionWrapper.getConnection();
@@ -29,7 +68,7 @@ public class ImplBlogDAO implements IBlogDAO {
         }
 
         String sql = "INSERT INTO blog (author_id, thumbnail_url, title, content, description, created_datetime, " +
-                "status_id, category_id, reviewer_id, review_datetime, views) "
+                "status_id, category_id, reviewer_id, review_datetime, blog_history_id) "
                 + "OUTPUT inserted.id "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
@@ -39,12 +78,12 @@ public class ImplBlogDAO implements IBlogDAO {
             stm.setNString(3, newBlog.getTitle());
             stm.setNString(4, newBlog.getContent());
             stm.setNString(5, newBlog.getDescription());
-            stm.setLong(6, newBlog.getCreatedDateTime());
+            stm.setLong(6, newBlog.getUpdatedDatetime());
             stm.setString(7, newBlog.getStatusId());
             stm.setString(8, newBlog.getCategoryId());
             stm.setString(9, newBlog.getReviewerId());
             stm.setLong(10, newBlog.getReviewDateTime());
-            stm.setInt(11, newBlog.getViews());
+            stm.setString(11, newBlog.getHistoryId());
 
             ResultSet resultSet = stm.executeQuery();
             if (resultSet.next()) {
@@ -68,7 +107,7 @@ public class ImplBlogDAO implements IBlogDAO {
                 "content = ISNULL(?, content), description = ISNULL(?, description), " +
                 "status_id = ISNULL(?, status_id), category_id = ISNULL(?, category_id), " +
                 "reviewer_id = ISNULL(?, reviewer_id), review_datetime = ISNULL(?, review_datetime), " +
-                "views = ISNULL(?, views) "
+                "blog_history_id = ISNULL(?, blog_history_id) "
                 + "WHERE id = ?";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
@@ -80,7 +119,7 @@ public class ImplBlogDAO implements IBlogDAO {
             stm.setString(6, updatedBlog.getCategoryId());
             stm.setString(7, updatedBlog.getReviewerId());
             stm.setLong(8, updatedBlog.getReviewDateTime());
-            stm.setInt(9, updatedBlog.getViews());
+            stm.setString(9, updatedBlog.getHistoryId());
             stm.setString(10, updatedBlog.getId());
 
             int effectRow = stm.executeUpdate();
@@ -101,33 +140,20 @@ public class ImplBlogDAO implements IBlogDAO {
 
         BlogEntity result = null;
 
-        String sql = "SELECT author_id, thumbnail_url, title, content, description, created_datetime, status_id, " +
-                "category_id, reviewer_id, review_datetime, views " +
-                "FROM blog " +
-                "WHERE id = ?";
+        String sql = "SELECT blog.id AS blog_id, author_id, thumbnail_url, title, content, description, " +
+                "blog.created_datetime AS updated_datetime, status_id, category_id, reviewer_id, review_datetime, " +
+                "blog_history_id, history.created_datetime AS created_datetime, views " +
+                "FROM blog INNER JOIN blog_history history on history.id = blog.blog_history_id " +
+                "WHERE blog.id = ?";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setString(1, blogId);
 
             ResultSet resultSet = stm.executeQuery();
             if (resultSet.next()) {
-                String authorId = resultSet.getString(1);
-                String thumbnailUrl = resultSet.getString(2);
-                String title = resultSet.getNString(3);
-                String content = resultSet.getNString(4);
-                String desciption = resultSet.getNString(5);
-                long createdDatetime = resultSet.getLong(6);
-                String statusId = resultSet.getString(7);
-                String categoryId = resultSet.getString(8);
-                String reviewerId = resultSet.getString(9);
-                long reviewDatetime = resultSet.getLong(10);
-                int views = resultSet.getInt(11);
-
-                result = new BlogEntity(blogId, authorId, thumbnailUrl, title, content, desciption, createdDatetime,
-                        statusId, categoryId, reviewerId, reviewDatetime, views);
+                result = this.getBlogWithContent(resultSet);
             }
         }
-
         return result;
     }
 
@@ -163,37 +189,30 @@ public class ImplBlogDAO implements IBlogDAO {
 
         List<BlogEntity> result = null;
 
-        String sql = "SELECT id, author_id, thumbnail_url, title, description, created_datetime, status_id, " +
-                "category_id, reviewer_id, review_datetime, views " +
-                "FROM blog";
+        String sql = "SELECT blog.id AS blog_id, author_id, thumbnail_url, title, description, " +
+                "blog.created_datetime AS updated_datetime, status_id, category_id, reviewer_id, review_datetime, " +
+                "blog_history_id, history.created_datetime AS created_datetime, views " +
+                "FROM blog " +
+                "INNER JOIN blog_status status ON blog.status_id = status.id " +
+                "INNER JOIN blog_history history ON blog.blog_history_id = history.id " +
+                "WHERE status.name = 'approved' OR status.name = 'pending deleted' OR status.name = 'pending updated'";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             ResultSet resultSet = stm.executeQuery();
-            while (resultSet.next()) {
-                String id = resultSet.getString(1);
-                String authorId = resultSet.getString(2);
-                String thumbnailUrl = resultSet.getString(3);
-                String title = resultSet.getNString(4);
-                String description = resultSet.getNString(5);
-                long createdDatetime = resultSet.getLong(6);
-                String statusId = resultSet.getString(7);
-                String categoryId = resultSet.getString(8);
-                String reviewerId = resultSet.getString(9);
-                long reviewDatetime = resultSet.getLong(10);
-                int views = resultSet.getInt(11);
 
+            while (resultSet.next()) {
+                BlogEntity blog = this.getBlogWithoutContent(resultSet);
                 if (result == null) {
                     result = new ArrayList<>();
                 }
-                result.add(new BlogEntity(id, authorId, thumbnailUrl, title, null, description,
-                        createdDatetime, statusId, categoryId, reviewerId, reviewDatetime, views));
+                result.add(blog);
             }
         }
 
         return result;
     }
 
-    @Override
+    /*@Override
     public List<BlogEntity> getByCategoryIdList(List<String> categoryIdList) throws SQLException {
         Connection connection = connectionWrapper.getConnection();
         if (connection == null) {
@@ -234,6 +253,42 @@ public class ImplBlogDAO implements IBlogDAO {
         }
 
         return result;
+    }*/
+
+    @Override
+    public List<BlogEntity> getPendingBlogByCategoryIdList(List<String> categoryIdList) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return null;
+        }
+
+        List<BlogEntity> result = null;
+
+        String sql = "SELECT blog.id AS blog_id, author_id, thumbnail_url, title, description, " +
+                "blog.created_datetime AS updated_datetime, status_id, category_id, reviewer_id, review_datetime, " +
+                "blog_history_id, history.created_datetime AS created_datetime, views " +
+                "FROM blog " +
+                "INNER JOIN blog_status status on status.id = blog.status_id " +
+                "INNER JOIN blog_history history on history.id = blog.blog_history_id " +
+                "WHERE blog.category_id = ? AND (status.name = 'pending approved' " +
+                "OR status.name = 'pending deleted' OR status.name = 'pending updated' )";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            for (var categoryId : categoryIdList) {
+                stm.setString(1, categoryId);
+
+                ResultSet resultSet = stm.executeQuery();
+                while (resultSet.next()) {
+                    BlogEntity blog = this.getBlogWithoutContent(resultSet);
+                    if (result == null) {
+                        result = new ArrayList<>();
+                    }
+                    result.add(blog);
+                }
+            }
+        }
+
+        return result;
     }
 
     @Override
@@ -245,32 +300,24 @@ public class ImplBlogDAO implements IBlogDAO {
 
         List<BlogEntity> result = null;
 
-        String sql = "SELECT id, thumbnail_url, title, description, created_datetime, status_id, category_id, " +
-                "reviewer_id, review_datetime, views " +
+        String sql = "SELECT blog.id AS blog_id, author_id, thumbnail_url, title, description, " +
+                "blog.created_datetime AS updated_datetime, status_id, category_id, reviewer_id, review_datetime, " +
+                "blog_history_id, history.created_datetime AS created_datetime, views " +
                 "FROM blog " +
-                "WHERE author_id = ?";
+                "INNER JOIN blog_status status on status.id = blog.status_id " +
+                "INNER JOIN blog_history history on history.id = blog.blog_history_id " +
+                "WHERE author_id = ? AND status.name != 'deleted'";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setString(1, authorId);
 
             ResultSet resultSet = stm.executeQuery();
             while (resultSet.next()) {
-                String id = resultSet.getString(1);
-                String thumbnailUrl = resultSet.getString(2);
-                String title = resultSet.getNString(3);
-                String description = resultSet.getNString(4);
-                long createdDatetime = resultSet.getLong(5);
-                String statusId = resultSet.getString(6);
-                String categoryId = resultSet.getString(7);
-                String reviewerId = resultSet.getString(8);
-                long reviewDatetime = resultSet.getLong(9);
-                int views = resultSet.getInt(10);
-
+                BlogEntity blog = this.getBlogWithoutContent(resultSet);
                 if (result == null) {
                     result = new ArrayList<>();
                 }
-                result.add(new BlogEntity(id, authorId, thumbnailUrl, title, null, description, createdDatetime, statusId,
-                        categoryId, reviewerId, reviewDatetime, views));
+                result.add(blog);
             }
         }
 
