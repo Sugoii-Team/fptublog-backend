@@ -54,6 +54,7 @@ public class LecturerResource {
         }
 
         updatedBlog.setId(blogId);
+        updatedBlog.setReviewerId(lecturerId);
         boolean result;
 
         try {

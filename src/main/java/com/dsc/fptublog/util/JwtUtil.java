@@ -41,7 +41,8 @@ public class JwtUtil {
         Date now = new Date(currentTimeInMillis);
 
         // The key is only valid for the next EXPIRATION_LIMIT_IN_MINUTES
-        long expirationTimeInMillis = TimeUnit.MINUTES.toMillis(EXPIRATION_LIMIT_IN_MINUTES);
+        long expirationTimeInMillis = TimeUnit.MILLISECONDS.convert(EXPIRATION_LIMIT_IN_MINUTES, TimeUnit.MINUTES);
+        System.out.println(expirationTimeInMillis);
         Date expirationDate = new Date(currentTimeInMillis + expirationTimeInMillis);
 
         // Create and Sign a Token

@@ -237,7 +237,8 @@ public class ImplBlogService implements IBlogService {
             BlogEntity oldBlog = blogDAO.getById(updatedBlog.getId());
             String pendingApprovedStatusId = blogStatusDAO.getByName("pending approved").getId();
             String pendingDeletedStatusId = blogStatusDAO.getByName("pending deleted").getId();
-            if (!(pendingApprovedStatusId.equals(oldBlog.getStatusId()) || pendingDeletedStatusId.equals(oldBlog.getStatusId()))) {
+            if (!(pendingApprovedStatusId.equals(oldBlog.getStatusId())
+                    || pendingDeletedStatusId.equals(oldBlog.getStatusId()))) {
                 return false;
             }
 
@@ -319,16 +320,30 @@ public class ImplBlogService implements IBlogService {
 
     @Override
     public BlogEntity updateBlog(String authorId, BlogEntity updatedBlog) throws SQLException {
+        BlogEntity result = null;
         try {
             connectionWrapper.beginTransaction();
 
-            // TODO get oldBlog, then check authorId is right
+            // get oldBlog, then check authorId is right
             BlogEntity oldBlog = blogDAO.getById(updatedBlog.getId());
+            if (!oldBlog.getAuthorId().equals(authorId)) {
+                return null;
+            }
 
+            String pendingUpdatedStatusId = blogStatusDAO.getByName("pending updated").getId();
+            long currentTime = System.currentTimeMillis();
 
-            // TODO get 'pending updated' status
+            oldBlog.setThumbnailUrl(updatedBlog.getThumbnailUrl());
+            oldBlog.setTitle(updatedBlog.getTitle());
+            oldBlog.setContent(updatedBlog.getContent());
+            oldBlog.setDescription(updatedBlog.getDescription());
+            oldBlog.setUpdatedDatetime(currentTime);
+            oldBlog.setStatusId(pendingUpdatedStatusId);
+            oldBlog.setReviewerId(null);
+            oldBlog.setReviewDateTime(0);
 
-            // update to DB
+            // TODO update to DB
+            result = blogDAO.insertByBlog(oldBlog);
 
             connectionWrapper.commit();
         } catch (SQLException ex) {
@@ -337,6 +352,6 @@ public class ImplBlogService implements IBlogService {
         } finally {
             connectionWrapper.close();
         }
-        return null;
+        return result;
     }
 }
