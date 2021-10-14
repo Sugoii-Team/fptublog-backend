@@ -15,8 +15,10 @@ public interface IAccountDAO {
 
     AccountEntity getById(String id) throws SQLException;
 
-    public boolean updateByAccount(AccountEntity updatedAccount) throws SQLException;
+    boolean updateByAccount(AccountEntity updatedAccount) throws SQLException;
 
-    public List<AccountEntity> getAllAccounts() throws SQLException;
+    List<AccountEntity> getAllAccounts() throws SQLException;
+
+    boolean deleteAccount(AccountEntity deletedAccount) throws SQLException;
 
 }

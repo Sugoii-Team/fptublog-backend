@@ -49,13 +49,8 @@ public class ImplAdminService implements IAdminService {
 
     @Override
     public AccountEntity updateAccount(AccountEntity account) throws SQLException {
-        AccountStatusEntity statusEntity;
         try {
             connectionWrapper.beginTransaction();
-            statusEntity = accountStatusDAO.getByName("deleted");
-            if (account.getStatusId().equals(statusEntity.getId())) {
-                account.setStatusId(statusEntity.getId());
-            }//end if account status is set to deleted
             boolean resultUpdate = accountDAO.updateByAccount(account);
             if (resultUpdate) {
                 connectionWrapper.commit();
@@ -68,6 +63,25 @@ public class ImplAdminService implements IAdminService {
             connectionWrapper.close();
         }
         return null;
+    }
+
+    @Override
+    public void deleteAccount(String accountId) throws SQLException {
+        try {
+            connectionWrapper.beginTransaction();
+            AccountEntity deleteAccount = accountDAO.getById(accountId);
+            AccountStatusEntity deleteStatus = accountStatusDAO.getByName("deleted");
+            deleteAccount.setStatusId(deleteStatus.getId());
+            boolean result = accountDAO.deleteAccount(deleteAccount);
+            if (result){
+                connectionWrapper.commit();
+            }
+        }catch (SQLException ex){
+                connectionWrapper.rollback();
+                throw ex;
+        }finally {
+            connectionWrapper.close();
+        }
     }
 
     @Override

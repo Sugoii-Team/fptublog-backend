@@ -185,8 +185,10 @@ public class ImplAccountDAO implements IAccountDAO {
         if (connection == null) {
             return null;
         }
-        String sql = "SELECT id, email, alternative_email, firstname, lastname, status_id "
-                + "FROM account";
+        String sql = "SELECT account.id, email, alternative_email, firstname, lastname, status_id "
+                + "FROM account "
+                + "INNER JOIN account_status status ON account.status_id = status.id "
+                + "WHERE status.name = 'activated' OR status.name = 'banned'";
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             ResultSet result = stm.executeQuery();
             while (result.next()) {
@@ -209,5 +211,25 @@ public class ImplAccountDAO implements IAccountDAO {
             }
         }
         return accountList;
+    }
+
+    @Override
+    public boolean deleteAccount(AccountEntity deletedAccount) throws SQLException{
+        Connection connection = connectionWrapper.getConnection();
+        if(connection == null){
+            return false;
+        }
+        String sql = "UPDATE account "
+                    +"SET status_id = ISNULL(?, status_id) "
+                    +"WHERE id = ?";
+        try(PreparedStatement stm = connection.prepareStatement(sql)){
+            stm.setString(1,deletedAccount.getStatusId());
+            stm.setString(2,deletedAccount.getId());
+            int effectRow = stm.executeUpdate();
+            if(effectRow > 0){
+                return true;
+            }
+        }
+        return false;
     }
 }
