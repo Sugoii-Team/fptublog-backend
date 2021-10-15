@@ -66,7 +66,7 @@ public class StudentResource {
     }
 
     @GET
-    @RolesAllowed(Role.STUDENT)
+    //@RolesAllowed(Role.STUDENT)
     @Path("/{student_id}/blogs")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getOwnBlogs(@PathParam("student_id") String studentId) {
@@ -83,7 +83,7 @@ public class StudentResource {
     }
 
     @DELETE
-    @RolesAllowed(Role.STUDENT)
+    @RolesAllowed({Role.STUDENT, Role.LECTURER})
     @Path("/{student_id}/blogs/{blog_id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteOwnBlog(@PathParam("student_id") String studentId, @PathParam("blog_id") String blogId) {

@@ -23,6 +23,8 @@ public interface IBlogService {
 
     List<BlogStatusEntity> getAllBlogStatus() throws SQLException;
 
+    BlogStatusEntity getBlogStatus(String id) throws SQLException;
+
     boolean updateIfNotNull(BlogEntity updatedBlog) throws SQLException;
 
     boolean updateReviewStatus(BlogEntity updatedBlog) throws SQLException;

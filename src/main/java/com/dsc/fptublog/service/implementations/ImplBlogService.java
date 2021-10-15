@@ -1,19 +1,8 @@
 package com.dsc.fptublog.service.implementations;
 
-import com.dsc.fptublog.dao.interfaces.IBlogDAO;
-import com.dsc.fptublog.dao.interfaces.IBlogHistoryDAO;
-import com.dsc.fptublog.dao.interfaces.IBlogStatusDAO;
-import com.dsc.fptublog.dao.interfaces.IBlogTagDAO;
-import com.dsc.fptublog.dao.interfaces.ICategoryDAO;
-import com.dsc.fptublog.dao.interfaces.ILecturerFieldDAO;
-import com.dsc.fptublog.dao.interfaces.ITagDAO;
+import com.dsc.fptublog.dao.interfaces.*;
 import com.dsc.fptublog.database.ConnectionWrapper;
-import com.dsc.fptublog.entity.BlogEntity;
-import com.dsc.fptublog.entity.BlogHistory;
-import com.dsc.fptublog.entity.BlogStatusEntity;
-import com.dsc.fptublog.entity.CategoryEntity;
-import com.dsc.fptublog.entity.LecturerFieldEntity;
-import com.dsc.fptublog.entity.TagEntity;
+import com.dsc.fptublog.entity.*;
 import com.dsc.fptublog.service.interfaces.IBlogService;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.jvnet.hk2.annotations.Service;
@@ -209,6 +198,23 @@ public class ImplBlogService implements IBlogService {
     }
 
     @Override
+    public BlogStatusEntity getBlogStatus(String id) throws SQLException {
+        BlogStatusEntity result;
+
+        try {
+            connectionWrapper.beginTransaction();
+
+            result = blogStatusDAO.getById(id);
+
+            connectionWrapper.commit();
+        } finally {
+            connectionWrapper.close();
+        }
+
+        return result;
+    }
+
+    @Override
     public boolean updateIfNotNull(BlogEntity updatedBlog) throws SQLException {
         boolean result;
         try {
@@ -235,34 +241,39 @@ public class ImplBlogService implements IBlogService {
 
             // Get full blog info
             BlogEntity oldBlog = blogDAO.getById(updatedBlog.getId());
-            String pendingApprovedStatusId = blogStatusDAO.getByName("pending approved").getId();
-            String pendingDeletedStatusId = blogStatusDAO.getByName("pending deleted").getId();
-            if (!(pendingApprovedStatusId.equals(oldBlog.getStatusId())
-                    || pendingDeletedStatusId.equals(oldBlog.getStatusId()))) {
-                return false;
-            }
-
-            // set statusId and reviewerId to oldBlog
-            // to sure that updatedBlog not change the blog's other data
-            oldBlog.setStatusId(updatedBlog.getStatusId());
-            oldBlog.setReviewerId(updatedBlog.getReviewerId());
 
             // Get lecturer's categoryId List
-            List<String> categoryIdList = getCategoryOfLecturer(oldBlog.getReviewerId());
+            List<String> categoryIdList = getCategoryOfLecturer(updatedBlog.getReviewerId());
 
             // Check this lecturer can review this blog
             if (!categoryIdList.contains(oldBlog.getCategoryId())) {
                 return false;
             }
 
-            // Check valid new status Id
-            if (blogStatusDAO.getById(oldBlog.getStatusId()) == null) {
+            String oldBlogStatusId = oldBlog.getStatusId();
+
+            // set statusId and reviewerId to oldBlog
+            // to sure that updatedBlog not change the blog's other data
+            oldBlog.setStatusId(updatedBlog.getStatusId());
+            oldBlog.setReviewerId(updatedBlog.getReviewerId());
+            oldBlog.setReviewDateTime(System.currentTimeMillis());
+
+            String pendingApprovedStatusId = blogStatusDAO.getByName("pending approved").getId();
+            String pendingDeletedStatusId = blogStatusDAO.getByName("pending deleted").getId();
+            String pendingUpdatedStatusId = blogStatusDAO.getByName("pending updated").getId();
+
+            if (!pendingApprovedStatusId.equals(oldBlogStatusId)
+                    && !pendingDeletedStatusId.equals(oldBlogStatusId)
+                    && !pendingUpdatedStatusId.equals(oldBlogStatusId)) {
                 return false;
             }
 
-            // Update review status and datetime
-            long reviewDateTime = System.currentTimeMillis();
-            oldBlog.setReviewDateTime(reviewDateTime);
+            if (pendingUpdatedStatusId.equals(oldBlogStatusId)) {
+                if (!blogDAO.hideBlogInHistory(oldBlog.getHistoryId())) {
+                    return false;
+                }
+            }
+
             result = blogDAO.updateByBlog(oldBlog);
 
             connectionWrapper.commit();
@@ -342,7 +353,7 @@ public class ImplBlogService implements IBlogService {
             oldBlog.setReviewerId(null);
             oldBlog.setReviewDateTime(0);
 
-            // TODO update to DB
+            // update to DB
             result = blogDAO.insertByBlog(oldBlog);
 
             connectionWrapper.commit();

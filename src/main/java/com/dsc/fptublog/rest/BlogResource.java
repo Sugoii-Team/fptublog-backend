@@ -139,6 +139,23 @@ public class BlogResource {
         return Response.ok(blogStatusList).build();
     }
 
+    @GET
+    @Path("/status/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getBlogStatus(@PathParam("id") String id) {
+        Response response;
+
+        try {
+            BlogStatusEntity blogStatus = blogService.getBlogStatus(id);
+            response = Response.ok(blogStatus).build();
+        } catch (SQLException ex) {
+            log.error(ex);
+            response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+
+        return response;
+    }
+
     @PUT
     @Path("/{id}")
     @RolesAllowed({Role.STUDENT, Role.LECTURER})
