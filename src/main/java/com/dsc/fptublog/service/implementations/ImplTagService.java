@@ -31,7 +31,7 @@ public class ImplTagService implements ITagService {
     @Override
     public List<TagEntity> getAllTagsOfBlog(String blogId) throws SQLException {
         List<BlogTagEntity> blogTagList;
-        List<TagEntity> tagList = Collections.emptyList();
+        List<TagEntity> tagList = null;
 
         try {
             connectionWrapper.beginTransaction();
@@ -43,6 +43,9 @@ public class ImplTagService implements ITagService {
                 // get Tag list by tagId from intermediate table
                 List<String> tagIdList = blogTagList.stream().map(BlogTagEntity::getTagId).collect(Collectors.toList());
                 tagList = tagDAO.getByIdList(tagIdList);
+                if (tagList == null) {
+                    tagList = Collections.emptyList();
+                }
             }
 
             connectionWrapper.commit();
@@ -61,6 +64,9 @@ public class ImplTagService implements ITagService {
             connectionWrapper.beginTransaction();
 
             tagList = tagDAO.getAll();
+            if (tagList == null) {
+                tagList = Collections.emptyList();
+            }
 
             connectionWrapper.commit();
         } finally {

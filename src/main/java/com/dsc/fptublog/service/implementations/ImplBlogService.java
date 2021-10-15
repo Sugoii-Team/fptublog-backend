@@ -188,6 +188,9 @@ public class ImplBlogService implements IBlogService {
             connectionWrapper.beginTransaction();
 
             blogStatusList = blogStatusDAO.getAll();
+            if (blogStatusList == null) {
+                blogStatusList = Collections.emptyList();
+            }
 
             connectionWrapper.commit();
         } finally {
@@ -294,17 +297,20 @@ public class ImplBlogService implements IBlogService {
             connectionWrapper.beginTransaction();
 
             result = blogDAO.getByAuthorId(authorId);
+            if (result == null) {
+                result = Collections.emptyList();
+            }
 
             connectionWrapper.commit();
         } finally {
             connectionWrapper.close();
         }
 
-        return (result != null) ? result : Collections.emptyList();
+        return result;
     }
 
     @Override
-    public BlogEntity deleteBlogOfAuthor(String authorId, String blogId) throws SQLException {
+    public boolean deleteBlogOfAuthor(String authorId, String blogId) throws SQLException {
         boolean result = false;
         BlogEntity deletedBlog;
         try {
@@ -326,7 +332,7 @@ public class ImplBlogService implements IBlogService {
             connectionWrapper.close();
         }
 
-        return result ? deletedBlog : null;
+        return result;
     }
 
     @Override
