@@ -2,7 +2,6 @@ package com.dsc.fptublog.rest;
 
 import com.dsc.fptublog.config.Role;
 import com.dsc.fptublog.entity.StudentEntity;
-import com.dsc.fptublog.entity.BlogEntity;
 import com.dsc.fptublog.service.interfaces.IStudentService;
 import com.dsc.fptublog.service.interfaces.IBlogService;
 
@@ -11,7 +10,6 @@ import lombok.extern.log4j.Log4j;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;

@@ -2,17 +2,13 @@ package com.dsc.fptublog.rest;
 
 import com.dsc.fptublog.config.Role;
 import com.dsc.fptublog.entity.BlogEntity;
+import com.dsc.fptublog.model.ReviewModel;
 import com.dsc.fptublog.service.interfaces.IBlogService;
 import lombok.extern.log4j.Log4j;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -53,17 +49,15 @@ public class LecturerResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response updateReviewingBlogStatus(@Context SecurityContext sc, @PathParam("lecturer_id") String lecturerId,
-                                     @PathParam("blog_id") String blogId, BlogEntity updatedBlog) {
+                                              @PathParam("blog_id") String blogId, ReviewModel reviewModel) {
         if (!sc.getUserPrincipal().getName().equals(lecturerId)) {
-            return Response.status(Response.Status.FORBIDDEN).build();
+            return Response.status(Response.Status.UNAUTHORIZED).build();
         }
 
-        updatedBlog.setId(blogId);
-        updatedBlog.setReviewerId(lecturerId);
         boolean result;
 
         try {
-            result = blogService.updateReviewStatus(updatedBlog);
+            result = blogService.updateReviewStatus(reviewModel, lecturerId, blogId);
         } catch (SQLException ex) {
             log.error(ex);
             return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();

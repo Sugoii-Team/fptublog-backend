@@ -3,6 +3,7 @@ package com.dsc.fptublog.service.interfaces;
 import com.dsc.fptublog.entity.BlogEntity;
 import com.dsc.fptublog.entity.BlogStatusEntity;
 import com.dsc.fptublog.entity.TagEntity;
+import com.dsc.fptublog.model.ReviewModel;
 import org.jvnet.hk2.annotations.Contract;
 
 import java.sql.SQLException;
@@ -27,7 +28,7 @@ public interface IBlogService {
 
     boolean updateIfNotNull(BlogEntity updatedBlog) throws SQLException;
 
-    boolean updateReviewStatus(BlogEntity updatedBlog) throws SQLException;
+    boolean updateReviewStatus(ReviewModel reviewModel, String reviewerId, String blogId) throws SQLException;
 
     List<BlogEntity> getAllBlogsOfAuthor(String authorId) throws SQLException;
 

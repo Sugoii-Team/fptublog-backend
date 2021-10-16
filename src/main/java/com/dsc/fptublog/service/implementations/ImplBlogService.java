@@ -3,6 +3,7 @@ package com.dsc.fptublog.service.implementations;
 import com.dsc.fptublog.dao.interfaces.*;
 import com.dsc.fptublog.database.ConnectionWrapper;
 import com.dsc.fptublog.entity.*;
+import com.dsc.fptublog.model.ReviewModel;
 import com.dsc.fptublog.service.interfaces.IBlogService;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.jvnet.hk2.annotations.Service;
@@ -235,49 +236,89 @@ public class ImplBlogService implements IBlogService {
         return result;
     }
 
+    private boolean processApprove(BlogEntity oldBlog, String pendingDeletedStatusId, String pendingUpdatedStatusId)
+            throws SQLException {
+
+        // pending deleting
+        if (oldBlog.getStatusId().equals(pendingDeletedStatusId)) {
+            String deletedStatusId = blogStatusDAO.getByName("deleted").getId();
+
+            oldBlog.setStatusId(deletedStatusId);
+            oldBlog.setReviewDateTime(System.currentTimeMillis());
+
+            return blogDAO.updateByBlog(oldBlog);
+        }
+
+        // pending updated
+        if (oldBlog.getStatusId().equals(pendingUpdatedStatusId)) {
+            if (!blogDAO.hideBlogInHistory(oldBlog.getHistoryId())) {
+                return false;
+            }
+        }
+
+        // pending update or pending approved
+        String approvedStatusId = blogStatusDAO.getByName("approved").getId();
+        oldBlog.setStatusId(approvedStatusId);
+        oldBlog.setReviewDateTime(System.currentTimeMillis());
+
+        return blogDAO.updateByBlog(oldBlog);
+    }
+
+    private boolean processReject(BlogEntity oldBlog, String pendingDeletedStatusId) throws SQLException {
+        //pending deleted
+        if (oldBlog.getStatusId().equals(pendingDeletedStatusId)) {
+            String approvedStatusId = blogStatusDAO.getByName("approved").getId();
+
+            oldBlog.setStatusId(approvedStatusId);
+            oldBlog.setReviewDateTime(System.currentTimeMillis());
+
+            return blogDAO.updateByBlog(oldBlog);
+        }
+
+        //pending approved or pending updated
+        String draftStatusId = blogStatusDAO.getByName("draft").getId();
+
+        oldBlog.setStatusId(draftStatusId);
+        oldBlog.setReviewDateTime(System.currentTimeMillis());
+
+        return blogDAO.updateByBlog(oldBlog);
+    }
+
     @Override
-    public boolean updateReviewStatus(BlogEntity updatedBlog) throws SQLException {
+    public boolean updateReviewStatus(ReviewModel reviewModel, String reviewerId, String blogId) throws SQLException {
         boolean result = false;
 
         try {
             connectionWrapper.beginTransaction();
 
             // Get full blog info
-            BlogEntity oldBlog = blogDAO.getById(updatedBlog.getId());
+            BlogEntity oldBlog = blogDAO.getById(blogId);
 
             // Get lecturer's categoryId List
-            List<String> categoryIdList = getCategoryOfLecturer(updatedBlog.getReviewerId());
+            List<String> categoryIdList = getCategoryOfLecturer(reviewerId);
 
             // Check this lecturer can review this blog
-            if (!categoryIdList.contains(oldBlog.getCategoryId())) {
+            if (!categoryIdList.contains(oldBlog.getCategoryId()) || oldBlog.getAuthorId().equals(reviewerId)) {
                 return false;
             }
-
-            String oldBlogStatusId = oldBlog.getStatusId();
-
-            // set statusId and reviewerId to oldBlog
-            // to sure that updatedBlog not change the blog's other data
-            oldBlog.setStatusId(updatedBlog.getStatusId());
-            oldBlog.setReviewerId(updatedBlog.getReviewerId());
-            oldBlog.setReviewDateTime(System.currentTimeMillis());
 
             String pendingApprovedStatusId = blogStatusDAO.getByName("pending approved").getId();
             String pendingDeletedStatusId = blogStatusDAO.getByName("pending deleted").getId();
             String pendingUpdatedStatusId = blogStatusDAO.getByName("pending updated").getId();
 
-            if (!pendingApprovedStatusId.equals(oldBlogStatusId)
-                    && !pendingDeletedStatusId.equals(oldBlogStatusId)
-                    && !pendingUpdatedStatusId.equals(oldBlogStatusId)) {
+            if (!oldBlog.getStatusId().equals(pendingApprovedStatusId) &&
+                    !oldBlog.getStatusId().equals(pendingDeletedStatusId) &&
+                    !oldBlog.getStatusId().equals(pendingUpdatedStatusId)) {
                 return false;
             }
 
-            if (pendingUpdatedStatusId.equals(oldBlogStatusId)) {
-                if (!blogDAO.hideBlogInHistory(oldBlog.getHistoryId())) {
-                    return false;
-                }
+            oldBlog.setReviewerId(reviewerId);
+            if ("approve".equals(reviewModel.getAction())) {
+                result = processApprove(oldBlog, pendingDeletedStatusId, pendingUpdatedStatusId);
             }
-
-            result = blogDAO.updateByBlog(oldBlog);
+            if ("reject".equals(reviewModel.getAction())) {
+                result = processReject(oldBlog, pendingDeletedStatusId);
+            }
 
             connectionWrapper.commit();
         } catch (SQLException ex) {
