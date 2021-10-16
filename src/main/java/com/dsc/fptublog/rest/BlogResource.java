@@ -3,7 +3,6 @@ package com.dsc.fptublog.rest;
 import com.dsc.fptublog.config.Role;
 import com.dsc.fptublog.entity.BlogEntity;
 import com.dsc.fptublog.entity.BlogStatusEntity;
-import com.dsc.fptublog.entity.TagEntity;
 import com.dsc.fptublog.service.interfaces.IBlogService;
 import com.dsc.fptublog.service.interfaces.ITagService;
 import lombok.extern.log4j.Log4j;
@@ -133,7 +132,6 @@ public class BlogResource {
 
     @GET
     @Path("/authors/{author_id}")
-    @RolesAllowed(Role.STUDENT)
     @Produces(MediaType.APPLICATION_JSON)
     public Response getOwnBlogs(@PathParam("author_id") String authorId) {
         List<BlogEntity> blogList;
@@ -146,46 +144,6 @@ public class BlogResource {
         }
 
         return Response.ok(blogList).build();
-    }
-
-    @GET
-    @Path("/{id}/tags")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getAllTagsOfBlog(@PathParam("id") String blogId) {
-        List<TagEntity> tagList;
-
-        try {
-            tagList = tagService.getAllTagsOfBlog(blogId);
-        } catch (SQLException ex) {
-            log.error(ex);
-            return Response.status(Response.Status.EXPECTATION_FAILED).entity("LOAD DATABASE FAILED").build();
-        }
-
-        return Response.ok(tagList).build();
-    }
-
-    @POST
-    @Path("/{id}/tags")
-    @RolesAllowed({Role.STUDENT, Role.LECTURER})
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response addTagsForBlog(@PathParam("id") String id, List<TagEntity> tagList) {
-        Response response;
-
-        try {
-            if (blogService.createTagListForBlog(id, tagList)) {
-                response = Response.ok("Insert Tag list for blog " + id + " successfully!").build();
-            } else {
-                response =  Response.status(Response.Status.EXPECTATION_FAILED)
-                        .entity("Insert Tag list for blog " + id + " fail")
-                        .build();
-            }
-        } catch (SQLException ex) {
-            log.error(ex);
-            response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
-        }
-
-        return response;
     }
 
     @GET

@@ -113,30 +113,6 @@ public class ImplBlogService implements IBlogService {
         return newBlog;
     }
 
-    @Override
-    public boolean createTagListForBlog(String blogId, List<TagEntity> tagList) throws SQLException {
-        boolean result = false;
-        try {
-            connectionWrapper.beginTransaction();
-
-            // check existed tagList. If not existed, insert new
-            tagList = tagDAO.insertIfNotExistedByTagList(tagList);
-            if (tagList != null) {
-                // Don't need to check exist blogId because JDBC will throw exception for us
-                result = blogTagDAO.createByBlogIdAndTagList(blogId, tagList);
-            }
-
-            connectionWrapper.commit();
-        } catch (SQLException ex) {
-            connectionWrapper.rollback();
-            throw ex;
-        } finally {
-            connectionWrapper.close();
-        }
-
-        return result;
-    }
-
     private List<String> getCategoryOfLecturer(String lecturerId) throws SQLException {
         // get lecturer's fieldsId
         List<LecturerFieldEntity> lecturerFieldList = lecturerFieldDAO.getByLecturerId(lecturerId);
@@ -360,9 +336,34 @@ public class ImplBlogService implements IBlogService {
             // get blog by id to check right author
             deletedBlog = blogDAO.getById(blogId);
             if (deletedBlog != null && deletedBlog.getAuthorId().equals(authorId)) {
-                String pendingDeletedStatusId = blogStatusDAO.getByName("pending deleted").getId();
-                deletedBlog.setStatusId(pendingDeletedStatusId);
-                result = blogDAO.updateByBlog(deletedBlog);
+                // approved
+                String approvedStatusId = blogStatusDAO.getByName("approved").getId();
+                if (approvedStatusId.equals(deletedBlog.getStatusId())) {
+                    String pendingDeletedStatusId = blogStatusDAO.getByName("pending deleted").getId();
+                    deletedBlog.setStatusId(pendingDeletedStatusId);
+                    result = blogDAO.updateByBlog(deletedBlog);
+                }
+
+                // draft
+                String draftStatusId = blogStatusDAO.getByName("draft").getId();
+                if (draftStatusId.equals(deletedBlog.getStatusId())) {
+                    result = blogDAO.deletedById(deletedBlog.getId());
+                }
+
+                // pending approved
+                String pendingApprovedStatusId = blogStatusDAO.getByName("pending approved").getName();
+                if (pendingApprovedStatusId.equals(deletedBlog.getStatusId())) {
+                    deletedBlog.setStatusId(draftStatusId);
+                    result = blogDAO.updateByBlog(deletedBlog);
+                }
+
+                // pending updated
+                String pendingUpdatedStatusId = blogStatusDAO.getByName("pending updated").getName();
+                if (pendingUpdatedStatusId.equals(deletedBlog.getStatusId())) {
+                    deletedBlog.setStatusId(draftStatusId);
+                    result = blogDAO.updateByBlog(deletedBlog);
+                }
+
             }
 
             connectionWrapper.commit();
