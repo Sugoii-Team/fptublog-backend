@@ -13,4 +13,6 @@ public interface IBlogTagDAO {
     List<BlogTagEntity> getByBlogId(String blogId) throws SQLException;
 
     boolean createByBlogIdAndTagList(String blogId, List<TagEntity> tagList) throws SQLException;
+
+    boolean deleteByBlogId(String blogId) throws SQLException;
 }

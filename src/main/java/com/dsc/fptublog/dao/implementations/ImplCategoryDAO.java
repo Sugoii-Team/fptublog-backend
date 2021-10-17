@@ -95,7 +95,7 @@ public class ImplCategoryDAO implements ICategoryDAO {
                 stm.setString(1, fieldId);
 
                 ResultSet resultSet = stm.executeQuery();
-                if (resultSet.next()) {
+                while (resultSet.next()) {
                     String id = resultSet.getString(1);
                     String name = resultSet.getNString(2);
 

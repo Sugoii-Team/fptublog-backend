@@ -4,10 +4,6 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
-import com.dsc.fptublog.config.Role;
-import com.dsc.fptublog.entity.AccountEntity;
-import com.dsc.fptublog.entity.LecturerEntity;
-import com.dsc.fptublog.entity.StudentEntity;
 
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -15,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 public class JwtUtil {
 
     // The expire time for JWT in minutes
-    private static final long EXPIRATION_LIMIT_IN_MINUTES = 30;
+    private static final long EXPIRATION_LIMIT_IN_MINUTES = 180;
 
     private static final String ISSUER = "fptu-blog";
 
@@ -41,7 +37,7 @@ public class JwtUtil {
         Date now = new Date(currentTimeInMillis);
 
         // The key is only valid for the next EXPIRATION_LIMIT_IN_MINUTES
-        long expirationTimeInMillis = TimeUnit.MINUTES.toMillis(EXPIRATION_LIMIT_IN_MINUTES);
+        long expirationTimeInMillis = TimeUnit.MILLISECONDS.convert(EXPIRATION_LIMIT_IN_MINUTES, TimeUnit.MINUTES);
         Date expirationDate = new Date(currentTimeInMillis + expirationTimeInMillis);
 
         // Create and Sign a Token

@@ -195,7 +195,7 @@ public class ImplBlogDAO implements IBlogDAO {
                 "FROM blog " +
                 "INNER JOIN blog_status status ON blog.status_id = status.id " +
                 "INNER JOIN blog_history history ON blog.blog_history_id = history.id " +
-                "WHERE status.name = 'approved' OR status.name = 'pending deleted' OR status.name = 'pending updated'";
+                "WHERE status.name = 'approved' OR status.name = 'pending deleted'";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             ResultSet resultSet = stm.executeQuery();
@@ -306,7 +306,7 @@ public class ImplBlogDAO implements IBlogDAO {
                 "FROM blog " +
                 "INNER JOIN blog_status status on status.id = blog.status_id " +
                 "INNER JOIN blog_history history on history.id = blog.blog_history_id " +
-                "WHERE author_id = ? AND status.name != 'deleted'";
+                "WHERE author_id = ? AND status.name != 'deleted' AND status.name != 'hidden'";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setString(1, authorId);
@@ -323,4 +323,28 @@ public class ImplBlogDAO implements IBlogDAO {
 
         return result;
     }
+
+    @Override
+    public boolean hideBlogInHistory(String blogHistoryId) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return false;
+        }
+
+        String sql = "UPDATE blog " +
+                "SET status_id = (SELECT id FROM blog_status WHERE name = 'hidden') " +
+                "WHERE blog_history_id = ?";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, blogHistoryId);
+
+            int effectedRow = stm.executeUpdate();
+            if (effectedRow > 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 }
