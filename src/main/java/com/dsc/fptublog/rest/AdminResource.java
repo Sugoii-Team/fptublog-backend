@@ -25,7 +25,6 @@ public class AdminResource {
     private IAdminService adminService;
 
 
-
     @POST
     @Path("/login")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -72,7 +71,7 @@ public class AdminResource {
     @RolesAllowed(Role.ADMIN)
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response deleteAccount(@PathParam("id")String accountId) {
+    public Response deleteAccount(@PathParam("id") String accountId) {
         try {
             adminService.deleteAccount(accountId);
         } catch (SQLException ex) {
@@ -95,5 +94,32 @@ public class AdminResource {
             return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
         }
         return Response.ok(account).build();
+    }
+
+    @PUT
+    @Path("/accounts/{id}")
+    @RolesAllowed(Role.ADMIN)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response updateRoleOrBan(AccountEntity account) {
+        try {
+            //Ban an account
+            if (account.getRole() == null) {
+                boolean result = adminService.banAccount(account);
+                if (result) {
+                    return Response.ok("Ban account successfully!!").build();
+                }
+            }
+            //Update role cho 1 acc
+            if (account.getRole() != null) {
+                account = adminService.updateAccount(account);
+            } else {
+                return Response.status(Response.Status.EXPECTATION_FAILED).entity("WRONG RESOURCE!!").build();
+            }
+        } catch (SQLException ex) {
+            log.error(ex);
+            return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+        return Response.ok("Update Role Successfully").build();
     }
 }

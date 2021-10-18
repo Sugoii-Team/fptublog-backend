@@ -23,7 +23,7 @@ public class ImplAccountStatusDAO implements IAccountStatusDAO {
     @Override
     public AccountStatusEntity getById(String id) throws SQLException {
         Connection connection = connectionWrapper.getConnection();
-        if (connection != null) {
+        if (connection == null) {
             return null;
         }
 

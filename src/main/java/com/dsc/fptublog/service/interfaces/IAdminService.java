@@ -17,4 +17,6 @@ public interface IAdminService {
     void deleteAccount(String accountId) throws SQLException;
 
     boolean getAuthentication(AdminEntity admin) throws SQLException, NoSuchAlgorithmException;
+
+    boolean banAccount(AccountEntity account) throws SQLException;
 }

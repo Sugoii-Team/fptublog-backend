@@ -158,7 +158,7 @@ public class ImplAccountDAO implements IAccountDAO {
             return false;
         }
         String sql = "UPDATE account "
-                + "SET alternative_email = ISNULL(?, alternative_email), firstname = ISNULL(?, firstname), lastname = ISNULL(?, lastname), avatar_url = ISNULL(?, avatar_url), description = ISNULL(?, description), status_id = ISNULL(?, status_id) "
+                + "SET alternative_email = ISNULL(?, alternative_email), firstname = ISNULL(?, firstname), lastname = ISNULL(?, lastname), avatar_url = ISNULL(?, avatar_url), description = ISNULL(?, description), status_id = ISNULL(?, status_id), role = ISNULL(?, role) "
                 + "WHERE id = ?";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
@@ -168,7 +168,8 @@ public class ImplAccountDAO implements IAccountDAO {
             stm.setString(4, updatedAccount.getAvatarUrl());
             stm.setString(5, updatedAccount.getDescription());
             stm.setString(6, updatedAccount.getStatusId());
-            stm.setString(7, updatedAccount.getId());
+            stm.setString(7,updatedAccount.getRole());
+            stm.setString(8, updatedAccount.getId());
 
             int effectedRow = stm.executeUpdate();
             if (effectedRow > 0) {
@@ -185,10 +186,10 @@ public class ImplAccountDAO implements IAccountDAO {
         if (connection == null) {
             return null;
         }
-        String sql = "SELECT account.id, email, alternative_email, firstname, lastname, status_id "
+        String sql = "SELECT account.id, email, alternative_email, firstname, lastname, status_id, role "
                 + "FROM account "
                 + "INNER JOIN account_status status ON account.status_id = status.id "
-                + "WHERE status.name = 'activated' OR status.name = 'banned'";
+                + "WHERE status.name = 'activated'";
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             ResultSet result = stm.executeQuery();
             while (result.next()) {
@@ -198,6 +199,7 @@ public class ImplAccountDAO implements IAccountDAO {
                 String firstName = result.getNString(4);
                 String lastName = result.getNString(5);
                 String statusId = result.getString(6);
+                String role = result.getString(7);
                 if (accountList == null) {
                     accountList = new ArrayList<>();
                 }
@@ -207,7 +209,8 @@ public class ImplAccountDAO implements IAccountDAO {
                         .alternativeEmail(alternativeEmail)
                         .firstName(firstName)
                         .lastName(lastName)
-                        .statusId(statusId).build());
+                        .statusId(statusId)
+                        .role(role).build());
             }
         }
         return accountList;

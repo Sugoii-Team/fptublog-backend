@@ -101,5 +101,27 @@ public class ImplAdminService implements IAdminService {
         return result;
     }
 
+    @Override
+    public boolean banAccount(AccountEntity account) throws SQLException {
+        boolean result = false;
+        try{
+            connectionWrapper.beginTransaction();
+            //set ban status Id for account
+            AccountStatusEntity banStatus = accountStatusDAO.getByName("banned");
+            account.setStatusId(banStatus.getId());
+            result = accountDAO.updateByAccount(account);
+            if(result){
+                connectionWrapper.commit();
+                return result;
+            }
+        }catch (SQLException ex){
+            connectionWrapper.rollback();
+            throw ex;
+        }finally {
+            connectionWrapper.close();
+        }
+        return result;
+    }
+
 
 }
