@@ -23,7 +23,7 @@ public interface IBlogDAO {
 
     List<BlogEntity> getPendingBlogByCategoryIdList(List<String> categoryIdList) throws SQLException;
 
-    List<BlogEntity> getByAuthorId(String authorId) throws SQLException;
+    List<BlogEntity> getByAuthorId(String authorId, int limit, int offset) throws SQLException;
 
     boolean hideBlogInHistory(String blogHistoryId) throws SQLException;
 }
