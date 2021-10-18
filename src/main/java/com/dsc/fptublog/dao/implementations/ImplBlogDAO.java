@@ -181,7 +181,7 @@ public class ImplBlogDAO implements IBlogDAO {
     }
 
     @Override
-    public List<BlogEntity> getAllBlogs() throws SQLException {
+    public List<BlogEntity> getAllBlogs(int limit, int offset) throws SQLException {
         Connection connection = connectionWrapper.getConnection();
         if (connection == null) {
             return null;
@@ -195,9 +195,14 @@ public class ImplBlogDAO implements IBlogDAO {
                 "FROM blog " +
                 "INNER JOIN blog_status status ON blog.status_id = status.id " +
                 "INNER JOIN blog_history history ON blog.blog_history_id = history.id " +
-                "WHERE status.name = 'approved' OR status.name = 'pending deleted'";
+                "WHERE status.name = 'approved' OR status.name = 'pending deleted' " +
+                "ORDER BY blog.id DESC " +
+                "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setInt(1, offset);
+            stm.setInt(2, limit);
+
             ResultSet resultSet = stm.executeQuery();
 
             while (resultSet.next()) {
@@ -292,7 +297,7 @@ public class ImplBlogDAO implements IBlogDAO {
     }
 
     @Override
-    public List<BlogEntity> getByAuthorId(String authorId) throws SQLException {
+    public List<BlogEntity> getByAuthorId(String authorId, int limit, int offset) throws SQLException {
         Connection connection = connectionWrapper.getConnection();
         if (connection == null) {
             return null;
@@ -306,10 +311,14 @@ public class ImplBlogDAO implements IBlogDAO {
                 "FROM blog " +
                 "INNER JOIN blog_status status on status.id = blog.status_id " +
                 "INNER JOIN blog_history history on history.id = blog.blog_history_id " +
-                "WHERE author_id = ? AND status.name != 'deleted' AND status.name != 'hidden'";
+                "WHERE author_id = ? AND status.name != 'deleted' AND status.name != 'hidden' " +
+                "ORDER BY blog.id " +
+                "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setString(1, authorId);
+            stm.setInt(2, offset);
+            stm.setInt(3, limit);
 
             ResultSet resultSet = stm.executeQuery();
             while (resultSet.next()) {

@@ -14,7 +14,7 @@ public interface IBlogService {
 
     BlogEntity getById(String name) throws SQLException;
 
-    List<BlogEntity> getAllBlogs() throws SQLException;
+    List<BlogEntity> getAllBlogs(int limit, int page) throws SQLException;
 
     BlogEntity createBlog(BlogEntity newBlog) throws SQLException;
 
@@ -28,7 +28,7 @@ public interface IBlogService {
 
     boolean updateReviewStatus(ReviewModel reviewModel, String reviewerId, String blogId) throws SQLException;
 
-    List<BlogEntity> getAllBlogsOfAuthor(String authorId) throws SQLException;
+    List<BlogEntity> getAllBlogsOfAuthor(String authorId, int limit, int page) throws SQLException;
 
     boolean deleteBlogOfAuthor(String authorId, String blogId) throws SQLException;
 

@@ -17,13 +17,13 @@ public interface IBlogDAO {
 
     boolean deletedById(String blogId) throws SQLException;
 
-    List<BlogEntity> getAllBlogs() throws SQLException;
+    List<BlogEntity> getAllBlogs(int limit, int offset) throws SQLException;
 
     /*List<BlogEntity> getByCategoryIdList(List<String> categoryIdList) throws SQLException;*/
 
     List<BlogEntity> getPendingBlogByCategoryIdList(List<String> categoryIdList) throws SQLException;
 
-    List<BlogEntity> getByAuthorId(String authorId) throws SQLException;
+    List<BlogEntity> getByAuthorId(String authorId, int limit, int offset) throws SQLException;
 
     boolean hideBlogInHistory(String blogHistoryId) throws SQLException;
 }

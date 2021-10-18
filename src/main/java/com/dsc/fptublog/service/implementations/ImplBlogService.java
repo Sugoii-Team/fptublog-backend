@@ -60,13 +60,14 @@ public class ImplBlogService implements IBlogService {
     }
 
     @Override
-    public List<BlogEntity> getAllBlogs() throws SQLException {
+    public List<BlogEntity> getAllBlogs(int limit, int page) throws SQLException {
         List<BlogEntity> blogList = null;
 
         try {
             connectionWrapper.beginTransaction();
 
-            blogList = blogDAO.getAllBlogs();
+            int offset = limit * (page - 1);
+            blogList = blogDAO.getAllBlogs(limit, offset);
             if (blogList == null) {
                 blogList = Collections.emptyList();
             }
@@ -307,13 +308,14 @@ public class ImplBlogService implements IBlogService {
     }
 
     @Override
-    public List<BlogEntity> getAllBlogsOfAuthor(String authorId) throws SQLException {
+    public List<BlogEntity> getAllBlogsOfAuthor(String authorId, int limit, int page) throws SQLException {
         List<BlogEntity> result;
 
         try {
             connectionWrapper.beginTransaction();
 
-            result = blogDAO.getByAuthorId(authorId);
+            int offset = limit * (page - 1);
+            result = blogDAO.getByAuthorId(authorId, limit, offset);
             if (result == null) {
                 result = Collections.emptyList();
             }
