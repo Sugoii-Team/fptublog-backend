@@ -60,13 +60,14 @@ public class ImplBlogService implements IBlogService {
     }
 
     @Override
-    public List<BlogEntity> getAllBlogs() throws SQLException {
+    public List<BlogEntity> getAllBlogs(int limit, int page) throws SQLException {
         List<BlogEntity> blogList = null;
 
         try {
             connectionWrapper.beginTransaction();
 
-            blogList = blogDAO.getAllBlogs();
+            int offset = limit * (page - 1);
+            blogList = blogDAO.getAllBlogs(limit, offset);
             if (blogList == null) {
                 blogList = Collections.emptyList();
             }

@@ -17,7 +17,7 @@ public interface IBlogDAO {
 
     boolean deletedById(String blogId) throws SQLException;
 
-    List<BlogEntity> getAllBlogs() throws SQLException;
+    List<BlogEntity> getAllBlogs(int limit, int offset) throws SQLException;
 
     /*List<BlogEntity> getByCategoryIdList(List<String> categoryIdList) throws SQLException;*/
 
