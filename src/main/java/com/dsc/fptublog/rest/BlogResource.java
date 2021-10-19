@@ -3,13 +3,23 @@ package com.dsc.fptublog.rest;
 import com.dsc.fptublog.config.Role;
 import com.dsc.fptublog.entity.BlogEntity;
 import com.dsc.fptublog.entity.BlogStatusEntity;
+import com.dsc.fptublog.model.BlogRateModel;
+import com.dsc.fptublog.model.VoteModel;
 import com.dsc.fptublog.service.interfaces.IBlogService;
-import com.dsc.fptublog.service.interfaces.ITagService;
+import com.dsc.fptublog.service.interfaces.IRateService;
 import lombok.extern.log4j.Log4j;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -25,7 +35,7 @@ public class BlogResource {
     private IBlogService blogService;
 
     @Inject
-    private ITagService tagService;
+    private IRateService rateService;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -165,6 +175,86 @@ public class BlogResource {
         try {
             BlogStatusEntity blogStatus = blogService.getBlogStatus(id);
             response = Response.ok(blogStatus).build();
+        } catch (SQLException ex) {
+            log.error(ex);
+            response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+
+        return response;
+    }
+
+    @GET
+    @Path("/{blog_id}/rates")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getBlogsRates(@PathParam("blog_id") String blogId) {
+        Response response;
+
+        try {
+            BlogRateModel blogRateModel = rateService.getRateOfBlog(blogId);
+            response = Response.ok(blogRateModel).build();
+        } catch (SQLException ex) {
+            log.error(ex);
+            response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+
+        return response;
+    }
+
+    @GET
+    @Path("/{blog_id}/votes")
+    @RolesAllowed({Role.STUDENT, Role.LECTURER})
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getVotes(@Context SecurityContext sc, @PathParam("blog_id") String blogId) {
+        String userId = sc.getUserPrincipal().getName();
+
+        Response response;
+
+        try {
+            VoteModel voteModel = rateService.getVoteOfUserForBlog(userId, blogId);
+            response = Response.ok(voteModel).build();
+        } catch (SQLException ex) {
+            log.error(ex);
+            response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+
+        return response;
+    }
+
+    @POST
+    @Path("/{blog_id}/votes")
+    @RolesAllowed({Role.STUDENT, Role.LECTURER})
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response addVote(@Context SecurityContext sc, @PathParam("blog_id") String blogId, VoteModel voteModel) {
+        String userId = sc.getUserPrincipal().getName();
+
+        Response response;
+
+        try {
+            rateService.addVoteForBlog(userId, blogId, voteModel.getStar());
+            BlogRateModel blogRateModel = rateService.getRateOfBlog(blogId);
+            response = Response.ok(blogRateModel).build();
+        } catch (SQLException ex) {
+            log.error(ex);
+            response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+
+        return response;
+    }
+
+    @DELETE
+    @Path("/{blog_id}/votes")
+    @RolesAllowed({Role.STUDENT, Role.LECTURER})
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deleteVote(@Context SecurityContext sc, @PathParam("blog_id") String blogId) {
+        String userId = sc.getUserPrincipal().getName();
+
+        Response response;
+
+        try {
+            rateService.deleteVoteForBlog(userId, blogId);
+            BlogRateModel blogRateModel = rateService.getRateOfBlog(blogId);
+            response = Response.ok(blogRateModel).build();
         } catch (SQLException ex) {
             log.error(ex);
             response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
