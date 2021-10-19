@@ -82,7 +82,9 @@ public class ImplRateService implements IRateService {
             connectionWrapper.beginTransaction();
 
             VoteEntity voteEntity = voteDAO.getByAccountIdAndBlogId(userId, blogId);
-
+            if (voteEntity == null) {
+                return null;
+            }
             String star = rateDAO.getById(voteEntity.getRateId()).getStar();
 
             result = new VoteModel(star);
