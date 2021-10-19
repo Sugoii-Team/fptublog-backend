@@ -20,6 +20,33 @@ public class ImplRateDAO implements IRateDAO {
     private ConnectionWrapper connectionWrapper;
 
     @Override
+    public RateEntity getById(String id) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return null;
+        }
+
+        RateEntity result = null;
+
+        String sql = "SELECT star " +
+                "FROM rate " +
+                "WHERE id = ?";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, id);
+
+            ResultSet resultSet = stm.executeQuery();
+            if (resultSet.next()) {
+                String star = resultSet.getString(1);
+
+                result = new RateEntity(id, star);
+            }
+        }
+
+        return result;
+    }
+
+    @Override
     public RateEntity getByName(String star) throws SQLException {
         Connection connection = connectionWrapper.getConnection();
         if (connection == null) {

@@ -4,6 +4,7 @@ import com.dsc.fptublog.config.Role;
 import com.dsc.fptublog.entity.BlogEntity;
 import com.dsc.fptublog.entity.BlogStatusEntity;
 import com.dsc.fptublog.model.BlogRateModel;
+import com.dsc.fptublog.model.VoteModel;
 import com.dsc.fptublog.service.interfaces.IBlogService;
 import com.dsc.fptublog.service.interfaces.IRateService;
 import com.dsc.fptublog.service.interfaces.ITagService;
@@ -182,8 +183,50 @@ public class BlogResource {
         Response response;
 
         try {
-            BlogRateModel blogRate = rateService.getRateOfBlog(blogId);
-            response = Response.ok(blogRate).build();
+            BlogRateModel blogRateModel = rateService.getRateOfBlog(blogId);
+            response = Response.ok(blogRateModel).build();
+        } catch (SQLException ex) {
+            log.error(ex);
+            response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+
+        return response;
+    }
+
+    @GET
+    @Path("/{blog_id}/votes")
+    @RolesAllowed({Role.STUDENT, Role.LECTURER})
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getVotes(@Context SecurityContext sc, @PathParam("blog_id") String blogId) {
+        String userId = sc.getUserPrincipal().getName();
+
+        Response response;
+
+        try {
+            VoteModel voteModel = rateService.getVoteOfUserForBlog(userId, blogId);
+            response = Response.ok(voteModel).build();
+        } catch (SQLException ex) {
+            log.error(ex);
+            response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+
+        return response;
+    }
+
+    @POST
+    @Path("/{blog_id}/votes")
+    @RolesAllowed({Role.STUDENT, Role.LECTURER})
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response addVotes(@Context SecurityContext sc, @PathParam("blog_id") String blogId, VoteModel voteModel) {
+        String userId = sc.getUserPrincipal().getName();
+
+        Response response;
+
+        try {
+            rateService.addVoteForBlog(userId, blogId, voteModel.getStar());
+            BlogRateModel blogRateModel = rateService.getRateOfBlog(blogId);
+            response = Response.ok(blogRateModel).build();
         } catch (SQLException ex) {
             log.error(ex);
             response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
