@@ -3,7 +3,9 @@ package com.dsc.fptublog.rest;
 import com.dsc.fptublog.config.Role;
 import com.dsc.fptublog.entity.BlogEntity;
 import com.dsc.fptublog.entity.BlogStatusEntity;
+import com.dsc.fptublog.model.BlogRateModel;
 import com.dsc.fptublog.service.interfaces.IBlogService;
+import com.dsc.fptublog.service.interfaces.IRateService;
 import com.dsc.fptublog.service.interfaces.ITagService;
 import lombok.extern.log4j.Log4j;
 
@@ -25,7 +27,7 @@ public class BlogResource {
     private IBlogService blogService;
 
     @Inject
-    private ITagService tagService;
+    private IRateService rateService;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -165,6 +167,23 @@ public class BlogResource {
         try {
             BlogStatusEntity blogStatus = blogService.getBlogStatus(id);
             response = Response.ok(blogStatus).build();
+        } catch (SQLException ex) {
+            log.error(ex);
+            response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+
+        return response;
+    }
+
+    @GET
+    @Path("/{blog_id}/rates")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getBlogsRates(@PathParam("blog_id") String blogId) {
+        Response response;
+
+        try {
+            BlogRateModel blogRate = rateService.getRateOfBlog(blogId);
+            response = Response.ok(blogRate).build();
         } catch (SQLException ex) {
             log.error(ex);
             response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
