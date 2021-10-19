@@ -5,7 +5,6 @@ import com.dsc.fptublog.dao.interfaces.IRateDAO;
 import com.dsc.fptublog.dao.interfaces.IVoteDAO;
 import com.dsc.fptublog.database.ConnectionWrapper;
 import com.dsc.fptublog.entity.BlogRateEntity;
-import com.dsc.fptublog.entity.RateEntity;
 import com.dsc.fptublog.entity.VoteEntity;
 import com.dsc.fptublog.model.BlogRateModel;
 import com.dsc.fptublog.model.VoteModel;
@@ -123,6 +122,29 @@ public class ImplRateService implements IRateService {
                 } else {
                     result = blogRateDAO.increaseAmount(blogId, rateId);
                 }
+            }
+
+            connectionWrapper.commit();
+        } catch (SQLException ex) {
+            connectionWrapper.rollback();
+            throw ex;
+        } finally {
+            connectionWrapper.close();
+        }
+
+        return result;
+    }
+
+    @Override
+    public boolean deleteVoteForBlog(String userId, String blogId) throws SQLException {
+        boolean result = false;
+
+        try {
+            connectionWrapper.beginTransaction();
+
+            VoteEntity voteEntity = voteDAO.deleteByAccountIdAndBlogId(userId, blogId);
+            if (voteEntity != null) {
+                result = blogRateDAO.decreaseAmount(blogId, voteEntity.getRateId());
             }
 
             connectionWrapper.commit();

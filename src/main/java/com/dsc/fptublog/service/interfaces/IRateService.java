@@ -14,4 +14,6 @@ public interface IRateService {
     VoteModel getVoteOfUserForBlog(String userId, String blogId) throws SQLException;
 
     boolean addVoteForBlog(String userId, String blogId, String star) throws SQLException;
+
+    boolean deleteVoteForBlog(String userId, String blogId) throws SQLException;
 }
