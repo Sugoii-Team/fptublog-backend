@@ -122,4 +122,20 @@ public class AdminResource {
         }
         return Response.ok("Update Role Successfully").build();
     }
+
+
+    @GET
+    @Path("/accounts/bannedaccounts")
+    @RolesAllowed(Role.ADMIN)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAllBannedAccounts(){
+        List<AccountEntity> bannedAccounts;
+        try{
+            bannedAccounts = adminService.getAllBannedAccounts();
+        }catch (SQLException ex){
+            log.error(ex);
+            return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+        return Response.ok(bannedAccounts).build();
+    }
 }

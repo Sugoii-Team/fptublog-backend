@@ -123,5 +123,18 @@ public class ImplAdminService implements IAdminService {
         return result;
     }
 
+    @Override
+    public List<AccountEntity> getAllBannedAccounts() throws SQLException {
+        List<AccountEntity> bannedAccounts;
+        try{
+            connectionWrapper.beginTransaction();
+            bannedAccounts = accountDAO.getAllBannedAccounts();
+            connectionWrapper.commit();
+        }finally {
+            connectionWrapper.close();
+        }
+        return bannedAccounts;
+    }
+
 
 }
