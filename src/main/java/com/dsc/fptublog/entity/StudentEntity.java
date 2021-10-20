@@ -14,4 +14,5 @@ import lombok.experimental.SuperBuilder;
 public class StudentEntity extends AccountEntity {
     private short schoolYear;
     private String majorId;
+    private int experiencePoint;
 }
