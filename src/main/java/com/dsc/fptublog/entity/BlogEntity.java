@@ -24,4 +24,5 @@ public class BlogEntity {
     private String historyId;
     private long createdDateTime;
     private int views;
+    private float avgRate;
 }

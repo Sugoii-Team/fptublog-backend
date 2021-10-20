@@ -40,9 +40,24 @@ public class BlogResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllBlogs(@QueryParam("limit") int limit, @QueryParam("page") int page) {
-        List<BlogEntity> blogList = null;
+        List<BlogEntity> blogList;
         try {
             blogList = blogService.getAllBlogs(limit, page);
+        } catch (SQLException ex) {
+            log.error(ex);
+            return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+        return Response.ok(blogList).build();
+    }
+
+    @GET
+    @Path("/top_rate")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getTopBlogs(@QueryParam("limit") int limit, @QueryParam("page") int page) {
+        List<BlogEntity> blogList;
+
+        try {
+            blogList = blogService.getTopBlogs(limit, page);
         } catch (SQLException ex) {
             log.error(ex);
             return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();

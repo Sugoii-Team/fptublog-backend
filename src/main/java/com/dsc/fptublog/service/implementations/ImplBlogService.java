@@ -1,8 +1,18 @@
 package com.dsc.fptublog.service.implementations;
 
-import com.dsc.fptublog.dao.interfaces.*;
+import com.dsc.fptublog.dao.interfaces.IBlogDAO;
+import com.dsc.fptublog.dao.interfaces.IBlogHistoryDAO;
+import com.dsc.fptublog.dao.interfaces.IBlogStatusDAO;
+import com.dsc.fptublog.dao.interfaces.IBlogTagDAO;
+import com.dsc.fptublog.dao.interfaces.ICategoryDAO;
+import com.dsc.fptublog.dao.interfaces.ILecturerFieldDAO;
+import com.dsc.fptublog.dao.interfaces.ITagDAO;
 import com.dsc.fptublog.database.ConnectionWrapper;
-import com.dsc.fptublog.entity.*;
+import com.dsc.fptublog.entity.BlogEntity;
+import com.dsc.fptublog.entity.BlogHistory;
+import com.dsc.fptublog.entity.BlogStatusEntity;
+import com.dsc.fptublog.entity.CategoryEntity;
+import com.dsc.fptublog.entity.LecturerFieldEntity;
 import com.dsc.fptublog.model.ReviewModel;
 import com.dsc.fptublog.service.interfaces.IBlogService;
 import org.glassfish.jersey.process.internal.RequestScoped;
@@ -68,6 +78,27 @@ public class ImplBlogService implements IBlogService {
 
             int offset = limit * (page - 1);
             blogList = blogDAO.getAllBlogs(limit, offset);
+            if (blogList == null) {
+                blogList = Collections.emptyList();
+            }
+
+            connectionWrapper.commit();
+        } finally {
+            connectionWrapper.close();
+        }
+
+        return blogList;
+    }
+
+    @Override
+    public List<BlogEntity> getTopBlogs(int limit, int page) throws SQLException {
+        List<BlogEntity> blogList = null;
+
+        try {
+            connectionWrapper.beginTransaction();
+
+            int offset = limit * (page - 1);
+            blogList = blogDAO.getTopBlogs(limit, offset);
             if (blogList == null) {
                 blogList = Collections.emptyList();
             }

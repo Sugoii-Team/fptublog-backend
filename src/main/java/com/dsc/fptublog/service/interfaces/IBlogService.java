@@ -2,7 +2,6 @@ package com.dsc.fptublog.service.interfaces;
 
 import com.dsc.fptublog.entity.BlogEntity;
 import com.dsc.fptublog.entity.BlogStatusEntity;
-import com.dsc.fptublog.entity.TagEntity;
 import com.dsc.fptublog.model.ReviewModel;
 import org.jvnet.hk2.annotations.Contract;
 
@@ -15,6 +14,8 @@ public interface IBlogService {
     BlogEntity getById(String name) throws SQLException;
 
     List<BlogEntity> getAllBlogs(int limit, int page) throws SQLException;
+
+    List<BlogEntity> getTopBlogs(int limit, int page) throws SQLException;
 
     BlogEntity createBlog(BlogEntity newBlog) throws SQLException;
 

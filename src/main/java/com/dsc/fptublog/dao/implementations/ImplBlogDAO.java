@@ -36,9 +36,10 @@ public class ImplBlogDAO implements IBlogDAO {
         String historyId = resultSet.getString("blog_history_id");
         long createdDatetime = resultSet.getLong("created_datetime");
         int views = resultSet.getInt("views");
+        float avgRate = resultSet.getFloat("avg_rate");
 
         return new BlogEntity(id, authorId, thumbnailUrl, title, content, description, updatedDatetime,
-                statusId, categoryId, reviewerId, reviewDateTime, historyId, createdDatetime, views);
+                statusId, categoryId, reviewerId, reviewDateTime, historyId, createdDatetime, views, avgRate);
     }
 
     private BlogEntity getBlogWithoutContent(ResultSet resultSet) throws SQLException {
@@ -55,9 +56,10 @@ public class ImplBlogDAO implements IBlogDAO {
         String historyId = resultSet.getString("blog_history_id");
         long createdDatetime = resultSet.getLong("created_datetime");
         int views = resultSet.getInt("views");
+        float avgRate = resultSet.getFloat("avg_rate");
 
         return new BlogEntity(id, authorId, thumbnailUrl, title, null, description, updatedDatetime,
-                statusId, categoryId, reviewerId, reviewDateTime, historyId, createdDatetime, views);
+                statusId, categoryId, reviewerId, reviewDateTime, historyId, createdDatetime, views, avgRate);
     }
 
     @Override
@@ -142,7 +144,7 @@ public class ImplBlogDAO implements IBlogDAO {
 
         String sql = "SELECT blog.id AS blog_id, author_id, thumbnail_url, title, content, description, " +
                 "blog.created_datetime AS updated_datetime, status_id, category_id, reviewer_id, review_datetime, " +
-                "blog_history_id, history.created_datetime AS created_datetime, views " +
+                "blog_history_id, history.created_datetime AS created_datetime, views, avg_rate " +
                 "FROM blog INNER JOIN blog_history history on history.id = blog.blog_history_id " +
                 "WHERE blog.id = ?";
 
@@ -191,12 +193,49 @@ public class ImplBlogDAO implements IBlogDAO {
 
         String sql = "SELECT blog.id AS blog_id, author_id, thumbnail_url, title, description, " +
                 "blog.created_datetime AS updated_datetime, status_id, category_id, reviewer_id, review_datetime, " +
-                "blog_history_id, history.created_datetime AS created_datetime, views " +
+                "blog_history_id, history.created_datetime AS created_datetime, views, avg_rate " +
                 "FROM blog " +
                 "INNER JOIN blog_status status ON blog.status_id = status.id " +
                 "INNER JOIN blog_history history ON blog.blog_history_id = history.id " +
                 "WHERE status.name = 'approved' OR status.name = 'pending deleted' " +
                 "ORDER BY blog.id DESC " +
+                "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setInt(1, offset);
+            stm.setInt(2, limit);
+
+            ResultSet resultSet = stm.executeQuery();
+
+            while (resultSet.next()) {
+                BlogEntity blog = this.getBlogWithoutContent(resultSet);
+                if (result == null) {
+                    result = new ArrayList<>();
+                }
+                result.add(blog);
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<BlogEntity> getTopBlogs(int limit, int offset) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return null;
+        }
+
+        List<BlogEntity> result = null;
+
+        String sql = "SELECT blog.id AS blog_id, author_id, thumbnail_url, title, description, " +
+                "blog.created_datetime AS updated_datetime, status_id, category_id, reviewer_id, review_datetime, " +
+                "blog_history_id, history.created_datetime AS created_datetime, views, avg_rate " +
+                "FROM blog " +
+                "INNER JOIN blog_status status ON blog.status_id = status.id " +
+                "INNER JOIN blog_history history ON blog.blog_history_id = history.id " +
+                "WHERE status.name = 'approved' OR status.name = 'pending deleted' " +
+                "ORDER BY avg_rate DESC, blog.id DESC " +
                 "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
@@ -271,7 +310,7 @@ public class ImplBlogDAO implements IBlogDAO {
 
         String sql = "SELECT blog.id AS blog_id, author_id, thumbnail_url, title, description, " +
                 "blog.created_datetime AS updated_datetime, status_id, category_id, reviewer_id, review_datetime, " +
-                "blog_history_id, history.created_datetime AS created_datetime, views " +
+                "blog_history_id, history.created_datetime AS created_datetime, views, avg_rate " +
                 "FROM blog " +
                 "INNER JOIN blog_status status on status.id = blog.status_id " +
                 "INNER JOIN blog_history history on history.id = blog.blog_history_id " +
@@ -307,7 +346,7 @@ public class ImplBlogDAO implements IBlogDAO {
 
         String sql = "SELECT blog.id AS blog_id, author_id, thumbnail_url, title, description, " +
                 "blog.created_datetime AS updated_datetime, status_id, category_id, reviewer_id, review_datetime, " +
-                "blog_history_id, history.created_datetime AS created_datetime, views " +
+                "blog_history_id, history.created_datetime AS created_datetime, views, avg_rate " +
                 "FROM blog " +
                 "INNER JOIN blog_status status on status.id = blog.status_id " +
                 "INNER JOIN blog_history history on history.id = blog.blog_history_id " +
