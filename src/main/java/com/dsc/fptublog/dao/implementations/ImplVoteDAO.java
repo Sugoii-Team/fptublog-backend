@@ -49,41 +49,36 @@ public class ImplVoteDAO implements IVoteDAO {
     }
 
     @Override
-    public VoteEntity deleteByAccountIdAndBlogId(String accountId, String blogId) throws SQLException {
+    public boolean deleteByAccountIdAndBlogId(String accountId, String blogId) throws SQLException {
         Connection connection = connectionWrapper.getConnection();
         if (connection == null) {
-            return null;
+            return false;
         }
 
-        VoteEntity result = null;
-
         String sql = "DELETE FROM vote " +
-                "OUTPUT deleted.rate_id " +
                 "WHERE account_id = ? AND blog_id = ?";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setString(1, accountId);
             stm.setString(2, blogId);
 
-            ResultSet resultSet = stm.executeQuery();
-            if (resultSet.next()) {
-                String rateId = resultSet.getString(1);
-                result = new VoteEntity(null, accountId, blogId, rateId);
+            int effectedRow = stm.executeUpdate();
+            if (effectedRow > 0) {
+                return true;
             }
         }
 
-        return result;
+        return false;
     }
 
     @Override
-    public VoteEntity insertByVoteEntity(VoteEntity vote) throws SQLException {
+    public boolean insertByVoteEntity(VoteEntity vote) throws SQLException {
         Connection connection = connectionWrapper.getConnection();
         if (connection == null) {
-            return null;
+            return false;
         }
 
         String sql = "INSERT INTO vote (account_id, blog_id, rate_id) " +
-                "OUTPUT inserted.id " +
                 "VALUES (?, ?, ?)";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
@@ -91,14 +86,13 @@ public class ImplVoteDAO implements IVoteDAO {
             stm.setString(2, vote.getBlogId());
             stm.setString(3, vote.getRateId());
 
-            ResultSet resultSet = stm.executeQuery();
-            if (resultSet.next()) {
-                String id = resultSet.getString(1);
-                vote.setId(id);
-                return vote;
+            int effectedRow = stm.executeUpdate();
+            if (effectedRow > 0) {
+                return true;
             }
+
         }
 
-        return null;
+        return false;
     }
 }
