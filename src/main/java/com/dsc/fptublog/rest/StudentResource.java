@@ -3,7 +3,6 @@ package com.dsc.fptublog.rest;
 import com.dsc.fptublog.config.Role;
 import com.dsc.fptublog.entity.StudentEntity;
 import com.dsc.fptublog.service.interfaces.IStudentService;
-import com.dsc.fptublog.service.interfaces.IBlogService;
 
 import lombok.extern.log4j.Log4j;
 
@@ -20,7 +19,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.sql.SQLException;
-import java.util.List;
 
 @Log4j
 @Path("/students")
@@ -28,9 +26,6 @@ public class StudentResource {
 
     @Inject
     private IStudentService studentService;
-
-    @Inject
-    private IBlogService blogService;
 
     @GET
     @Path("/{id}")
@@ -57,7 +52,7 @@ public class StudentResource {
             // get ID of current student is login
             String currentStudentId = sc.getUserPrincipal().getName();
             if (!student.getId().equals(currentStudentId)) {
-                return Response.status(Response.Status.EXPECTATION_FAILED)
+                return Response.status(Response.Status.UNAUTHORIZED)
                         .entity("Update Wrong Student Profile")
                         .build();
             }

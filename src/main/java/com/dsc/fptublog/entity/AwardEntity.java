@@ -13,4 +13,5 @@ public class AwardEntity {
     private String id;
     private String name;
     private String iconUrl;
+    private int point;
 }
