@@ -27,5 +27,8 @@ public interface IBlogDAO {
 
     List<BlogEntity> getByAuthorId(String authorId, int limit, int offset) throws SQLException;
 
+    List<BlogEntity> getByAuthorId(String authorId, int limit, int offset, String sortByField, String orderByType)
+            throws SQLException;
+
     boolean hideBlogInHistory(String blogHistoryId) throws SQLException;
 }

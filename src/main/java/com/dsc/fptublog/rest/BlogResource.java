@@ -152,11 +152,12 @@ public class BlogResource {
     @Path("/authors/{author_id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getOwnBlogs(@PathParam("author_id") String authorId,
-                                @QueryParam("limit") int limit, @QueryParam("page") int page) {
+                                @QueryParam("limit") int limit, @QueryParam("page") int page,
+                                @QueryParam("sort_by") String sortByField, @QueryParam("order_by") String orderByType) {
         List<BlogEntity> blogList;
 
         try {
-            blogList = blogService.getAllBlogsOfAuthor(authorId, limit, page);
+            blogList = blogService.getAllBlogsOfAuthor(authorId, limit, page, sortByField, orderByType);
         } catch (SQLException ex) {
             log.error(ex);
             return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();

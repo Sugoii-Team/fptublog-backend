@@ -339,14 +339,19 @@ public class ImplBlogService implements IBlogService {
     }
 
     @Override
-    public List<BlogEntity> getAllBlogsOfAuthor(String authorId, int limit, int page) throws SQLException {
+    public List<BlogEntity> getAllBlogsOfAuthor(String authorId, int limit, int page,
+                                                String sortByField, String orderByType) throws SQLException {
         List<BlogEntity> result;
 
         try {
             connectionWrapper.beginTransaction();
 
             int offset = limit * (page - 1);
-            result = blogDAO.getByAuthorId(authorId, limit, offset);
+            if (sortByField != null && orderByType != null) {
+                result = blogDAO.getByAuthorId(authorId, limit, offset, sortByField, orderByType);
+            } else {
+                result = blogDAO.getByAuthorId(authorId, limit, offset);
+            }
             if (result == null) {
                 result = Collections.emptyList();
             }
