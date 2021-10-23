@@ -106,16 +106,15 @@ public class ImplRateService implements IRateService {
             connectionWrapper.beginTransaction();
 
             // check this user voted for this blog before, then remove its vote
-            VoteEntity voteEntity = voteDAO.deleteByAccountIdAndBlogId(userId, blogId);
-            if (voteEntity != null) {
+            VoteEntity voteEntity = voteDAO.getByAccountIdAndBlogId(userId, blogId);
+            if (voteDAO.deleteByAccountIdAndBlogId(userId, blogId)) {
                 blogRateDAO.decreaseAmount(blogId, voteEntity.getRateId());
             }
 
             // insert new Vote
             String rateId = rateDAO.getByName(star).getId();
             voteEntity = new VoteEntity(null, userId, blogId, rateId);
-            voteEntity = voteDAO.insertByVoteEntity(voteEntity);
-            if (voteEntity != null) {
+            if (voteDAO.insertByVoteEntity(voteEntity)) {
                 // check existed blog_rate tuple for update
                 BlogRateEntity blogRate = blogRateDAO.getByBlogIdAndRateID(blogId, rateId);
 
@@ -144,8 +143,8 @@ public class ImplRateService implements IRateService {
         try {
             connectionWrapper.beginTransaction();
 
-            VoteEntity voteEntity = voteDAO.deleteByAccountIdAndBlogId(userId, blogId);
-            if (voteEntity != null) {
+            VoteEntity voteEntity = voteDAO.getByAccountIdAndBlogId(userId, blogId);
+            if (voteDAO.deleteByAccountIdAndBlogId(userId, blogId)) {
                 result = blogRateDAO.decreaseAmount(blogId, voteEntity.getRateId());
             }
 

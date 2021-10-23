@@ -10,7 +10,7 @@ public interface IVoteDAO {
 
     VoteEntity getByAccountIdAndBlogId(String accountId, String blogId) throws SQLException;
 
-    VoteEntity deleteByAccountIdAndBlogId(String accountId, String blogId) throws SQLException;
+    boolean deleteByAccountIdAndBlogId(String accountId, String blogId) throws SQLException;
 
-    VoteEntity insertByVoteEntity(VoteEntity vote) throws SQLException;
+    boolean insertByVoteEntity(VoteEntity vote) throws SQLException;
 }
