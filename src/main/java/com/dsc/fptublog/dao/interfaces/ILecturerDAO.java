@@ -5,9 +5,12 @@ import com.dsc.fptublog.entity.LecturerEntity;
 import org.jvnet.hk2.annotations.Contract;
 
 import java.sql.SQLException;
+import java.util.List;
 
 @Contract
 public interface ILecturerDAO {
+
+    List<LecturerEntity> getAll() throws SQLException;
 
     LecturerEntity getById(String id) throws SQLException;
 

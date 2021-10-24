@@ -2,13 +2,20 @@ package com.dsc.fptublog.rest;
 
 import com.dsc.fptublog.config.Role;
 import com.dsc.fptublog.entity.BlogEntity;
+import com.dsc.fptublog.entity.LecturerEntity;
 import com.dsc.fptublog.model.ReviewModel;
 import com.dsc.fptublog.service.interfaces.IBlogService;
+import com.dsc.fptublog.service.interfaces.ILecturerService;
 import lombok.extern.log4j.Log4j;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -22,6 +29,36 @@ public class LecturerResource {
 
     @Inject
     private IBlogService blogService;
+
+    @Inject
+    private ILecturerService lecturerService;
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getLecturers() {
+        List<LecturerEntity> result;
+        try {
+            result = lecturerService.getAllLecturers();
+        } catch (SQLException ex) {
+            log.error(ex);
+            return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+        return Response.ok(result).build();
+    }
+
+    @GET
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getLecturer(@PathParam("id") String id) {
+        LecturerEntity result;
+        try {
+            result = lecturerService.getLecturer(id);
+        } catch (SQLException ex) {
+            log.error(ex);
+            return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+        return Response.ok(result).build();
+    }
 
     @GET
     @RolesAllowed(Role.LECTURER)
