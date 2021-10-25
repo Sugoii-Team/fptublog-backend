@@ -76,4 +76,26 @@ public class ImplBlogTagDAO implements IBlogTagDAO {
 
         return effectedRow == tagList.size();
     }
+
+    @Override
+    public boolean deleteByBlogId(String blogId) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return false;
+        }
+
+        String sql = "DELETE FROM blog_tag " +
+                "WHERE blog_id = ?";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, blogId);
+
+            int effectedRow = stm.executeUpdate();
+            if (effectedRow > 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

@@ -84,22 +84,26 @@ public class ImplAuthService implements IAuthService {
             }
 
             AccountStatusEntity accountStatus = accountStatusDAO.getByName("activated");
-            AccountEntity newAccount = accountDAO.createForNewEmail(email,
-                    name.substring(0, Math.min(10, name.length())),
-                    avatarUrl,
-                    accountStatus.getId());
-
-            if (newAccount != null) {
-                // determine account is student or lecturer
-                if (email.matches("^.*[0-9]{6}@fpt.edu.vn$")) {
+            AccountEntity newAccount = null;
+            if (email.matches("^.*[0-9]{6}@fpt.edu.vn$")) {
+                newAccount = accountDAO.createForNewEmail(email,
+                        name.substring(0, Math.min(10, name.length())),
+                        avatarUrl,
+                        accountStatus.getId(), Role.STUDENT);
+                if (newAccount != null) {
                     // Create student account
                     result = createStudent(newAccount);
-                } else {
+                }
+            } else {
+                newAccount = accountDAO.createForNewEmail(email,
+                        name.substring(0, Math.min(10, name.length())),
+                        avatarUrl,
+                        accountStatus.getId(), Role.LECTURER);
+                if (newAccount != null) {
                     // create lecturer account
                     result = createLecturer(newAccount);
                 }
             }
-
             connectionWrapper.commit();
         } catch (SQLException ex) {
             connectionWrapper.rollback();
