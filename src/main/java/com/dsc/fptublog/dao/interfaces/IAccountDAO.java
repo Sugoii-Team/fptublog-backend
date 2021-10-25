@@ -11,7 +11,7 @@ public interface IAccountDAO {
 
     AccountEntity getByEmail(String email) throws SQLException;
 
-    AccountEntity createForNewEmail(String email, String name, String avatarUrl, String statusId) throws SQLException;
+    AccountEntity createForNewEmail(String email, String name, String avatarUrl, String statusId, String role) throws SQLException;
 
     AccountEntity getById(String id) throws SQLException;
 

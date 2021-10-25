@@ -25,6 +25,9 @@ public interface IBlogDAO {
 
     List<BlogEntity> getPendingBlogByCategoryIdList(List<String> categoryIdList) throws SQLException;
 
+
+    BlogEntity blogIdIsExistent(String blogId) throws SQLException;
+      
     List<BlogEntity> getByAuthorId(String authorId, int limit, int offset) throws SQLException;
 
     boolean hideBlogInHistory(String blogHistoryId) throws SQLException;

@@ -146,7 +146,7 @@ public class ImplBlogDAO implements IBlogDAO {
                 "blog.created_datetime AS updated_datetime, status_id, category_id, reviewer_id, review_datetime, " +
                 "blog_history_id, history.created_datetime AS created_datetime, views, avg_rate " +
                 "FROM blog INNER JOIN blog_history history on history.id = blog.blog_history_id " +
-                "WHERE blog.id = ?";
+                "WHERE blog.id = ? AND status_id != (SELECT id FROM blog_status WHERE name = 'deleted')";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setString(1, blogId);
@@ -373,6 +373,23 @@ public class ImplBlogDAO implements IBlogDAO {
     }
 
     @Override
+    public BlogEntity blogIdIsExistent(String blogId) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        ResultSet result = null;
+
+        String sql = "SELECT 1 "
+                    +"FROM blog "
+                    +"WHERE id = ?";
+        try(PreparedStatement stm = connection.prepareStatement(sql)){
+            stm.setString(1,blogId);
+            result = stm.executeQuery();
+            if(result.next()){
+                return BlogEntity.builder().id(blogId).build();
+            }
+        }
+        return null;
+    }
+  
     public boolean hideBlogInHistory(String blogHistoryId) throws SQLException {
         Connection connection = connectionWrapper.getConnection();
         if (connection == null) {
@@ -394,5 +411,4 @@ public class ImplBlogDAO implements IBlogDAO {
 
         return false;
     }
-
 }
