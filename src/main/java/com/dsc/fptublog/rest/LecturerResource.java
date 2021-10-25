@@ -2,9 +2,11 @@ package com.dsc.fptublog.rest;
 
 import com.dsc.fptublog.config.Role;
 import com.dsc.fptublog.entity.BlogEntity;
+import com.dsc.fptublog.entity.FieldEntity;
 import com.dsc.fptublog.entity.LecturerEntity;
 import com.dsc.fptublog.model.ReviewModel;
 import com.dsc.fptublog.service.interfaces.IBlogService;
+import com.dsc.fptublog.service.interfaces.IFieldService;
 import com.dsc.fptublog.service.interfaces.ILecturerService;
 import lombok.extern.log4j.Log4j;
 
@@ -33,6 +35,9 @@ public class LecturerResource {
     @Inject
     private ILecturerService lecturerService;
 
+    @Inject
+    private IFieldService fieldService;
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getLecturers() {
@@ -58,6 +63,48 @@ public class LecturerResource {
             return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
         }
         return Response.ok(result).build();
+    }
+
+    @GET
+    @Path("/{id}/fields")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getLecturerFields(@PathParam("id") String id) {
+        List<FieldEntity> result;
+        try {
+            result = fieldService.getLecturerFields(id);
+        } catch (SQLException ex) {
+            log.error(ex);
+            return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+        return Response.ok(result).build();
+    }
+
+    @PUT
+    @Path("/{id}/fields")
+    @RolesAllowed(Role.LECTURER)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response addFieldForLecturer(@Context SecurityContext sc, @PathParam("id") String lecturerId,
+                                        List<FieldEntity> fieldList) {
+        if (!sc.getUserPrincipal().getName().equals(lecturerId)) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+
+        Response response;
+
+        try {
+            if (fieldService.addLecturerFields(lecturerId, fieldList)) {
+                response = Response.ok("Update fields successfully!").build();
+            } else {
+                response = Response.status(Response.Status.EXPECTATION_FAILED).entity("Update fields fail!").build();
+            }
+
+        } catch (SQLException ex) {
+            log.error(ex);
+            response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+
+        return response;
     }
 
     @GET

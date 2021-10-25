@@ -38,12 +38,6 @@ public class ImplBlogService implements IBlogService {
     private IBlogStatusDAO blogStatusDAO;
 
     @Inject
-    private IBlogTagDAO blogTagDAO;
-
-    @Inject
-    private ITagDAO tagDAO;
-
-    @Inject
     private ILecturerFieldDAO lecturerFieldDAO;
 
     @Inject

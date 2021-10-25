@@ -4,12 +4,16 @@ import com.dsc.fptublog.dao.interfaces.ILecturerDAO;
 import com.dsc.fptublog.database.ConnectionWrapper;
 import com.dsc.fptublog.entity.LecturerEntity;
 import com.dsc.fptublog.service.interfaces.ILecturerService;
+import org.glassfish.jersey.process.internal.RequestScoped;
+import org.jvnet.hk2.annotations.Service;
 
 import javax.inject.Inject;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 
+@Service
+@RequestScoped
 public class ImplLecturerService implements ILecturerService {
 
     @Inject
