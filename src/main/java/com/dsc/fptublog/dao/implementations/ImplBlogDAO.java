@@ -146,7 +146,7 @@ public class ImplBlogDAO implements IBlogDAO {
                 "blog.created_datetime AS updated_datetime, status_id, category_id, reviewer_id, review_datetime, " +
                 "blog_history_id, history.created_datetime AS created_datetime, views, avg_rate " +
                 "FROM blog INNER JOIN blog_history history on history.id = blog.blog_history_id " +
-                "WHERE blog.id = ? AND status_id != '2C1F433E-F36B-1410-8934-008CAF34AFE2'";
+                "WHERE blog.id = ? AND status_id != (SELECT id FROM blog_status WHERE name = 'deleted')";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setString(1, blogId);
