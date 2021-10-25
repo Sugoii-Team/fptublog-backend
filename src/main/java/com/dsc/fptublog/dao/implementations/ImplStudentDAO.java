@@ -78,7 +78,7 @@ public class ImplStudentDAO implements IStudentDAO {
 
             int effectedRow = stm.executeUpdate();
             if (effectedRow > 0) {
-                result = new StudentEntity(schoolYear, majorId);
+                result = new StudentEntity(schoolYear, majorId, 0);
             }
         }
 
@@ -98,7 +98,7 @@ public class ImplStudentDAO implements IStudentDAO {
 
         StudentEntity result = null;
 
-        String sql = "SELECT school_year, major_id " +
+        String sql = "SELECT school_year, major_id, experience_point " +
                 "FROM account_student " +
                 "WHERE id = ?";
 
@@ -109,6 +109,7 @@ public class ImplStudentDAO implements IStudentDAO {
             if (resultSet.next()) {
                 short schoolYear = resultSet.getShort(1);
                 String majorId = resultSet.getString(2);
+                int experiencePoint = resultSet.getInt(3);
 
                 result = StudentEntity.builder()
                         .id(account.getId())
@@ -121,6 +122,7 @@ public class ImplStudentDAO implements IStudentDAO {
                         .statusId(account.getStatusId())
                         .schoolYear(schoolYear)
                         .majorId(majorId)
+                        .experiencePoint(experiencePoint)
                         .build();
             }
         }
@@ -131,18 +133,20 @@ public class ImplStudentDAO implements IStudentDAO {
     @Override
     public boolean updateStudent(StudentEntity studentEntity) throws SQLException {
         Connection connection = connectionWrapper.getConnection();
-        int effectRow;
         if (connection == null) {
             return false;
         }
-        String sql = "UPDATE account_student "
-                + "SET school_year = ISNULL(?, school_year), major_id = ISNULL(?, major_id) "
-                + "WHERE id = ?";
+        String sql = "UPDATE account_student " +
+                "SET school_year = ISNULL(?, school_year), " +
+                "major_id = ISNULL(?, major_id), experience_point = ISNULL(?, experience_point) " +
+                "WHERE id = ?";
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setShort(1, studentEntity.getSchoolYear());
             stm.setString(2, studentEntity.getMajorId());
-            stm.setString(3, studentEntity.getId());
-            effectRow = stm.executeUpdate();
+            stm.setInt(3, studentEntity.getExperiencePoint());
+            stm.setString(4, studentEntity.getId());
+
+            int effectRow = stm.executeUpdate();
             if (effectRow > 0) {
                 return true;
             }

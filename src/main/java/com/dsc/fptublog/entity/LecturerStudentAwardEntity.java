@@ -4,11 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class LecturerAwardEntity {
+@Data
+public class LecturerStudentAwardEntity {
     private String id;
     private String lecturerId;
+    private String studentId;
     private String awardId;
 }

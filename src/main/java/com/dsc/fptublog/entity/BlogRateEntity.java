@@ -1,17 +1,15 @@
 package com.dsc.fptublog.entity;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@Builder
-public class AwardEntity {
+public class BlogRateEntity {
     private String id;
-    private String name;
-    private String iconUrl;
-    private int point;
+    private String blogId;
+    private String rateId;
+    private int amount;
 }

@@ -4,11 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class StudentAwardEntity {
+@Data
+public class RateEntity {
     private String id;
-    private String studentId;
-    private String awardId;
+    private String star;
 }

@@ -3,20 +3,23 @@ package com.dsc.fptublog.rest;
 import com.dsc.fptublog.config.Role;
 import com.dsc.fptublog.entity.BlogEntity;
 import com.dsc.fptublog.entity.BlogStatusEntity;
-import com.dsc.fptublog.entity.TagEntity;
+import com.dsc.fptublog.model.BlogRateModel;
+import com.dsc.fptublog.model.VoteModel;
 import com.dsc.fptublog.service.interfaces.IBlogService;
-import com.dsc.fptublog.service.interfaces.ITagService;
+import com.dsc.fptublog.service.interfaces.IRateService;
 import lombok.extern.log4j.Log4j;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -32,17 +35,32 @@ public class BlogResource {
     private IBlogService blogService;
 
     @Inject
-    private ITagService tagService;
+    private IRateService rateService;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getAllBlogs() {
-        List<BlogEntity> blogList = null;
+    public Response getAllBlogs(@QueryParam("limit") int limit, @QueryParam("page") int page) {
+        List<BlogEntity> blogList;
         try {
-            blogList = blogService.getAllBlogs();
+            blogList = blogService.getAllBlogs(limit, page);
         } catch (SQLException ex) {
             log.error(ex);
-            return Response.status(Response.Status.EXPECTATION_FAILED).entity("LOAD DATABASE FAILED").build();
+            return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+        return Response.ok(blogList).build();
+    }
+
+    @GET
+    @Path("/top_rate")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getTopBlogs(@QueryParam("limit") int limit, @QueryParam("page") int page) {
+        List<BlogEntity> blogList;
+
+        try {
+            blogList = blogService.getTopBlogs(limit, page);
+        } catch (SQLException ex) {
+            log.error(ex);
+            return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
         }
         return Response.ok(blogList).build();
     }
@@ -56,35 +74,18 @@ public class BlogResource {
             blog = blogService.getById(id);
         } catch (SQLException ex) {
             log.error(ex);
-            return Response.status(Response.Status.EXPECTATION_FAILED).entity("LOAD DATABASE FAILED").build();
+            return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
         }
         return Response.ok(blog).build();
     }
 
-    @GET
-    @Path("/{id}/tags")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getAllTagsOfBlog(@PathParam("id") String blogId) {
-        List<TagEntity> tagList;
-
-        try {
-            tagList = tagService.getAllTagsOfBlog(blogId);
-        } catch (SQLException ex) {
-            log.error(ex);
-            return Response.status(Response.Status.EXPECTATION_FAILED).entity("LOAD DATABASE FAILED").build();
-        }
-
-        return Response.ok(tagList).build();
-    }
-
     @POST
-    @RolesAllowed({Role.STUDENT, Role.LECTURER})
+    @RolesAllowed({Role.STUDENT, Role.LECTURER, Role.ADMIN})
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response createBlog(@Context SecurityContext sc, BlogEntity newBlog) {
-        if (!sc.getUserPrincipal().getName().equals(newBlog.getAuthorId())) {
-            return Response.status(Response.Status.FORBIDDEN).build();
-        }
+        String userId = sc.getUserPrincipal().getName();
+        newBlog.setAuthorId(userId);
 
         Response response;
         try {
@@ -95,48 +96,6 @@ public class BlogResource {
             response = Response.status(Response.Status.EXPECTATION_FAILED).entity("LOAD DATABASE FAILED").build();
         }
         return response;
-    }
-
-    @POST
-    @Path("/{id}/tags")
-    @RolesAllowed({Role.STUDENT, Role.LECTURER})
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response addTagsForBlog(@PathParam("id") String id, List<TagEntity> tagList) {
-        try {
-            if (blogService.createTagListForBlog(id, tagList)) {
-                return Response
-                        .ok("Insert Tag list for blog " + id + " successfully!")
-                        .build();
-            } else {
-                return Response
-                        .status(Response.Status.EXPECTATION_FAILED)
-                        .entity("Insert Tag list for blog " + id + " fail")
-                        .build();
-            }
-        } catch (SQLException ex) {
-            log.error(ex);
-            return Response
-                    .status(Response.Status.EXPECTATION_FAILED)
-                    .entity("LOAD DATABASE FAILED")
-                    .build();
-        }
-    }
-
-    @GET
-    @Path("/status")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getAllBlogStatus() {
-        List<BlogStatusEntity> blogStatusList;
-
-        try {
-            blogStatusList = blogService.getAllBlogStatus();
-        } catch (SQLException ex) {
-            log.error(ex);
-            return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
-        }
-
-        return Response.ok(blogStatusList).build();
     }
 
     @PUT
@@ -157,6 +116,160 @@ public class BlogResource {
             } else {
                 response = Response.ok(result).build();
             }
+        } catch (SQLException ex) {
+            log.error(ex);
+            response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+
+        return response;
+    }
+
+    @DELETE
+    @RolesAllowed({Role.STUDENT, Role.LECTURER})
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deleteOwnBlog(@Context SecurityContext sc, @PathParam("id") String blogId) {
+        String userId = sc.getUserPrincipal().getName();
+
+        Response response;
+
+        try {
+            boolean result = blogService.deleteBlogOfAuthor(userId, blogId);
+            if (result) {
+                response = Response.ok("Delete blog successfully!").build();
+            } else {
+                response = Response.status(Response.Status.EXPECTATION_FAILED).entity("Delete blog fail").build();
+            }
+        } catch (SQLException ex) {
+            log.error(ex);
+            response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+
+        return response;
+    }
+
+    @GET
+    @Path("/authors/{author_id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getOwnBlogs(@PathParam("author_id") String authorId,
+                                @QueryParam("limit") int limit, @QueryParam("page") int page) {
+        List<BlogEntity> blogList;
+
+        try {
+            blogList = blogService.getAllBlogsOfAuthor(authorId, limit, page);
+        } catch (SQLException ex) {
+            log.error(ex);
+            return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+
+        return Response.ok(blogList).build();
+    }
+
+    @GET
+    @Path("/status")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAllBlogStatus() {
+        List<BlogStatusEntity> blogStatusList;
+
+        try {
+            blogStatusList = blogService.getAllBlogStatus();
+        } catch (SQLException ex) {
+            log.error(ex);
+            return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+
+        return Response.ok(blogStatusList).build();
+    }
+
+    @GET
+    @Path("/status/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getBlogStatus(@PathParam("id") String id) {
+        Response response;
+
+        try {
+            BlogStatusEntity blogStatus = blogService.getBlogStatus(id);
+            response = Response.ok(blogStatus).build();
+        } catch (SQLException ex) {
+            log.error(ex);
+            response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+
+        return response;
+    }
+
+    @GET
+    @Path("/{blog_id}/rates")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getBlogsRates(@PathParam("blog_id") String blogId) {
+        Response response;
+
+        try {
+            BlogRateModel blogRateModel = rateService.getRateOfBlog(blogId);
+            response = Response.ok(blogRateModel).build();
+        } catch (SQLException ex) {
+            log.error(ex);
+            response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+
+        return response;
+    }
+
+    @GET
+    @Path("/{blog_id}/votes")
+    @RolesAllowed({Role.STUDENT, Role.LECTURER})
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getVotes(@Context SecurityContext sc, @PathParam("blog_id") String blogId) {
+        String userId = sc.getUserPrincipal().getName();
+
+        Response response;
+
+        try {
+            VoteModel voteModel = rateService.getVoteOfUserForBlog(userId, blogId);
+            response = Response.ok(voteModel).build();
+        } catch (SQLException ex) {
+            log.error(ex);
+            response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+
+        return response;
+    }
+
+    @POST
+    @Path("/{blog_id}/votes")
+    @RolesAllowed({Role.STUDENT, Role.LECTURER})
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response addVote(@Context SecurityContext sc, @PathParam("blog_id") String blogId, VoteModel voteModel) {
+        String userId = sc.getUserPrincipal().getName();
+
+        Response response;
+
+        try {
+            rateService.addVoteForBlog(userId, blogId, voteModel.getStar());
+            BlogRateModel blogRateModel = rateService.getRateOfBlog(blogId);
+            response = Response.ok(blogRateModel).build();
+        } catch (SQLException ex) {
+            log.error(ex);
+            response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+
+        return response;
+    }
+
+    @DELETE
+    @Path("/{blog_id}/votes")
+    @RolesAllowed({Role.STUDENT, Role.LECTURER})
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deleteVote(@Context SecurityContext sc, @PathParam("blog_id") String blogId) {
+        String userId = sc.getUserPrincipal().getName();
+
+        Response response;
+
+        try {
+            rateService.deleteVoteForBlog(userId, blogId);
+            BlogRateModel blogRateModel = rateService.getRateOfBlog(blogId);
+            response = Response.ok(blogRateModel).build();
         } catch (SQLException ex) {
             log.error(ex);
             response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
