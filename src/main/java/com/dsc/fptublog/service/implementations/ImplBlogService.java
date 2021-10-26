@@ -46,6 +46,9 @@ public class ImplBlogService implements IBlogService {
     @Inject
     private IBlogHistoryDAO blogHistoryDAO;
 
+    @Inject
+    private IBlogTagDAO blogTagDAO;
+
     @Override
     public BlogEntity getById(String id) throws SQLException {
         BlogEntity blog;
@@ -379,6 +382,7 @@ public class ImplBlogService implements IBlogService {
                 // draft
                 String draftStatusId = blogStatusDAO.getByName("draft").getId();
                 if (draftStatusId.equals(deletedBlog.getStatusId())) {
+                    blogTagDAO.deleteByBlogId(deletedBlog.getId());
                     result = blogDAO.deletedById(deletedBlog.getId());
                 }
 
