@@ -146,6 +146,8 @@ public class ImplTagService implements ITagService {
         boolean result = false;
 
         try {
+            connectionWrapper.beginTransaction();
+
             // check right authorId
             BlogEntity blog = blogDAO.getById(blogId);
             if (!authorId.equals(blog.getAuthorId())) {
@@ -163,6 +165,8 @@ public class ImplTagService implements ITagService {
                     result = blogTagDAO.createByBlogIdAndTagList(blogId, tagList);
                 }
             }
+
+            connectionWrapper.commit();
         } catch (SQLException ex) {
             connectionWrapper.rollback();
             throw ex;

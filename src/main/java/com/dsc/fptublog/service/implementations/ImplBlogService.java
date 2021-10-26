@@ -383,14 +383,14 @@ public class ImplBlogService implements IBlogService {
                 }
 
                 // pending approved
-                String pendingApprovedStatusId = blogStatusDAO.getByName("pending approved").getName();
+                String pendingApprovedStatusId = blogStatusDAO.getByName("pending approved").getId();
                 if (pendingApprovedStatusId.equals(deletedBlog.getStatusId())) {
                     deletedBlog.setStatusId(draftStatusId);
                     result = blogDAO.updateByBlog(deletedBlog);
                 }
 
                 // pending updated
-                String pendingUpdatedStatusId = blogStatusDAO.getByName("pending updated").getName();
+                String pendingUpdatedStatusId = blogStatusDAO.getByName("pending updated").getId();
                 if (pendingUpdatedStatusId.equals(deletedBlog.getStatusId())) {
                     deletedBlog.setStatusId(draftStatusId);
                     result = blogDAO.updateByBlog(deletedBlog);
