@@ -1,5 +1,6 @@
 package com.dsc.fptublog.dao.interfaces;
 
+import com.dsc.fptublog.entity.FieldEntity;
 import com.dsc.fptublog.entity.LecturerFieldEntity;
 import org.jvnet.hk2.annotations.Contract;
 
@@ -10,4 +11,7 @@ import java.util.List;
 public interface ILecturerFieldDAO {
 
     List<LecturerFieldEntity> getByLecturerId(String lecturerId) throws SQLException;
+
+    boolean addByLecturerIdAndFieldList(String lecturerId, List<FieldEntity> fieldList)
+            throws SQLException;
 }

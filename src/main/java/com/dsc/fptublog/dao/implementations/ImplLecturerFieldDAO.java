@@ -2,6 +2,7 @@ package com.dsc.fptublog.dao.implementations;
 
 import com.dsc.fptublog.dao.interfaces.ILecturerFieldDAO;
 import com.dsc.fptublog.database.ConnectionWrapper;
+import com.dsc.fptublog.entity.FieldEntity;
 import com.dsc.fptublog.entity.LecturerFieldEntity;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.jvnet.hk2.annotations.Service;
@@ -51,5 +52,33 @@ public class ImplLecturerFieldDAO implements ILecturerFieldDAO {
         }
 
         return result;
+    }
+
+    @Override
+    public boolean addByLecturerIdAndFieldList(String lecturerId, List<FieldEntity> fieldList) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return false;
+        }
+
+        String sql = "INSERT INTO account_lecturer_field (lecturer_id, field_id) " +
+                "VALUES (?, ?)";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            int effectedRow = 0;
+
+            for (var field : fieldList) {
+                stm.setString(1, lecturerId);
+                stm.setString(2, field.getId());
+
+                effectedRow += stm.executeUpdate();
+            }
+
+            if (effectedRow == fieldList.size()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
