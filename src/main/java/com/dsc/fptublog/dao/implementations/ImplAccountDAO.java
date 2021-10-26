@@ -65,7 +65,7 @@ public class ImplAccountDAO implements IAccountDAO {
     }
 
     @Override
-    public AccountEntity createForNewEmail(String email, String name, String avatarUrl, String statusId)
+    public AccountEntity createForNewEmail(String email, String name, String avatarUrl, String statusId, String role)
             throws SQLException {
         if (email == null || name == null) {
             return null;
@@ -78,9 +78,9 @@ public class ImplAccountDAO implements IAccountDAO {
 
         AccountEntity result = null;
 
-        String sql = "INSERT INTO account (email, alternative_email, firstname, lastname, avatar_url, status_id) " +
+        String sql = "INSERT INTO account (email, alternative_email, firstname, lastname, avatar_url, status_id, role) " +
                 "OUTPUT inserted.id " +
-                "VALUES (?, ?, ?, ?, ?, ?)";
+                "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setString(1, email);
@@ -89,6 +89,7 @@ public class ImplAccountDAO implements IAccountDAO {
             stm.setNString(4, "");
             stm.setString(5, avatarUrl);
             stm.setString(6, statusId);
+            stm.setString(7,role);
 
             ResultSet resultSet = stm.executeQuery();
             if (resultSet.next()) {
@@ -102,6 +103,7 @@ public class ImplAccountDAO implements IAccountDAO {
                         .lastName("")
                         .avatarUrl(avatarUrl)
                         .statusId(statusId)
+                        .role(role)
                         .build();
             }
         }

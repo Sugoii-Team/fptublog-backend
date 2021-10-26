@@ -41,7 +41,7 @@ public class AdminResource {
 
         if (result) {
             String token = JwtUtil.createJWT(admin.getUsername(), Role.ADMIN);
-            return Response.ok("Admin logins successfully!")
+            return Response.ok("{\"role\" : \"ADMIN\"}")
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                     .build();
         } else {
@@ -137,5 +137,18 @@ public class AdminResource {
             return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
         }
         return Response.ok(bannedAccounts).build();
+    }
+
+    @DELETE
+    @Path("/blogs/{id}")
+    @RolesAllowed(Role.ADMIN)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deleteBlog(@PathParam("id")String blogId){
+        try{
+            boolean result = adminService.deleteBlog(blogId);
+        }catch (SQLException ex){
+            return Response.status(Response.Status.EXPECTATION_FAILED).entity("Blog does not exist").build();
+        }
+        return Response.ok("Delete Blog Successfully!!").build();
     }
 }

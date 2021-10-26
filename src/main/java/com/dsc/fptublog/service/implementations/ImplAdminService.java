@@ -1,12 +1,8 @@
 package com.dsc.fptublog.service.implementations;
 
-import com.dsc.fptublog.dao.interfaces.IAccountDAO;
-import com.dsc.fptublog.dao.interfaces.IAccountStatusDAO;
-import com.dsc.fptublog.dao.interfaces.IAdminDAO;
+import com.dsc.fptublog.dao.interfaces.*;
 import com.dsc.fptublog.database.ConnectionWrapper;
-import com.dsc.fptublog.entity.AccountEntity;
-import com.dsc.fptublog.entity.AccountStatusEntity;
-import com.dsc.fptublog.entity.AdminEntity;
+import com.dsc.fptublog.entity.*;
 import com.dsc.fptublog.service.interfaces.IAdminService;
 import com.dsc.fptublog.util.SHA256Util;
 import org.glassfish.jersey.process.internal.RequestScoped;
@@ -33,6 +29,11 @@ public class ImplAdminService implements IAdminService {
     @Inject
     private IAdminDAO adminDAO;
 
+    @Inject
+    private IBlogDAO blogDAO;
+
+    @Inject
+    private IBlogStatusDAO blogStatusDAO;
 
     @Override
     public List<AccountEntity> getAllAccounts() throws SQLException {
@@ -134,6 +135,27 @@ public class ImplAdminService implements IAdminService {
             connectionWrapper.close();
         }
         return bannedAccounts;
+    }
+
+    @Override
+    public boolean deleteBlog(String id) throws SQLException {
+        try{
+            connectionWrapper.beginTransaction();
+            BlogEntity deleteBlog = blogDAO.blogIdIsExistent(id); // check blog is exist
+            BlogStatusEntity deleteStatus = blogStatusDAO.getByName("deleted");
+            deleteBlog.setStatusId(deleteStatus.getId()); // set delete status id into blog
+            boolean result = blogDAO.updateByBlog(deleteBlog); //update Blog's status to deleted
+            if(result){
+                connectionWrapper.commit();
+                return true;
+            }
+        }catch (SQLException ex){
+            connectionWrapper.rollback();
+            throw ex;
+        }finally {
+            connectionWrapper.close();
+        }
+        return false;
     }
 
 
