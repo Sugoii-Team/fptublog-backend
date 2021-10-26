@@ -55,18 +55,21 @@ public class AccountResource {
         account.setId(id);
         boolean result;
 
+        Response response;
+
         try {
             result = accountService.updateByAccount(account);
+            if (result) {
+                response = Response.status(Response.Status.OK).entity("Update account " + id + " successfully").build();
+            } else {
+                response = Response.status(Response.Status.EXPECTATION_FAILED).entity("Update account " + id + " fail!").build();
+            }
         } catch (SQLException ex) {
             log.error(ex);
-            return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+            response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
         }
 
-        if (result) {
-            return Response.status(Response.Status.OK).entity("Update account " + id + " successfully").build();
-        } else {
-            return Response.status(Response.Status.EXPECTATION_FAILED).entity("Update account " + id + " fail!").build();
-        }
+        return response;
     }
 
 }
