@@ -51,4 +51,33 @@ public class ImplFieldDAO implements IFieldDAO {
 
         return result;
     }
+
+    @Override
+    public List<FieldEntity> getAll() throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return null;
+        }
+
+        List<FieldEntity> result = null;
+
+        String sql = "SELECT id, name " +
+                "FROM field";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            ResultSet resultSet = stm.executeQuery();
+
+            while (resultSet.next()) {
+                String id = resultSet.getString(1);
+                String name = resultSet.getNString(2);
+
+                if (result == null) {
+                    result = new ArrayList<>();
+                }
+                result.add(new FieldEntity(id, name));
+            }
+        }
+
+        return result;
+    }
 }

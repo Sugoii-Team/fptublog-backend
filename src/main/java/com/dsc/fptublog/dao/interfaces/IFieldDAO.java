@@ -10,4 +10,6 @@ import java.util.List;
 public interface IFieldDAO {
 
     List<FieldEntity> getByFieldIdList(List<String> fieldIdList) throws SQLException;
+
+    List<FieldEntity> getAll() throws SQLException;
 }
