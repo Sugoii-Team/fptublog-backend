@@ -110,4 +110,35 @@ public class ImplCategoryDAO implements ICategoryDAO {
         return result;
     }
 
+    @Override
+    public List<CategoryEntity> getByFieldId(String fieldId) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return null;
+        }
+
+        List<CategoryEntity> result = null;
+
+        String sql = "SELECT id, name " +
+                "FROM category " +
+                "WHERE field_id = ?";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, fieldId);
+
+            ResultSet resultSet = stm.executeQuery();
+            while (resultSet.next()) {
+                String id = resultSet.getString(1);
+                String name = resultSet.getNString(2);
+
+                if (result == null) {
+                    result = new ArrayList<>();
+                }
+                result.add(new CategoryEntity(id, name, fieldId));
+            }
+        }
+
+        return result;
+    }
+
 }

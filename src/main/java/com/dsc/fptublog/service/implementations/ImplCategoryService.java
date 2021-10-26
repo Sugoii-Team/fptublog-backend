@@ -9,6 +9,7 @@ import org.jvnet.hk2.annotations.Service;
 
 import javax.inject.Inject;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -53,5 +54,25 @@ public class ImplCategoryService implements ICategoryService {
         }
 
         return categoryList;
+    }
+
+    @Override
+    public List<CategoryEntity> getCategoriesOfField(String fieldId) throws SQLException {
+        List<CategoryEntity> result;
+
+        try {
+            connectionWrapper.beginTransaction();
+
+            result = categoryDAO.getByFieldId(fieldId);
+
+            connectionWrapper.commit();
+        } finally {
+            connectionWrapper.close();
+        }
+
+        if (result == null) {
+            result = Collections.emptyList();
+        }
+        return result;
     }
 }

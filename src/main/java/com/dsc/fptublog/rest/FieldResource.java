@@ -1,6 +1,8 @@
 package com.dsc.fptublog.rest;
 
+import com.dsc.fptublog.entity.CategoryEntity;
 import com.dsc.fptublog.entity.FieldEntity;
+import com.dsc.fptublog.service.interfaces.ICategoryService;
 import com.dsc.fptublog.service.interfaces.IFieldService;
 import lombok.extern.log4j.Log4j;
 
@@ -20,6 +22,9 @@ public class FieldResource {
 
     @Inject
     private IFieldService fieldService;
+
+    @Inject
+    ICategoryService categoryService;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -41,6 +46,20 @@ public class FieldResource {
         FieldEntity result;
         try {
             result = fieldService.getFieldById(id);
+        } catch (SQLException ex) {
+            log.error(ex);
+            return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+        return Response.ok(result).build();
+    }
+
+    @GET
+    @Path("/{id}/categories")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getCategoryOfFields(@PathParam("id") String fieldId) {
+        List<CategoryEntity> result;
+        try {
+            result = categoryService.getCategoriesOfField(fieldId);
         } catch (SQLException ex) {
             log.error(ex);
             return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
