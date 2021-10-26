@@ -93,7 +93,7 @@ public class BlogResource {
             response = Response.ok(newBlog).build();
         } catch (SQLException ex) {
             log.error(ex);
-            response = Response.status(Response.Status.EXPECTATION_FAILED).entity("LOAD DATABASE FAILED").build();
+            response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
         }
         return response;
     }
