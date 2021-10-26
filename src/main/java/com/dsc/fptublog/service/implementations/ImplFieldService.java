@@ -49,6 +49,22 @@ public class ImplFieldService implements IFieldService {
     }
 
     @Override
+    public FieldEntity getFieldById(String id) throws SQLException {
+        FieldEntity result;
+        try {
+            connectionWrapper.beginTransaction();
+
+            result = fieldDAO.getById(id);
+
+            connectionWrapper.commit();
+        } finally {
+            connectionWrapper.close();
+        }
+
+        return result;
+    }
+
+    @Override
     public List<FieldEntity> getLecturerFields(String lecturerId) throws SQLException {
         List<FieldEntity> result;
 

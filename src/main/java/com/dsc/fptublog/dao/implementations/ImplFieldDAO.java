@@ -80,4 +80,29 @@ public class ImplFieldDAO implements IFieldDAO {
 
         return result;
     }
+
+    @Override
+    public FieldEntity getById(String id) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return null;
+        }
+
+        String sql = "SELECT name " +
+                "FROM field " +
+                "WHERE id = ?";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, id);
+
+            ResultSet resultSet = stm.executeQuery();
+            if (resultSet.next()) {
+                String name = resultSet.getNString(1);
+
+                return new FieldEntity(id, name);
+            }
+        }
+
+        return null;
+    }
 }
