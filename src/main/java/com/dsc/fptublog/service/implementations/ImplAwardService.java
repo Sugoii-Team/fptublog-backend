@@ -13,6 +13,7 @@ import javax.inject.Inject;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequestScoped
@@ -25,7 +26,7 @@ public class ImplAwardService implements IAwardService {
     private IAwardDAO awardDAO;
 
     @Inject
-    ILecturerStudentAwardDAO lecturerStudentAwardDAO;
+    private ILecturerStudentAwardDAO lecturerStudentAwardDAO;
 
     @Override
     public List<AwardEntity> getAwards() throws SQLException {
@@ -85,15 +86,23 @@ public class ImplAwardService implements IAwardService {
     }
 
     @Override
-    public List<LecturerStudentAwardEntity> getAllAwardOfStudent(String studentId) throws SQLException {
-        List<LecturerStudentAwardEntity> result;
+    public List<AwardEntity> getAllAwardOfStudent(String studentId) throws SQLException {
+        List<AwardEntity> result;
 
         try {
             connectionWrapper.beginTransaction();
 
-            result = lecturerStudentAwardDAO.getByStudentId(studentId);
-            if (result == null) {
+            List<LecturerStudentAwardEntity> LecturerStudentAwardList = lecturerStudentAwardDAO.getByStudentId(studentId);
+            if (LecturerStudentAwardList == null) {
                 result = Collections.emptyList();
+            } else {
+                List<String> awardIdList = LecturerStudentAwardList.stream()
+                        .map(LecturerStudentAwardEntity::getAwardId)
+                        .collect(Collectors.toList());
+                result = awardDAO.getByAwardIdList(awardIdList);
+                if (result == null) {
+                    result = Collections.emptyList();
+                }
             }
 
             connectionWrapper.commit();

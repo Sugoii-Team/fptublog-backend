@@ -46,16 +46,18 @@ public class StudentResource {
     @RolesAllowed({Role.STUDENT})
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updateStudent(@Context SecurityContext sc, StudentEntity student) {
+    public Response updateStudent(@Context SecurityContext sc, @PathParam("id") String id, StudentEntity student) {
+        String userId = sc.getUserPrincipal().getName();
+        student.setId(id);
+
+        if (!userId.equals(id)) {
+            return Response.status(Response.Status.UNAUTHORIZED)
+                    .entity("Update Wrong Student Profile")
+                    .build();
+        }
+
         StudentEntity updatedStudent;
         try {
-            // get ID of current student is login
-            String currentStudentId = sc.getUserPrincipal().getName();
-            if (!student.getId().equals(currentStudentId)) {
-                return Response.status(Response.Status.UNAUTHORIZED)
-                        .entity("Update Wrong Student Profile")
-                        .build();
-            }
             updatedStudent = studentService.updateStudent(student);
         } catch (SQLException ex) {
             log.error(ex);

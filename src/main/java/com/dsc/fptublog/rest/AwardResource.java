@@ -69,7 +69,7 @@ public class AwardResource {
         Response response;
 
         try {
-            List<LecturerStudentAwardEntity> studentAwardList = awardService.getAllAwardOfStudent(studentId);
+            List<AwardEntity> studentAwardList = awardService.getAllAwardOfStudent(studentId);
             response = Response.ok(studentAwardList).build();
         } catch (SQLException ex) {
             log.error(ex);
@@ -98,7 +98,13 @@ public class AwardResource {
             }
         } catch (SQLException ex) {
             log.error(ex);
-            response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+            if (ex.getMessage().contains("UNIQUE KEY")) {
+                response = Response.status(Response.Status.EXPECTATION_FAILED)
+                        .entity("Award already given to this user")
+                        .build();
+            } else {
+                response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+            }
         }
 
         return response;

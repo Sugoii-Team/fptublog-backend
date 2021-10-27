@@ -12,4 +12,6 @@ public interface IAwardDAO {
     List<AwardEntity> getAllAwards() throws SQLException;
 
     AwardEntity getById(String id) throws SQLException;
+
+    List<AwardEntity> getByAwardIdList(List<String> awardIdList) throws SQLException;
 }
