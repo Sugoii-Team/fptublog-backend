@@ -425,20 +425,27 @@ public class ImplBlogService implements IBlogService {
                 return null;
             }
 
-            String pendingUpdatedStatusId = blogStatusDAO.getByName("pending updated").getId();
-            long currentTime = System.currentTimeMillis();
+            String draftStatusId = blogStatusDAO.getByName("draft").getId();
+            if (draftStatusId.equals(oldBlog.getStatusId())) {
+                if (blogDAO.updateByBlog(oldBlog)) {
+                    result = oldBlog;
+                }
+            } else {
+                String pendingUpdatedStatusId = blogStatusDAO.getByName("pending updated").getId();
+                long currentTime = System.currentTimeMillis();
 
-            oldBlog.setThumbnailUrl(updatedBlog.getThumbnailUrl());
-            oldBlog.setTitle(updatedBlog.getTitle());
-            oldBlog.setContent(updatedBlog.getContent());
-            oldBlog.setDescription(updatedBlog.getDescription());
-            oldBlog.setUpdatedDatetime(currentTime);
-            oldBlog.setStatusId(pendingUpdatedStatusId);
-            oldBlog.setReviewerId(null);
-            oldBlog.setReviewDateTime(0);
+                oldBlog.setThumbnailUrl(updatedBlog.getThumbnailUrl());
+                oldBlog.setTitle(updatedBlog.getTitle());
+                oldBlog.setContent(updatedBlog.getContent());
+                oldBlog.setDescription(updatedBlog.getDescription());
+                oldBlog.setUpdatedDatetime(currentTime);
+                oldBlog.setReviewerId(null);
+                oldBlog.setReviewDateTime(0);
 
-            // update to DB
-            result = blogDAO.insertByBlog(oldBlog);
+                oldBlog.setStatusId(pendingUpdatedStatusId);
+                // update to DB
+                result = blogDAO.insertByBlog(oldBlog);
+            }
 
             connectionWrapper.commit();
         } catch (SQLException ex) {
