@@ -21,8 +21,6 @@ public interface IBlogDAO {
 
     List<BlogEntity> getTopBlogs(int limit, int offset) throws SQLException;
 
-    /*List<BlogEntity> getByCategoryIdList(List<String> categoryIdList) throws SQLException;*/
-
     List<BlogEntity> getPendingBlogByCategoryIdList(List<String> categoryIdList) throws SQLException;
 
 
@@ -34,4 +32,6 @@ public interface IBlogDAO {
             throws SQLException;
 
     boolean hideBlogInHistory(String blogHistoryId) throws SQLException;
+
+    boolean deleteReviewerId(String reviewerId) throws SQLException;
 }

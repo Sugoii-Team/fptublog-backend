@@ -14,6 +14,8 @@ public interface IAdminService {
 
     AccountEntity updateAccount(AccountEntity account) throws SQLException;
 
+    AccountEntity updateRole(AccountEntity account) throws SQLException;
+
     void deleteAccount(String accountId) throws SQLException;
 
     boolean getAuthentication(AdminEntity admin) throws SQLException, NoSuchAlgorithmException;

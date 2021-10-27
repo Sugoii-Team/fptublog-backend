@@ -449,4 +449,30 @@ public class ImplBlogDAO implements IBlogDAO {
 
         return false;
     }
+
+    @Override
+    public boolean deleteReviewerId(String reviewerId) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return false;
+        }
+
+        String sql = "UPDATE blog " +
+                "SET reviewer_id = NULL " +
+                "WHERE reviewer_id = ?";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, reviewerId);
+
+            int effectedRow = stm.executeUpdate();
+            if (effectedRow > 0) {
+                return true;
+            }
+
+        }
+
+        return false;
+    }
+
+
 }
