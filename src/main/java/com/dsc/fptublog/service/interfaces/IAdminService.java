@@ -23,4 +23,6 @@ public interface IAdminService {
     List<AccountEntity> getAllBannedAccounts() throws SQLException;
 
     boolean deleteBlog(String id) throws SQLException;
+
+    boolean unbanAccount(String accountId) throws SQLException;
 }

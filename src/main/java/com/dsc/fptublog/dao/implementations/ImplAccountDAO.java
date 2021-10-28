@@ -274,4 +274,27 @@ public class ImplAccountDAO implements IAccountDAO {
         }
         return accountList;
     }
+
+    @Override
+    public AccountEntity getAccountWithStatusId(String accountId) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        ResultSet result = null;
+        AccountEntity account = null;
+        if(connection == null){
+            return  null;
+        }
+        String sql = "SELECT status_id "
+                    +"FROM account "
+                    +"WHERE id = ?";
+        try(PreparedStatement stm = connection.prepareStatement(sql)){
+            stm.setString(1,accountId);
+            result = stm.executeQuery();
+            if(result.next()){
+                String statusId = result.getString(1);
+                account = AccountEntity.builder().id(accountId).statusId(statusId).build();
+                return account;
+            }
+        }
+        return null;
+    }
 }
