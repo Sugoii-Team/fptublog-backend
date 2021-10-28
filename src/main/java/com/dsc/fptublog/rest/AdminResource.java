@@ -110,10 +110,11 @@ public class AdminResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response updateRoleOrBan(@PathParam("id") String id, AccountEntity account) {
         account.setId(id);
+        boolean result = false;
         try {
             //Ban an account
             if (account.getRole() == null) {
-                boolean result = adminService.banAccount(account);
+                result = adminService.banAccount(account);
                 if (result) {
                     return Response.ok("Ban account successfully!!").build();
                 }
@@ -158,5 +159,23 @@ public class AdminResource {
             return Response.status(Response.Status.EXPECTATION_FAILED).entity("Blog does not exist").build();
         }
         return Response.ok("Delete Blog Successfully!!").build();
+    }
+
+    @PUT
+    @Path("/accounts/unbanningaccount/{account_id}")
+    @RolesAllowed(Role.ADMIN)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response unbanAccount(@PathParam("account_id")String accountId){
+        boolean result = false;
+        try{
+            result = adminService.unbanAccount(accountId);
+        }catch (SQLException ex){
+            return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+        if (result){
+            return Response.ok("Unban account Successfully!").build();
+        }else{
+            return Response.status(Response.Status.EXPECTATION_FAILED).entity("Unban Account Failed").build();
+        }
     }
 }
