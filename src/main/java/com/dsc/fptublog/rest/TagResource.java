@@ -77,7 +77,7 @@ public class TagResource {
             tagList = tagService.getAllTagsOfBlog(blogId);
         } catch (SQLException ex) {
             log.error(ex);
-            return Response.status(Response.Status.EXPECTATION_FAILED).entity("LOAD DATABASE FAILED").build();
+            return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
         }
 
         return Response.ok(tagList).build();

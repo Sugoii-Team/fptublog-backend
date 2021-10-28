@@ -120,7 +120,7 @@ public class ImplAccountDAO implements IAccountDAO {
 
         AccountEntity result = null;
 
-        String sql = "SELECT email, alternative_email, firstname, lastname, avatar_url, description, status_id " +
+        String sql = "SELECT email, alternative_email, firstname, lastname, avatar_url, description, status_id, role " +
                 "FROM account " +
                 "WHERE id = ?";
 
@@ -136,6 +136,7 @@ public class ImplAccountDAO implements IAccountDAO {
                 String avatarUrl = resultSet.getString(5);
                 String description = resultSet.getNString(6);
                 String statusId = resultSet.getString(7);
+                String role = resultSet.getString(8);
 
                 result = AccountEntity.builder()
                         .id(id)
@@ -146,6 +147,7 @@ public class ImplAccountDAO implements IAccountDAO {
                         .avatarUrl(avatarUrl)
                         .description(description)
                         .statusId(statusId)
+                        .role(role)
                         .build();
             }
         }

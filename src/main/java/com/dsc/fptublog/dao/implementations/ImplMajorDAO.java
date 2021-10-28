@@ -11,6 +11,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequestScoped
@@ -62,6 +64,35 @@ public class ImplMajorDAO implements IMajorDAO {
             if (resultSet.next()) {
                 String id = resultSet.getString("id");
                 result = new MajorEntity(id, name);
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<MajorEntity> getAll() throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return null;
+        }
+
+        List<MajorEntity> result = null;
+
+        String sql = "SELECT id, name " +
+                "FROM major";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            ResultSet resultSet = stm.executeQuery();
+
+            while (resultSet.next()) {
+                String id = resultSet.getString(1);
+                String name = resultSet.getNString(2);
+
+                if (result == null) {
+                    result = new ArrayList<>();
+                }
+                result.add(new MajorEntity(id, name));
             }
         }
 

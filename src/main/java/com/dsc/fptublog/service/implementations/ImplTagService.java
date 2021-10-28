@@ -146,6 +146,8 @@ public class ImplTagService implements ITagService {
         boolean result = false;
 
         try {
+            connectionWrapper.beginTransaction();
+
             // check right authorId
             BlogEntity blog = blogDAO.getById(blogId);
             if (!authorId.equals(blog.getAuthorId())) {
@@ -154,15 +156,17 @@ public class ImplTagService implements ITagService {
 
             // replace blog_tag table for this blog
             // remove old blog_tag rows
-            if (blogTagDAO.deleteByBlogId(blogId)) {
-                // after delete old rows, insert updated rows
-                // check existed tagList. If not existed, insert new
-                tagList = tagDAO.insertIfNotExistedByTagList(tagList);
-                if (tagList != null) {
-                    // Don't need to check exist blogId because JDBC will throw exception for us
-                    result = blogTagDAO.createByBlogIdAndTagList(blogId, tagList);
-                }
+            blogTagDAO.deleteByBlogId(blogId);
+
+            // after delete old rows, insert updated rows
+            // check existed tagList. If not existed, insert new
+            tagList = tagDAO.insertIfNotExistedByTagList(tagList);
+            if (tagList != null) {
+                // Don't need to check exist blogId because JDBC will throw exception for us
+                result = blogTagDAO.createByBlogIdAndTagList(blogId, tagList);
             }
+
+            connectionWrapper.commit();
         } catch (SQLException ex) {
             connectionWrapper.rollback();
             throw ex;

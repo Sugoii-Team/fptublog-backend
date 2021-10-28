@@ -112,7 +112,7 @@ public class BlogResource {
         try {
             result = blogService.updateBlog(userId, updatedBlog);
             if (result == null) {
-                response = Response.status(Response.Status.FORBIDDEN).build();
+                response = Response.status(Response.Status.EXPECTATION_FAILED).build();
             } else {
                 response = Response.ok(result).build();
             }
