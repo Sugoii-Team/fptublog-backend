@@ -12,4 +12,8 @@ public interface ILecturerService {
     List<LecturerEntity> getAllLecturers() throws SQLException;
 
     LecturerEntity getLecturer(String id) throws SQLException;
+
+    boolean banStudent(String studentId) throws SQLException;
+
+    boolean unbanStudent(String studentId) throws SQLException;
 }

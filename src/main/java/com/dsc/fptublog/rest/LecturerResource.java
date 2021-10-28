@@ -153,4 +153,49 @@ public class LecturerResource {
             return Response.status(Response.Status.EXPECTATION_FAILED).entity("Update fail!").build();
         }
     }
+
+    @PUT
+    @Path("/{lecturer_id}/banningstudent/{student_id}")
+    @RolesAllowed(Role.LECTURER)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response banStudentAccount(@Context SecurityContext sc,@PathParam("lecturer_id") String lecturerId ,@PathParam("student_id") String studentId){
+        if(!sc.getUserPrincipal().getName().equals(lecturerId)){
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+        boolean result;
+        try{
+            result = lecturerService.banStudent(studentId);
+        }catch (SQLException ex){
+            log.error(ex);
+            return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+        if(result){
+            return Response.ok("Ban student successfully!").build();
+        }else {
+            return Response.status(Response.Status.EXPECTATION_FAILED).entity("Ban student failed!").build();
+        }
+    }
+
+    @PUT
+    @Path("/{lecturer_id}/unbanningstudent/{student_id}")
+    @RolesAllowed(Role.LECTURER)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response unbanStudentAccount(@Context SecurityContext sc,@PathParam("lecturer_id") String lecturerId, @PathParam("student_id") String studentId){
+        if(!sc.getUserPrincipal().getName().equals(lecturerId)){
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+        boolean result;
+        try{
+            result = lecturerService.unbanStudent(studentId);
+        }catch (SQLException ex){
+            log.error(ex);
+            return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+
+        if (result){
+            return Response.ok("Unban Student Successfully!!").build();
+        }else{
+            return Response.status(Response.Status.EXPECTATION_FAILED).entity("Unban Student Failed!!").build();
+        }
+    }
 }

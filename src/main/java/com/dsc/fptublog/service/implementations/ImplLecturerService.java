@@ -1,7 +1,11 @@
 package com.dsc.fptublog.service.implementations;
 
+import com.dsc.fptublog.dao.interfaces.IAccountDAO;
+import com.dsc.fptublog.dao.interfaces.IAccountStatusDAO;
 import com.dsc.fptublog.dao.interfaces.ILecturerDAO;
 import com.dsc.fptublog.database.ConnectionWrapper;
+import com.dsc.fptublog.entity.AccountEntity;
+import com.dsc.fptublog.entity.AccountStatusEntity;
 import com.dsc.fptublog.entity.LecturerEntity;
 import com.dsc.fptublog.service.interfaces.ILecturerService;
 import org.glassfish.jersey.process.internal.RequestScoped;
@@ -21,6 +25,12 @@ public class ImplLecturerService implements ILecturerService {
 
     @Inject
     private ILecturerDAO lecturerDAO;
+
+    @Inject
+    private IAccountStatusDAO accountStatusDAO;
+
+    @Inject
+    private IAccountDAO accountDAO;
 
     @Override
     public List<LecturerEntity> getAllLecturers() throws SQLException {
@@ -56,5 +66,58 @@ public class ImplLecturerService implements ILecturerService {
             connectionWrapper.close();
         }
         return result;
+    }
+
+    @Override
+    public boolean banStudent(String studentId) throws SQLException {
+        boolean result = false;
+        try{
+            connectionWrapper.beginTransaction();
+            //Set ban status Id for student account
+            AccountStatusEntity banStatus = accountStatusDAO.getByName("banned");
+            AccountEntity bannedStudentAccount = accountDAO.getAccountWithStatusId(studentId);
+            if(bannedStudentAccount == null){
+                return false;
+            }
+            bannedStudentAccount.setStatusId(banStatus.getId());
+            result = accountDAO.updateByAccount(bannedStudentAccount);
+            if (result){
+                connectionWrapper.commit();
+                return result;
+            }
+        }catch (SQLException ex){
+            connectionWrapper.rollback();
+            throw ex;
+        }finally {
+            connectionWrapper.close();
+        }
+        return result;
+    }
+
+    @Override
+    public boolean unbanStudent(String studentId) throws SQLException {
+        boolean result;
+        try{
+            connectionWrapper.beginTransaction();
+            AccountEntity unbannedStudentAccount = accountDAO.getAccountWithStatusId(studentId);
+            if(unbannedStudentAccount == null){
+                return false;
+            }else{
+                //set active status for student Id
+                AccountStatusEntity activeStatus = accountStatusDAO.getByName("activated");
+                unbannedStudentAccount.setStatusId(activeStatus.getId());
+                result = accountDAO.updateByAccount(unbannedStudentAccount);
+                if(result){
+                    connectionWrapper.commit();
+                    return result;
+                }
+            }
+        }catch (SQLException ex){
+            connectionWrapper.rollback();
+            throw ex;
+        }finally {
+            connectionWrapper.close();
+        }
+        return  result;
     }
 }
