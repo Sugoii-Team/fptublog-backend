@@ -16,4 +16,8 @@ public interface ILecturerStudentAwardDAO {
     LecturerStudentAwardEntity getById(String id) throws SQLException;
 
     boolean deleteById(String id) throws SQLException;
+
+    boolean deleteByStudentId(String studentId) throws SQLException;
+
+    boolean deleteByLecturerId(String lecturerId) throws SQLException;
 }

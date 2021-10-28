@@ -35,6 +35,21 @@ public class ImplAdminService implements IAdminService {
     @Inject
     private IBlogStatusDAO blogStatusDAO;
 
+    @Inject
+    private ILecturerStudentAwardDAO lecturerStudentAwardDAO;
+
+    @Inject
+    private IStudentDAO studentDAO;
+
+    @Inject
+    private ILecturerDAO lecturerDAO;
+
+    @Inject
+    private ILecturerFieldDAO lecturerFieldDAO;
+
+    @Inject
+    private IMajorDAO majorDAO;
+
     @Override
     public List<AccountEntity> getAllAccounts() throws SQLException {
         List<AccountEntity> accountList;
@@ -64,6 +79,65 @@ public class ImplAdminService implements IAdminService {
             connectionWrapper.close();
         }
         return null;
+    }
+
+    @Override
+    public AccountEntity updateRole(AccountEntity account) throws SQLException {
+        AccountEntity result = null;
+        try {
+            connectionWrapper.beginTransaction();
+
+            // Update to Lecturer
+            if ("LECTURER".equals(account.getRole())) {
+                // delete all lecturer_student_award of this student
+                if (lecturerStudentAwardDAO.deleteByStudentId(account.getId())) {
+                    // delete the student
+                    if (studentDAO.deleteStudentById(account.getId())) {
+                        // create new Lecturer
+                        AccountEntity newAccount = AccountEntity.builder()
+                                .id(account.getId())
+                                .role(account.getRole())
+                                .build();
+                        if (accountDAO.updateByAccount(newAccount)) {
+                            result = lecturerDAO.insertById(account.getId());
+                        }
+                    }
+                }
+            }
+
+            // Update to Student
+            if ("STUDENT".equals(account.getRole())) {
+                // delete all lecturer_student_award of this lecturer
+                if (lecturerStudentAwardDAO.deleteByLecturerId(account.getId())) {
+                    // delete lecturer fields
+                    if (lecturerFieldDAO.deleteByLecturerId(account.getId())) {
+                        // convert blogs reviewed by this lecturer to pending approved
+                        if (blogDAO.deleteReviewerId(account.getId())) {
+                            AccountEntity newAccount = AccountEntity.builder()
+                                    .id(account.getId())
+                                    .role(account.getRole())
+                                    .build();
+                            if (lecturerDAO.deleteById(account.getId())) {
+                                if (accountDAO.updateByAccount(newAccount)) {
+                                    String majorId = majorDAO.getByName("Software Engineering").getId();
+                                    result = studentDAO.insertByAccountIdAndMajorIdAndSchoolYear(account.getId(),
+                                            majorId, (short) 0);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            connectionWrapper.commit();
+        } catch (SQLException ex) {
+            connectionWrapper.rollback();
+            throw ex;
+        } finally {
+            connectionWrapper.close();
+        }
+
+        return result;
     }
 
     @Override

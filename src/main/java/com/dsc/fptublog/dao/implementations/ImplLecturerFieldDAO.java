@@ -81,4 +81,26 @@ public class ImplLecturerFieldDAO implements ILecturerFieldDAO {
 
         return false;
     }
+
+    @Override
+    public boolean deleteByLecturerId(String lecturerId) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return false;
+        }
+
+        boolean result = false;
+
+        String sql = "DELETE FROM account_lecturer_field " +
+                "WHERE lecturer_id = ?";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, lecturerId);
+
+            int effectedRow = stm.executeUpdate();
+            result = true;
+        }
+
+        return result;
+    }
 }

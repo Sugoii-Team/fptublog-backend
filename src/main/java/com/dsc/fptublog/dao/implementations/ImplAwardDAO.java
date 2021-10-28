@@ -79,4 +79,38 @@ public class ImplAwardDAO implements IAwardDAO {
 
         return result;
     }
+
+    @Override
+    public List<AwardEntity> getByAwardIdList(List<String> awardIdList) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return null;
+        }
+
+        List<AwardEntity> result = null;
+
+        String sql = "SELECT name, icon_url, point " +
+                "FROM award " +
+                "WHERE id = ?";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            for (var id : awardIdList) {
+                stm.setString(1, id);
+
+                ResultSet resultSet = stm.executeQuery();
+                if (resultSet.next()) {
+                    String name = resultSet.getNString(1);
+                    String iconUrl = resultSet.getString(2);
+                    int point = resultSet.getInt(3);
+
+                    if (result == null) {
+                        result = new ArrayList<>();
+                    }
+                    result.add(new AwardEntity(id, name, iconUrl, point));
+                }
+            }
+        }
+
+        return result;
+    }
 }

@@ -153,4 +153,26 @@ public class ImplStudentDAO implements IStudentDAO {
         }
         return false;
     }
+
+    @Override
+    public boolean deleteStudentById(String id) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return false;
+        }
+
+        String sql = "DELETE FROM account_student " +
+                "WHERE id = ?";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, id);
+
+            int effectedRow = stm.executeUpdate();
+            if (effectedRow > 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

@@ -49,8 +49,6 @@ public class ImplStudentService implements IStudentService {
     public StudentEntity updateStudent(StudentEntity studentEntity) throws SQLException {
         try {
             connectionWrapper.beginTransaction();
-            MajorEntity major = majorDAO.getById(studentEntity.getMajorId());
-            studentEntity.setMajorId(major.getId());
             boolean result1 = accountDAO.updateByAccount(studentEntity);
             boolean result2 = studentDAO.updateStudent(studentEntity);
             if (result1 && result2) {

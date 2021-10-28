@@ -17,4 +17,6 @@ public interface IStudentDAO {
 
     boolean updateStudent(StudentEntity studentEntity) throws SQLException;
 
+    boolean deleteStudentById(String id) throws SQLException;
+
 }

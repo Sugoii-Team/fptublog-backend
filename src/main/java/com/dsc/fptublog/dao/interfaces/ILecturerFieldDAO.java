@@ -14,4 +14,6 @@ public interface ILecturerFieldDAO {
 
     boolean addByLecturerIdAndFieldList(String lecturerId, List<FieldEntity> fieldList)
             throws SQLException;
+
+    boolean deleteByLecturerId(String lecturerId) throws SQLException;
 }

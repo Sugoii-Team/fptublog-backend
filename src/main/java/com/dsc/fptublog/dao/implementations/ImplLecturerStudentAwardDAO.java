@@ -128,4 +128,48 @@ public class ImplLecturerStudentAwardDAO implements ILecturerStudentAwardDAO {
 
         return false;
     }
+
+    @Override
+    public boolean deleteByStudentId(String studentId) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return false;
+        }
+
+        boolean result = false;
+
+        String sql = "DELETE FROM lecturer_student_award " +
+                "WHERE student_id = ?";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, studentId);
+
+            int effectedRow = stm.executeUpdate();
+            result = true;
+        }
+
+        return result;
+    }
+
+    @Override
+    public boolean deleteByLecturerId(String lecturerId) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return false;
+        }
+
+        boolean result = false;
+
+        String sql = "DELETE FROM lecturer_student_award " +
+                "WHERE lecturer_id = ?";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, lecturerId);
+
+            int effectedRow = stm.executeUpdate();
+            result = true;
+        }
+
+        return result;
+    }
 }
