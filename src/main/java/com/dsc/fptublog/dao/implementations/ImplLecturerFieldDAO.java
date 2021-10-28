@@ -89,6 +89,8 @@ public class ImplLecturerFieldDAO implements ILecturerFieldDAO {
             return false;
         }
 
+        boolean result = false;
+
         String sql = "DELETE FROM account_lecturer_field " +
                 "WHERE lecturer_id = ?";
 
@@ -96,11 +98,9 @@ public class ImplLecturerFieldDAO implements ILecturerFieldDAO {
             stm.setString(1, lecturerId);
 
             int effectedRow = stm.executeUpdate();
-            if (effectedRow > 0) {
-                return true;
-            }
+            result = true;
         }
 
-        return false;
+        return result;
     }
 }

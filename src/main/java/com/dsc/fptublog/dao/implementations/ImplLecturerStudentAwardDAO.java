@@ -136,6 +136,8 @@ public class ImplLecturerStudentAwardDAO implements ILecturerStudentAwardDAO {
             return false;
         }
 
+        boolean result = false;
+
         String sql = "DELETE FROM lecturer_student_award " +
                 "WHERE student_id = ?";
 
@@ -143,12 +145,10 @@ public class ImplLecturerStudentAwardDAO implements ILecturerStudentAwardDAO {
             stm.setString(1, studentId);
 
             int effectedRow = stm.executeUpdate();
-            if (effectedRow > 0) {
-                return true;
-            }
+            result = true;
         }
 
-        return false;
+        return result;
     }
 
     @Override
@@ -158,6 +158,8 @@ public class ImplLecturerStudentAwardDAO implements ILecturerStudentAwardDAO {
             return false;
         }
 
+        boolean result = false;
+
         String sql = "DELETE FROM lecturer_student_award " +
                 "WHERE lecturer_id = ?";
 
@@ -165,11 +167,9 @@ public class ImplLecturerStudentAwardDAO implements ILecturerStudentAwardDAO {
             stm.setString(1, lecturerId);
 
             int effectedRow = stm.executeUpdate();
-            if (effectedRow > 0) {
-                return true;
-            }
+            result = true;
         }
 
-        return false;
+        return result;
     }
 }

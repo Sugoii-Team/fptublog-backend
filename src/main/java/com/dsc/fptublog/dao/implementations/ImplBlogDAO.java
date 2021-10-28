@@ -416,18 +416,18 @@ public class ImplBlogDAO implements IBlogDAO {
         ResultSet result = null;
 
         String sql = "SELECT 1 "
-                    +"FROM blog "
-                    +"WHERE id = ?";
-        try(PreparedStatement stm = connection.prepareStatement(sql)){
-            stm.setString(1,blogId);
+                + "FROM blog "
+                + "WHERE id = ?";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, blogId);
             result = stm.executeQuery();
-            if(result.next()){
+            if (result.next()) {
                 return BlogEntity.builder().id(blogId).build();
             }
         }
         return null;
     }
-  
+
     public boolean hideBlogInHistory(String blogHistoryId) throws SQLException {
         Connection connection = connectionWrapper.getConnection();
         if (connection == null) {
@@ -457,6 +457,8 @@ public class ImplBlogDAO implements IBlogDAO {
             return false;
         }
 
+        boolean result = false;
+
         String sql = "UPDATE blog " +
                 "SET reviewer_id = NULL " +
                 "WHERE reviewer_id = ?";
@@ -465,13 +467,11 @@ public class ImplBlogDAO implements IBlogDAO {
             stm.setString(1, reviewerId);
 
             int effectedRow = stm.executeUpdate();
-            if (effectedRow > 0) {
-                return true;
-            }
+            result = true;
 
         }
 
-        return false;
+        return result;
     }
 
 

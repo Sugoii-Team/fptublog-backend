@@ -2,6 +2,7 @@ package com.dsc.fptublog.service.interfaces;
 
 import com.dsc.fptublog.entity.AwardEntity;
 import com.dsc.fptublog.entity.LecturerStudentAwardEntity;
+import com.dsc.fptublog.model.AwardModel;
 import org.jvnet.hk2.annotations.Contract;
 
 import java.sql.SQLException;
@@ -16,7 +17,7 @@ public interface IAwardService {
 
     boolean giveAward(LecturerStudentAwardEntity lecturerStudentAward) throws SQLException;
 
-    List<AwardEntity> getAllAwardOfStudent(String studentId) throws SQLException;
+    List<AwardModel> getAllAwardOfStudent(String studentId) throws SQLException;
 
     LecturerStudentAwardEntity deleteAwardOfStudent(String id, String lecturerId, String studentId) throws SQLException;
 }

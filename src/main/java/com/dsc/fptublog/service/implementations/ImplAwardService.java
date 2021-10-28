@@ -5,14 +5,14 @@ import com.dsc.fptublog.dao.interfaces.ILecturerStudentAwardDAO;
 import com.dsc.fptublog.database.ConnectionWrapper;
 import com.dsc.fptublog.entity.AwardEntity;
 import com.dsc.fptublog.entity.LecturerStudentAwardEntity;
+import com.dsc.fptublog.model.AwardModel;
 import com.dsc.fptublog.service.interfaces.IAwardService;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.jvnet.hk2.annotations.Service;
 
 import javax.inject.Inject;
 import java.sql.SQLException;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -86,25 +86,38 @@ public class ImplAwardService implements IAwardService {
     }
 
     @Override
-    public List<AwardEntity> getAllAwardOfStudent(String studentId) throws SQLException {
-        List<AwardEntity> result;
+    public List<AwardModel> getAllAwardOfStudent(String studentId) throws SQLException {
+        List<AwardModel> result = null;
 
         try {
             connectionWrapper.beginTransaction();
 
-            List<LecturerStudentAwardEntity> LecturerStudentAwardList = lecturerStudentAwardDAO.getByStudentId(studentId);
+            List<LecturerStudentAwardEntity> LecturerStudentAwardList =
+                    lecturerStudentAwardDAO.getByStudentId(studentId);
             if (LecturerStudentAwardList == null) {
                 result = Collections.emptyList();
             } else {
                 List<String> awardIdList = LecturerStudentAwardList.stream()
                         .map(LecturerStudentAwardEntity::getAwardId)
                         .collect(Collectors.toList());
-                result = awardDAO.getByAwardIdList(awardIdList);
-                if (result == null) {
+                List<AwardEntity> awardList = awardDAO.getByAwardIdList(awardIdList);
+                if (awardList != null) {
+                    // Count
+                    Map<AwardEntity, Integer> tmpMap = new HashMap<>();
+                    awardList.forEach(award -> tmpMap.put(award, tmpMap.getOrDefault(award, 0) + 1));
+
+                    // Convert map to list
+                    result = new ArrayList<>();
+                    for (Map.Entry<AwardEntity, Integer> entry : tmpMap.entrySet()) {
+                        AwardEntity award = entry.getKey();
+                        int count = entry.getValue();
+                        result.add(new AwardModel(award.getId(), award.getName(), award.getIconUrl(),
+                                award.getPoint(), count));
+                    }
+                } else {
                     result = Collections.emptyList();
                 }
             }
-
             connectionWrapper.commit();
         } finally {
             connectionWrapper.close();
@@ -112,6 +125,7 @@ public class ImplAwardService implements IAwardService {
 
         return result;
     }
+
 
     @Override
     public LecturerStudentAwardEntity deleteAwardOfStudent(String id, String lecturerId, String studentId)

@@ -173,6 +173,7 @@ public class ImplAccountDAO implements IAccountDAO {
             stm.setString(5, updatedAccount.getDescription());
             stm.setString(6, updatedAccount.getStatusId());
             stm.setString(7, updatedAccount.getRole());
+            System.out.println(updatedAccount.getRole());
             stm.setString(8, updatedAccount.getId());
 
             int effectedRow = stm.executeUpdate();

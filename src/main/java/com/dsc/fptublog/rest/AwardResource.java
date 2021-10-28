@@ -3,6 +3,7 @@ package com.dsc.fptublog.rest;
 import com.dsc.fptublog.config.Role;
 import com.dsc.fptublog.entity.AwardEntity;
 import com.dsc.fptublog.entity.LecturerStudentAwardEntity;
+import com.dsc.fptublog.model.AwardModel;
 import com.dsc.fptublog.service.interfaces.IAwardService;
 import lombok.extern.log4j.Log4j;
 
@@ -69,7 +70,7 @@ public class AwardResource {
         Response response;
 
         try {
-            List<AwardEntity> studentAwardList = awardService.getAllAwardOfStudent(studentId);
+            List<AwardModel> studentAwardList = awardService.getAllAwardOfStudent(studentId);
             response = Response.ok(studentAwardList).build();
         } catch (SQLException ex) {
             log.error(ex);

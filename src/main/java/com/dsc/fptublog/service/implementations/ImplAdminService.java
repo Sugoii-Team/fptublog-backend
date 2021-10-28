@@ -117,9 +117,12 @@ public class ImplAdminService implements IAdminService {
                                     .id(account.getId())
                                     .role(account.getRole())
                                     .build();
-                            if (accountDAO.updateByAccount(newAccount)) {
-                                String majorId = majorDAO.getByName("Software Engineering").getId();
-                                result = studentDAO.insertByAccountIdAndMajorIdAndSchoolYear(account.getId(), majorId, (short) 0);
+                            if (lecturerDAO.deleteById(account.getId())) {
+                                if (accountDAO.updateByAccount(newAccount)) {
+                                    String majorId = majorDAO.getByName("Software Engineering").getId();
+                                    result = studentDAO.insertByAccountIdAndMajorIdAndSchoolYear(account.getId(),
+                                            majorId, (short) 0);
+                                }
                             }
                         }
                     }
