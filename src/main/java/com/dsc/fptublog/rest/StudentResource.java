@@ -19,6 +19,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.sql.SQLException;
+import java.util.List;
 
 @Log4j
 @Path("/students")
@@ -26,6 +27,21 @@ public class StudentResource {
 
     @Inject
     private IStudentService studentService;
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getStudents() {
+        List<StudentEntity> result;
+
+        try {
+            result = studentService.getAllStudents();
+        } catch (SQLException ex) {
+            log.error(ex);
+            return Response.status(Response.Status.EXPECTATION_FAILED).entity("LOAD DATABASE FAILED").build();
+        }
+
+        return Response.ok(result).build();
+    }
 
     @GET
     @Path("/{id}")

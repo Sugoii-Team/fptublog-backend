@@ -18,6 +18,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import java.sql.SQLException;
+import java.util.List;
 
 @Log4j
 @Path("/accounts")
@@ -70,6 +71,24 @@ public class AccountResource {
         }
 
         return response;
+    }
+
+    @GET
+    @Path("/banned")
+    @RolesAllowed({Role.LECTURER, Role.ADMIN})
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getBannedAccount() {
+
+        List<AccountEntity> result;
+
+        try {
+            result = accountService.getBannedAccounts();
+        } catch (SQLException ex) {
+            log.error(ex);
+            return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+
+        return Response.ok(result).build();
     }
 
 }

@@ -299,4 +299,42 @@ public class ImplAccountDAO implements IAccountDAO {
         }
         return null;
     }
+
+    @Override
+    public List<AccountEntity> getBannedAccounts() throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return null;
+        }
+
+        List<AccountEntity> result = null;
+
+        String sql = "SELECT account.id, email, alternative_email, firstname, lastname, avatar_url, description, status_id, role " +
+                "FROM account " +
+                "INNER JOIN account_status AS status ON account.status_id = status.id " +
+                "WHERE status.name = 'banned'";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            ResultSet resultSet = stm.executeQuery();
+            while (resultSet.next()) {
+                String id = resultSet.getString(1);
+                String email = resultSet.getString(2);
+                String alternativeEmail = resultSet.getString(3);
+                String firstname = resultSet.getNString(4);
+                String lastname = resultSet.getNString(5);
+                String avatarUrl = resultSet.getString(6);
+                String description = resultSet.getNString(7);
+                String statusId = resultSet.getString(8);
+                String role = resultSet.getString(9);
+
+                if (result == null) {
+                    result = new ArrayList<>();
+                }
+                result.add(new AccountEntity(id, email, alternativeEmail, firstname, lastname, avatarUrl,
+                        description, statusId, role));
+            }
+        }
+
+        return result;
+    }
 }

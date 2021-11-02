@@ -13,6 +13,8 @@ import org.jvnet.hk2.annotations.Service;
 
 import javax.inject.Inject;
 import java.sql.SQLException;
+import java.util.Collections;
+import java.util.List;
 
 @Service
 @RequestScoped
@@ -27,8 +29,25 @@ public class ImplStudentService implements IStudentService {
     @Inject
     private IAccountDAO accountDAO;
 
-    @Inject
-    private IMajorDAO majorDAO;
+    @Override
+    public List<StudentEntity> getAllStudents() throws SQLException {
+        List<StudentEntity> result;
+
+        try {
+            connectionWrapper.beginTransaction();
+
+            result = studentDAO.getAll();
+
+            connectionWrapper.commit();
+        } finally {
+            connectionWrapper.close();
+        }
+
+        if (result == null) {
+            result = Collections.emptyList();
+        }
+        return result;
+    }
 
     @Override
     public StudentEntity getStudent(String id) throws SQLException {

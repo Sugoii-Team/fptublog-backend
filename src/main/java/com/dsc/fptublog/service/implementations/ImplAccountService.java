@@ -9,6 +9,8 @@ import org.jvnet.hk2.annotations.Service;
 
 import javax.inject.Inject;
 import java.sql.SQLException;
+import java.util.Collections;
+import java.util.List;
 
 @Service
 @RequestScoped
@@ -53,6 +55,26 @@ public class ImplAccountService implements IAccountService {
             connectionWrapper.close();
         }
 
+        return result;
+    }
+
+    @Override
+    public List<AccountEntity> getBannedAccounts() throws SQLException {
+        List<AccountEntity> result = null;
+
+        try {
+            connectionWrapper.beginTransaction();
+
+            result = accountDAO.getBannedAccounts();
+
+            connectionWrapper.commit();
+        } finally {
+            connectionWrapper.close();
+        }
+
+        if (result == null) {
+            result = Collections.emptyList();
+        }
         return result;
     }
 }

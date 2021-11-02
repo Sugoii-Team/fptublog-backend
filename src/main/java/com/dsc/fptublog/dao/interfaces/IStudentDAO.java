@@ -5,9 +5,12 @@ import com.dsc.fptublog.entity.StudentEntity;
 import org.jvnet.hk2.annotations.Contract;
 
 import java.sql.SQLException;
+import java.util.List;
 
 @Contract
 public interface IStudentDAO {
+
+    List<StudentEntity> getAll() throws SQLException;
 
     StudentEntity createFromAccount(AccountEntity account, String majorId) throws SQLException;
 

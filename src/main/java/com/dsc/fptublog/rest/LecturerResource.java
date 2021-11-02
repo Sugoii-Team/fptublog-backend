@@ -158,7 +158,7 @@ public class LecturerResource {
     @Path("/{lecturer_id}/banningstudent/{student_id}")
     @RolesAllowed(Role.LECTURER)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response banStudentAccount(@Context SecurityContext sc,@PathParam("lecturer_id") String lecturerId ,@PathParam("student_id") String studentId){
+    public Response banStudentAccount(@Context SecurityContext sc,@PathParam("lecturer_id") String lecturerId, @PathParam("student_id") String studentId){
         if(!sc.getUserPrincipal().getName().equals(lecturerId)){
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
