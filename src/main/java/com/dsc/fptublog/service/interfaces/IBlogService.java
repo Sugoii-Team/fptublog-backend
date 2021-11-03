@@ -15,6 +15,8 @@ public interface IBlogService {
 
     List<BlogEntity> getAllBlogs(int limit, int page) throws SQLException;
 
+    List<BlogEntity> getAllBlogs(int limit, int page, String title) throws SQLException;
+
     List<BlogEntity> getTopBlogs(int limit, int page) throws SQLException;
 
     BlogEntity createBlog(BlogEntity newBlog) throws SQLException;
