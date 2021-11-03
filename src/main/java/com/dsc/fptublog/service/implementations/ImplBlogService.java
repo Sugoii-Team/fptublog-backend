@@ -88,6 +88,27 @@ public class ImplBlogService implements IBlogService {
     }
 
     @Override
+    public List<BlogEntity> getAllBlogs(int limit, int page, String title) throws SQLException {
+        List<BlogEntity> blogList = null;
+
+        try {
+            connectionWrapper.beginTransaction();
+
+            int offset = limit * (page - 1);
+            blogList = blogDAO.getByTitle(limit, offset, title);
+            if (blogList == null) {
+                blogList = Collections.emptyList();
+            }
+
+            connectionWrapper.commit();
+        } finally {
+            connectionWrapper.close();
+        }
+
+        return blogList;
+    }
+
+    @Override
     public List<BlogEntity> getTopBlogs(int limit, int page) throws SQLException {
         List<BlogEntity> blogList = null;
 

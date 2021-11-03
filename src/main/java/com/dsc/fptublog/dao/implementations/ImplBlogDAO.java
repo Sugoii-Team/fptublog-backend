@@ -146,7 +146,7 @@ public class ImplBlogDAO implements IBlogDAO {
                 "blog.created_datetime AS updated_datetime, status_id, category_id, reviewer_id, review_datetime, " +
                 "blog_history_id, history.created_datetime AS created_datetime, views, avg_rate " +
                 "FROM blog INNER JOIN blog_history history on history.id = blog.blog_history_id " +
-                "WHERE blog.id = ? AND status_id != (SELECT id FROM blog_status WHERE name = 'deleted')";
+                "WHERE blog.id = ? AND status_id != (SELECT id FROM blog_status WHERE name = 'deleted') ";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setString(1, blogId);
@@ -220,6 +220,44 @@ public class ImplBlogDAO implements IBlogDAO {
     }
 
     @Override
+    public List<BlogEntity> getByTitle(int limit, int offset, String title) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return null;
+        }
+
+        List<BlogEntity> result = null;
+
+        String sql = "SELECT blog.id AS blog_id, author_id, thumbnail_url, title, description, " +
+                "blog.created_datetime AS updated_datetime, status_id, category_id, reviewer_id, review_datetime, " +
+                "blog_history_id, history.created_datetime AS created_datetime, views, avg_rate " +
+                "FROM blog " +
+                "INNER JOIN blog_status status ON blog.status_id = status.id " +
+                "INNER JOIN blog_history history ON blog.blog_history_id = history.id " +
+                "WHERE (status.name = 'approved' OR status.name = 'pending deleted') AND CHARINDEX(?, title) > 0 " +
+                "ORDER BY blog.id DESC " +
+                "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setNString(1, title);
+            stm.setInt(2, offset);
+            stm.setInt(3, limit);
+
+            ResultSet resultSet = stm.executeQuery();
+
+            while (resultSet.next()) {
+                BlogEntity blog = this.getBlogWithoutContent(resultSet);
+                if (result == null) {
+                    result = new ArrayList<>();
+                }
+                result.add(blog);
+            }
+        }
+
+        return result;
+    }
+
+    @Override
     public List<BlogEntity> getTopBlogs(int limit, int offset) throws SQLException {
         Connection connection = connectionWrapper.getConnection();
         if (connection == null) {
@@ -255,49 +293,6 @@ public class ImplBlogDAO implements IBlogDAO {
 
         return result;
     }
-
-    /*@Override
-    public List<BlogEntity> getByCategoryIdList(List<String> categoryIdList) throws SQLException {
-        Connection connection = connectionWrapper.getConnection();
-        if (connection == null) {
-            return null;
-        }
-
-        List<BlogEntity> result = null;
-
-        String sql = "SELECT id, author_id, thumbnail_url, title, description, created_datetime, status_id, " +
-                "reviewer_id, review_datetime, views " +
-                "FROM blog " +
-                "WHERE category_id = ?";
-
-        try (PreparedStatement stm = connection.prepareStatement(sql)) {
-            for (var categoryId : categoryIdList) {
-                stm.setString(1, categoryId);
-
-                ResultSet resultSet = stm.executeQuery();
-                while (resultSet.next()) {
-                    String id = resultSet.getString(1);
-                    String authorId = resultSet.getString(2);
-                    String thumbnailUrl = resultSet.getString(3);
-                    String title = resultSet.getNString(4);
-                    String description = resultSet.getNString(5);
-                    long createdDatetime = resultSet.getLong(6);
-                    String statusId = resultSet.getString(7);
-                    String reviewerId = resultSet.getString(8);
-                    long reviewDatetime = resultSet.getLong(9);
-                    int views = resultSet.getInt(10);
-
-                    if (result == null) {
-                        result = new ArrayList<>();
-                    }
-                    result.add(new BlogEntity(id, authorId, thumbnailUrl, title, null, description,
-                            createdDatetime, statusId, categoryId, reviewerId, reviewDatetime, views));
-                }
-            }
-        }
-
-        return result;
-    }*/
 
     @Override
     public List<BlogEntity> getPendingBlogByCategoryIdList(List<String> categoryIdList) throws SQLException {

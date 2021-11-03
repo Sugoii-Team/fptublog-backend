@@ -19,6 +19,8 @@ public interface IBlogDAO {
 
     List<BlogEntity> getAllBlogs(int limit, int offset) throws SQLException;
 
+    List<BlogEntity> getByTitle(int limit, int offset, String title) throws SQLException;
+
     List<BlogEntity> getTopBlogs(int limit, int offset) throws SQLException;
 
     List<BlogEntity> getPendingBlogByCategoryIdList(List<String> categoryIdList) throws SQLException;
