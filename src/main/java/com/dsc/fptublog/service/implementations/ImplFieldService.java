@@ -102,9 +102,11 @@ public class ImplFieldService implements IFieldService {
             // remove all duplicate id
             fieldList = fieldList.stream().distinct().collect(Collectors.toList());
 
-            if (lecturerFieldDAO.addByLecturerIdAndFieldList(lecturerId, fieldList)) {
-                result = true;
-                connectionWrapper.commit();
+            if (lecturerFieldDAO.deleteByLecturerId(lecturerId)) {
+                if (lecturerFieldDAO.addByLecturerIdAndFieldList(lecturerId, fieldList)) {
+                    result = true;
+                    connectionWrapper.commit();
+                }
             }
         } catch (SQLException ex) {
             connectionWrapper.rollback();

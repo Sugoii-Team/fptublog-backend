@@ -86,10 +86,6 @@ public class LecturerResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response addFieldForLecturer(@Context SecurityContext sc, @PathParam("id") String lecturerId,
                                         List<FieldEntity> fieldList) {
-        System.out.println(sc.getUserPrincipal().getName());
-        System.out.println(lecturerId);
-        System.out.println(fieldList);
-
         if (!sc.getUserPrincipal().getName().equals(lecturerId)) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
