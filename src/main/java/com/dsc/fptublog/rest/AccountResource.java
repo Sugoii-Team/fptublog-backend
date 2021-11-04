@@ -49,7 +49,7 @@ public class AccountResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response updateAccount(@Context SecurityContext sc, @PathParam("id") String id, AccountEntity account) {
-        if (!sc.getUserPrincipal().getName().equals(account.getId())) {
+        if (!sc.getUserPrincipal().getName().equals(id)) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
 
