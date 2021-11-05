@@ -23,7 +23,5 @@ public interface IAccountDAO {
 
     List<AccountEntity> getAllBannedAccounts() throws SQLException;
 
-    AccountEntity getAccountWithStatusId(String accountId) throws SQLException;
-
     List<AccountEntity> getBannedAccounts() throws SQLException;
 }
