@@ -124,6 +124,8 @@ public class AuthResource {
         } catch (GeneralSecurityException | IOException | SQLException ex) {
             log.error(ex);
             response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        } catch (Exception ex) {
+            response = Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
         }
 
         return response;

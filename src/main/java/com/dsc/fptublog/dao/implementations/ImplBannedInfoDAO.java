@@ -2,6 +2,7 @@ package com.dsc.fptublog.dao.implementations;
 
 import com.dsc.fptublog.dao.interfaces.IBannedInfoDAO;
 import com.dsc.fptublog.database.ConnectionWrapper;
+import com.dsc.fptublog.entity.BannedInfoEntity;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.jvnet.hk2.annotations.Service;
 
@@ -61,5 +62,30 @@ public class ImplBannedInfoDAO implements IBannedInfoDAO {
         }
 
         return false;
+    }
+
+    @Override
+    public BannedInfoEntity getByAccountId(String accountId) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return null;
+        }
+
+        String sql = "SELECT message " +
+                "FROM banned_info " +
+                "WHERE account_id = ?";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, accountId);
+
+            ResultSet resultSet = stm.executeQuery();
+            if (resultSet.next()) {
+                String message = resultSet.getNString(1);
+
+                return new BannedInfoEntity(accountId, message);
+            }
+        }
+
+        return null;
     }
 }

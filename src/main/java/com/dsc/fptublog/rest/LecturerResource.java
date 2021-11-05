@@ -150,7 +150,7 @@ public class LecturerResource {
         }
     }
 
-    @PUT
+    @POST
     @Path("/{lecturer_id}/banningstudent/{student_id}")
     @RolesAllowed(Role.LECTURER)
     @Consumes(MediaType.APPLICATION_JSON)
@@ -174,7 +174,7 @@ public class LecturerResource {
         }
     }
 
-    @PUT
+    @POST
     @Path("/{lecturer_id}/unbanningstudent/{student_id}")
     @RolesAllowed(Role.LECTURER)
     @Produces(MediaType.APPLICATION_JSON)

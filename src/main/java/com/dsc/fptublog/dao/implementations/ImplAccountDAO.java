@@ -31,9 +31,10 @@ public class ImplAccountDAO implements IAccountDAO {
 
         AccountEntity result = null;
 
-        String sql = "SELECT id, alternative_email, firstname, lastname, avatar_url, description, status_id " +
+        String sql = "SELECT account.id, alternative_email, firstname, lastname, avatar_url, description, status_id " +
                 "FROM account " +
-                "WHERE email = ?";
+                "INNER JOIN account_status status on status.id = account.status_id " +
+                "WHERE email = ? AND status.name != 'deleted'";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setString(1, email);
