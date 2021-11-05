@@ -477,4 +477,25 @@ public class ImplBlogService implements IBlogService {
         }
         return result;
     }
+
+    @Override
+    public List<BlogEntity> getBlogsOfFields(String fieldId, int limit, int page) throws SQLException {
+        List<BlogEntity> result = null;
+
+        try {
+            connectionWrapper.beginTransaction();
+
+            int offset = limit * (page - 1);
+            result = blogDAO.getApprovedBlogByFieldId(fieldId, limit, offset);
+
+            connectionWrapper.commit();
+        } finally {
+            connectionWrapper.close();
+        }
+
+        if (result == null) {
+            result = Collections.emptyList();
+        }
+        return result;
+    }
 }

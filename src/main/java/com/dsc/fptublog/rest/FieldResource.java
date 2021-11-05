@@ -1,16 +1,15 @@
 package com.dsc.fptublog.rest;
 
+import com.dsc.fptublog.entity.BlogEntity;
 import com.dsc.fptublog.entity.CategoryEntity;
 import com.dsc.fptublog.entity.FieldEntity;
+import com.dsc.fptublog.service.interfaces.IBlogService;
 import com.dsc.fptublog.service.interfaces.ICategoryService;
 import com.dsc.fptublog.service.interfaces.IFieldService;
 import lombok.extern.log4j.Log4j;
 
 import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.sql.SQLException;
@@ -25,6 +24,9 @@ public class FieldResource {
 
     @Inject
     ICategoryService categoryService;
+
+    @Inject
+    private IBlogService blogService;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -60,6 +62,22 @@ public class FieldResource {
         List<CategoryEntity> result;
         try {
             result = categoryService.getCategoriesOfField(fieldId);
+        } catch (SQLException ex) {
+            log.error(ex);
+            return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+        return Response.ok(result).build();
+    }
+
+    @GET
+    @Path("/{field_id}/blogs")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getBlogsOfFields(@PathParam("field_id") String fieldId,
+                                     @QueryParam("limit") int limit, @QueryParam("page") int page) {
+        List<BlogEntity> result;
+
+        try {
+            result = blogService.getBlogsOfFields(fieldId, limit, page);
         } catch (SQLException ex) {
             log.error(ex);
             return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
