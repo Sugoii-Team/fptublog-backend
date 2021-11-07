@@ -174,7 +174,7 @@ public class LecturerResource {
         }
     }
 
-    @POST
+    @PATCH
     @Path("/{lecturer_id}/unbanningstudent/{student_id}")
     @RolesAllowed(Role.LECTURER)
     @Produces(MediaType.APPLICATION_JSON)

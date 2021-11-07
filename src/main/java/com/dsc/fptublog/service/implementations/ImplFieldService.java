@@ -117,4 +117,25 @@ public class ImplFieldService implements IFieldService {
 
         return result;
     }
+
+    @Override
+    public List<FieldEntity> getTopFields() throws SQLException {
+        List<FieldEntity> result;
+
+        try {
+            connectionWrapper.beginTransaction();
+
+            result = fieldDAO.getTopFields();
+
+            connectionWrapper.commit();
+        } finally {
+            connectionWrapper.close();
+        }
+
+        if (result == null) {
+            result = Collections.emptyList();
+        }
+
+        return result;
+    }
 }

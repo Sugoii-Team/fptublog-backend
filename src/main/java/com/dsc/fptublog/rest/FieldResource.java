@@ -23,7 +23,7 @@ public class FieldResource {
     private IFieldService fieldService;
 
     @Inject
-    ICategoryService categoryService;
+    private ICategoryService categoryService;
 
     @Inject
     private IBlogService blogService;
@@ -82,6 +82,22 @@ public class FieldResource {
             log.error(ex);
             return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
         }
+        return Response.ok(result).build();
+    }
+
+    @GET
+    @Path("/top")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getTopFields() {
+        List<FieldEntity> result;
+
+        try {
+            result = fieldService.getTopFields();
+        } catch (SQLException ex) {
+            log.error(ex);
+            return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+
         return Response.ok(result).build();
     }
 }
