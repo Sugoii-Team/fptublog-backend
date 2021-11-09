@@ -108,9 +108,8 @@ public class ImplBlogDAO implements IBlogDAO {
                 + "SET thumbnail_url = ISNULL(?, thumbnail_url) , title = ISNULL(?, title), " +
                 "content = ISNULL(?, content), description = ISNULL(?, description), " +
                 "status_id = ISNULL(?, status_id), category_id = ISNULL(?, category_id), " +
-                "reviewer_id = ISNULL(?, reviewer_id), review_datetime = ISNULL(?, review_datetime), " +
-                "blog_history_id = ISNULL(?, blog_history_id) "
-                + "WHERE id = ?";
+                "reviewer_id = ISNULL(?, reviewer_id), review_datetime = ISNULL(?, review_datetime) " +
+                "WHERE id = ?";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setString(1, updatedBlog.getThumbnailUrl());
@@ -121,8 +120,7 @@ public class ImplBlogDAO implements IBlogDAO {
             stm.setString(6, updatedBlog.getCategoryId());
             stm.setString(7, updatedBlog.getReviewerId());
             stm.setLong(8, updatedBlog.getReviewDateTime());
-            stm.setString(9, updatedBlog.getHistoryId());
-            stm.setString(10, updatedBlog.getId());
+            stm.setString(9, updatedBlog.getId());
 
             int effectRow = stm.executeUpdate();
             if (effectRow > 0) {
