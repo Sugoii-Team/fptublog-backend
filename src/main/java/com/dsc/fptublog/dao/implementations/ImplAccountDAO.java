@@ -66,6 +66,49 @@ public class ImplAccountDAO implements IAccountDAO {
     }
 
     @Override
+    public AccountEntity getByAlternativeEmail(String alternativeEmail) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return null;
+        }
+
+        AccountEntity result = null;
+
+        String sql = "SELECT account.id, email, firstname, lastname, avatar_url, description, status_id " +
+                "FROM account " +
+                "INNER JOIN account_status status on status.id = account.status_id " +
+                "WHERE alternative_email = ? AND status.name != 'deleted'";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, alternativeEmail);
+
+            ResultSet resultSet = stm.executeQuery();
+            if (resultSet.next()) {
+                String id = resultSet.getString(1);
+                String email = resultSet.getString(2);
+                String firstName = resultSet.getNString(3);
+                String lastName = resultSet.getNString(4);
+                String avatarUrl = resultSet.getString(5);
+                String description = resultSet.getNString(6);
+                String statusId = resultSet.getString(7);
+
+                result = AccountEntity.builder()
+                        .id(id)
+                        .email(email)
+                        .alternativeEmail(alternativeEmail)
+                        .firstName(firstName)
+                        .lastName(lastName)
+                        .avatarUrl(avatarUrl)
+                        .description(description)
+                        .statusId(statusId)
+                        .build();
+            }
+        }
+
+        return result;
+    }
+
+    @Override
     public AccountEntity createForNewEmail(String email, String name, String avatarUrl, String statusId, String role)
             throws SQLException {
         if (email == null || name == null) {
