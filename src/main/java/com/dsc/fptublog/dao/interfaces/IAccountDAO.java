@@ -24,4 +24,8 @@ public interface IAccountDAO {
     boolean deleteAccount(AccountEntity deletedAccount) throws SQLException;
 
     List<AccountEntity> getAllBannedAccounts() throws SQLException;
+
+    boolean decreaseNumberOfBlog(String id) throws SQLException;
+
+    boolean increaseNumberOfBlog(String id) throws SQLException;
 }
