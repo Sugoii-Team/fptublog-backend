@@ -42,15 +42,18 @@ public class ImplAuthService implements IAuthService {
     private IMajorDAO majorDAO;
 
     @Override
-    public AccountEntity getAccountByEmail(String email) throws Exception {
-        // find account by email from DB
-        AccountEntity result;
+    public AccountEntity getLogin(String email) throws Exception {
+        AccountEntity result = null;
+
         try {
             connectionWrapper.beginTransaction();
 
             AccountEntity account = accountDAO.getByEmail(email);
-            if (account != null) {
+            if (account == null) {
+                account = accountDAO.getByAlternativeEmail(email);
+            }
 
+            if (account != null) {
                 String bannedStatusId = accountStatusDAO.getByName("banned").getId();
                 if (bannedStatusId.equals(account.getStatusId())) {
                     throw new Exception("{\"id\":\"" + account.getId() + "\"}");
@@ -74,7 +77,7 @@ public class ImplAuthService implements IAuthService {
             connectionWrapper.close();
         }
 
-        return null;
+        return result;
     }
 
     @Override

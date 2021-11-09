@@ -109,7 +109,7 @@ public class AuthResource {
                 String email = payload.getEmail();
 
                 // call service to resolve this gmail info
-                AccountEntity account = authService.getAccountByEmail(email);
+                AccountEntity account = authService.getLogin(email);
                 if (account != null) {
                     String token = JwtUtil.createJWT(account.getId(), account.getRole());
                     response = Response.ok(account)
