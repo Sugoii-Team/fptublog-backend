@@ -2,6 +2,7 @@ package com.dsc.fptublog.service.implementations;
 
 import com.dsc.fptublog.dao.interfaces.IAccountDAO;
 import com.dsc.fptublog.dao.interfaces.IAccountStatusDAO;
+import com.dsc.fptublog.dao.interfaces.IBannedInfoDAO;
 import com.dsc.fptublog.dao.interfaces.ILecturerDAO;
 import com.dsc.fptublog.database.ConnectionWrapper;
 import com.dsc.fptublog.entity.AccountEntity;
@@ -31,6 +32,9 @@ public class ImplLecturerService implements ILecturerService {
 
     @Inject
     private IAccountDAO accountDAO;
+
+    @Inject
+    private IBannedInfoDAO bannedInfoDAO;
 
     @Override
     public List<LecturerEntity> getAllLecturers() throws SQLException {
@@ -69,26 +73,29 @@ public class ImplLecturerService implements ILecturerService {
     }
 
     @Override
-    public boolean banStudent(String studentId) throws SQLException {
+    public boolean banStudent(String studentId, String message) throws SQLException {
         boolean result = false;
-        try{
+        try {
             connectionWrapper.beginTransaction();
-            //Set ban status Id for student account
+            // Set ban status Id for student account
             AccountStatusEntity banStatus = accountStatusDAO.getByName("banned");
-            AccountEntity bannedStudentAccount = accountDAO.getAccountWithStatusId(studentId);
-            if(bannedStudentAccount == null){
+            AccountEntity bannedStudentAccount = accountDAO.getById(studentId);
+            if (bannedStudentAccount == null) {
                 return false;
             }
             bannedStudentAccount.setStatusId(banStatus.getId());
             result = accountDAO.updateByAccount(bannedStudentAccount);
-            if (result){
+
+            // add Banned message
+            result &= bannedInfoDAO.insertByAccountIdAndMessage(studentId, message);
+
+            if (result) {
                 connectionWrapper.commit();
-                return result;
             }
-        }catch (SQLException ex){
+        } catch (SQLException ex) {
             connectionWrapper.rollback();
             throw ex;
-        }finally {
+        } finally {
             connectionWrapper.close();
         }
         return result;
@@ -97,27 +104,30 @@ public class ImplLecturerService implements ILecturerService {
     @Override
     public boolean unbanStudent(String studentId) throws SQLException {
         boolean result;
-        try{
+        try {
             connectionWrapper.beginTransaction();
-            AccountEntity unbannedStudentAccount = accountDAO.getAccountWithStatusId(studentId);
-            if(unbannedStudentAccount == null){
+            AccountEntity unbannedStudentAccount = accountDAO.getById(studentId);
+            if (unbannedStudentAccount == null) {
                 return false;
-            }else{
+            } else {
                 //set active status for student Id
                 AccountStatusEntity activeStatus = accountStatusDAO.getByName("activated");
                 unbannedStudentAccount.setStatusId(activeStatus.getId());
                 result = accountDAO.updateByAccount(unbannedStudentAccount);
-                if(result){
+
+                // delete banned message
+                result &= bannedInfoDAO.deleteByAccountId(studentId);
+
+                if (result) {
                     connectionWrapper.commit();
-                    return result;
                 }
             }
-        }catch (SQLException ex){
+        } catch (SQLException ex) {
             connectionWrapper.rollback();
             throw ex;
-        }finally {
+        } finally {
             connectionWrapper.close();
         }
-        return  result;
+        return result;
     }
 }

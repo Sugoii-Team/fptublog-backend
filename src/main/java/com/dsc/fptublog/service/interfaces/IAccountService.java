@@ -1,6 +1,7 @@
 package com.dsc.fptublog.service.interfaces;
 
 import com.dsc.fptublog.entity.AccountEntity;
+import com.dsc.fptublog.entity.BannedInfoEntity;
 import org.jvnet.hk2.annotations.Contract;
 
 import java.sql.SQLException;
@@ -14,5 +15,7 @@ public interface IAccountService {
     boolean updateByAccount(AccountEntity updatedAccount) throws SQLException;
 
     List<AccountEntity> getBannedAccounts() throws SQLException;
+
+    BannedInfoEntity getBannedInfoByAccountId(String accountId) throws SQLException;
 
 }

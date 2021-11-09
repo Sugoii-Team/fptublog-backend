@@ -105,4 +105,43 @@ public class ImplFieldDAO implements IFieldDAO {
 
         return null;
     }
+
+    @Override
+    public List<FieldEntity> getTopFields() throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return null;
+        }
+
+        List<FieldEntity> result = null;
+
+        String sql = "SELECT field.id, field.name, COUNT(b.id) AS blog_number " +
+                "FROM field " +
+                "INNER JOIN category ON field.id = category.field_id " +
+                "LEFT JOIN " +
+                "     ( " +
+                "         SELECT blog.id, category_id " +
+                "         FROM blog " +
+                "                  INNER JOIN blog_status status ON blog.status_id = status.id " +
+                "         WHERE status.name = 'approved' OR status.name = 'pending deleted' " +
+                "     ) AS b " +
+                "ON category.id = b.category_id " +
+                "GROUP BY field.id, field.name " +
+                "ORDER BY blog_number DESC";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            ResultSet resultSet = stm.executeQuery();
+            while (resultSet.next()) {
+                String id = resultSet.getString(1);
+                String name = resultSet.getNString(2);
+
+                if (result == null) {
+                    result = new ArrayList<>();
+                }
+                result.add(new FieldEntity(id, name));
+            }
+        }
+
+        return result;
+    }
 }

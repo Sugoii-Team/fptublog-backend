@@ -31,9 +31,10 @@ public class ImplAccountDAO implements IAccountDAO {
 
         AccountEntity result = null;
 
-        String sql = "SELECT id, alternative_email, firstname, lastname, avatar_url, description, status_id " +
+        String sql = "SELECT account.id, alternative_email, firstname, lastname, avatar_url, description, status_id " +
                 "FROM account " +
-                "WHERE email = ?";
+                "INNER JOIN account_status status on status.id = account.status_id " +
+                "WHERE email = ? AND status.name != 'deleted'";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setString(1, email);
@@ -275,29 +276,6 @@ public class ImplAccountDAO implements IAccountDAO {
             }
         }
         return accountList;
-    }
-
-    @Override
-    public AccountEntity getAccountWithStatusId(String accountId) throws SQLException {
-        Connection connection = connectionWrapper.getConnection();
-        ResultSet result = null;
-        AccountEntity account = null;
-        if(connection == null){
-            return  null;
-        }
-        String sql = "SELECT status_id "
-                    +"FROM account "
-                    +"WHERE id = ?";
-        try(PreparedStatement stm = connection.prepareStatement(sql)){
-            stm.setString(1,accountId);
-            result = stm.executeQuery();
-            if(result.next()){
-                String statusId = result.getString(1);
-                account = AccountEntity.builder().id(accountId).statusId(statusId).build();
-                return account;
-            }
-        }
-        return null;
     }
 
     @Override

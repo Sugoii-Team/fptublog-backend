@@ -13,7 +13,7 @@ public interface ILecturerService {
 
     LecturerEntity getLecturer(String id) throws SQLException;
 
-    boolean banStudent(String studentId) throws SQLException;
+    boolean banStudent(String studentId, String message) throws SQLException;
 
     boolean unbanStudent(String studentId) throws SQLException;
 }

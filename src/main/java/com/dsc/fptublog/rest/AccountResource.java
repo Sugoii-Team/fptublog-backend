@@ -2,6 +2,7 @@ package com.dsc.fptublog.rest;
 
 import com.dsc.fptublog.config.Role;
 import com.dsc.fptublog.entity.AccountEntity;
+import com.dsc.fptublog.entity.BannedInfoEntity;
 import com.dsc.fptublog.service.interfaces.IAccountService;
 import lombok.extern.log4j.Log4j;
 
@@ -89,6 +90,21 @@ public class AccountResource {
         }
 
         return Response.ok(result).build();
+    }
+
+    @GET
+    @Path("/{account_id}/banned_info")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getBannedInfo(@Context SecurityContext sc, @PathParam("account_id") String accountId) {
+
+        BannedInfoEntity bannedInfo;
+        try {
+            bannedInfo = accountService.getBannedInfoByAccountId(accountId);
+        } catch (SQLException ex) {
+            log.error(ex);
+            return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+        return Response.ok(bannedInfo).build();
     }
 
 }

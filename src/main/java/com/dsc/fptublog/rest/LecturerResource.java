@@ -4,6 +4,7 @@ import com.dsc.fptublog.config.Role;
 import com.dsc.fptublog.entity.BlogEntity;
 import com.dsc.fptublog.entity.FieldEntity;
 import com.dsc.fptublog.entity.LecturerEntity;
+import com.dsc.fptublog.model.MessageModel;
 import com.dsc.fptublog.model.ReviewModel;
 import com.dsc.fptublog.service.interfaces.IBlogService;
 import com.dsc.fptublog.service.interfaces.IFieldService;
@@ -12,12 +13,7 @@ import lombok.extern.log4j.Log4j;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -154,47 +150,50 @@ public class LecturerResource {
         }
     }
 
-    @PUT
+    @POST
     @Path("/{lecturer_id}/banningstudent/{student_id}")
     @RolesAllowed(Role.LECTURER)
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response banStudentAccount(@Context SecurityContext sc,@PathParam("lecturer_id") String lecturerId, @PathParam("student_id") String studentId){
-        if(!sc.getUserPrincipal().getName().equals(lecturerId)){
+    public Response banStudentAccount(@Context SecurityContext sc, @PathParam("lecturer_id") String lecturerId,
+                                      @PathParam("student_id") String studentId, MessageModel messageModel) {
+        if (!sc.getUserPrincipal().getName().equals(lecturerId)) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
         boolean result;
-        try{
-            result = lecturerService.banStudent(studentId);
-        }catch (SQLException ex){
+        try {
+            result = lecturerService.banStudent(studentId, messageModel.getMessage());
+        } catch (SQLException ex) {
             log.error(ex);
             return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
         }
-        if(result){
+        if (result) {
             return Response.ok("Ban student successfully!").build();
-        }else {
+        } else {
             return Response.status(Response.Status.EXPECTATION_FAILED).entity("Ban student failed!").build();
         }
     }
 
-    @PUT
+    @PATCH
     @Path("/{lecturer_id}/unbanningstudent/{student_id}")
     @RolesAllowed(Role.LECTURER)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response unbanStudentAccount(@Context SecurityContext sc,@PathParam("lecturer_id") String lecturerId, @PathParam("student_id") String studentId){
-        if(!sc.getUserPrincipal().getName().equals(lecturerId)){
+    public Response unbanStudentAccount(@Context SecurityContext sc, @PathParam("lecturer_id") String lecturerId,
+                                        @PathParam("student_id") String studentId) {
+        if (!sc.getUserPrincipal().getName().equals(lecturerId)) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
         boolean result;
-        try{
+        try {
             result = lecturerService.unbanStudent(studentId);
-        }catch (SQLException ex){
+        } catch (SQLException ex) {
             log.error(ex);
             return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
         }
 
-        if (result){
+        if (result) {
             return Response.ok("Unban Student Successfully!!").build();
-        }else{
+        } else {
             return Response.status(Response.Status.EXPECTATION_FAILED).entity("Unban Student Failed!!").build();
         }
     }

@@ -37,4 +37,6 @@ public interface IBlogService {
     boolean deleteBlogOfAuthor(String authorId, String blogId) throws SQLException;
 
     BlogEntity updateBlog(String authorId, BlogEntity updatedBlog) throws SQLException;
+
+    List<BlogEntity> getBlogsOfFields(String fieldId, int limit, int page) throws SQLException;
 }
