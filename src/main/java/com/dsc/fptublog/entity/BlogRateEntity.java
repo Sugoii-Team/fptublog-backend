@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 public class BlogRateEntity {
     private String id;
-    private String blogId;
+    private String blogHistoryId;
     private String rateId;
     private int amount;
 }

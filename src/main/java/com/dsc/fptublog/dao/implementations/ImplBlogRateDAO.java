@@ -30,9 +30,10 @@ public class ImplBlogRateDAO implements IBlogRateDAO {
 
         BlogRateEntity result = null;
 
-        String sql = "SELECT id, amount " +
+        String sql = "SELECT blog_rate.id, amount " +
                 "FROM blog_rate " +
-                "WHERE blog_id = ? AND rate_id = ?";
+                "INNER JOIN blog ON blog_rate.blog_history_id = blog.blog_history_id " +
+                "WHERE blog.id = ? AND rate_id = ?";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setString(1, blogId);
@@ -59,9 +60,10 @@ public class ImplBlogRateDAO implements IBlogRateDAO {
 
         List<BlogRateEntity> result = null;
 
-        String sql = "SELECT id, rate_id, amount " +
+        String sql = "SELECT blog_rate.id, rate_id, amount " +
                 "FROM blog_rate " +
-                "WHERE blog_id = ?";
+                "INNER JOIN blog ON blog_rate.blog_history_id = blog.blog_history_id " +
+                "WHERE blog.id = ?";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setString(1, blogId);
@@ -91,7 +93,8 @@ public class ImplBlogRateDAO implements IBlogRateDAO {
 
         String sql = "UPDATE blog_rate " +
                 "SET amount = amount - 1 " +
-                "WHERE blog_id = ? AND  rate_id = ?";
+                "WHERE blog_history_id = (SELECT blog.blog_history_id FROM blog WHERE blog.id = ?) " +
+                "AND  rate_id = ?";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setString(1, blogId);
@@ -113,8 +116,8 @@ public class ImplBlogRateDAO implements IBlogRateDAO {
             return false;
         }
 
-        String sql = "INSERT INTO blog_rate (blog_id, rate_id, amount) " +
-                "VALUES (?, ?, ?)";
+        String sql = "INSERT INTO blog_rate (blog_history_id, rate_id, amount) " +
+                "VALUES ((SELECT blog.blog_history_id FROM blog WHERE id = ?), ?, ?)";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setString(1, blogId);
@@ -139,7 +142,8 @@ public class ImplBlogRateDAO implements IBlogRateDAO {
 
         String sql = "UPDATE blog_rate " +
                 "SET amount = amount + 1 " +
-                "WHERE blog_id = ? AND  rate_id = ?";
+                "WHERE blog_history_id = (SELECT blog.blog_history_id FROM blog WHERE blog.id = ?) " +
+                "AND  rate_id = ?";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setString(1, blogId);

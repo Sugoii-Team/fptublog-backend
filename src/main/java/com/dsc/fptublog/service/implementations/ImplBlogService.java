@@ -136,7 +136,7 @@ public class ImplBlogService implements IBlogService {
             // create blog history list
             long createdDateTime = System.currentTimeMillis();
             BlogHistory blogHistory =
-                    blogHistoryDAO.insertByBlogHistory(new BlogHistory(null, createdDateTime, 0));
+                    blogHistoryDAO.insertByBlogHistory(new BlogHistory(null, newBlog.getAuthorId(), newBlog.getCategoryId(), createdDateTime, 0, 0));
             newBlog.setHistoryId(blogHistory.getId());
 
             pendingStatus = blogStatusDAO.getByName("pending approved");

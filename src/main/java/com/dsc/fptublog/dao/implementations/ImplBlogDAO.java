@@ -69,23 +69,21 @@ public class ImplBlogDAO implements IBlogDAO {
             return null;
         }
 
-        String sql = "INSERT INTO blog (author_id, thumbnail_url, title, content, description, created_datetime, " +
-                "status_id, category_id, reviewer_id, review_datetime, blog_history_id) "
-                + "OUTPUT inserted.id "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO blog (thumbnail_url, title, content, description, created_datetime, status_id, " +
+                "reviewer_id, review_datetime, blog_history_id) " +
+                "OUTPUT inserted.id " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
-            stm.setString(1, newBlog.getAuthorId());
-            stm.setString(2, newBlog.getThumbnailUrl());
-            stm.setNString(3, newBlog.getTitle());
-            stm.setNString(4, newBlog.getContent());
-            stm.setNString(5, newBlog.getDescription());
-            stm.setLong(6, newBlog.getUpdatedDatetime());
-            stm.setString(7, newBlog.getStatusId());
-            stm.setString(8, newBlog.getCategoryId());
-            stm.setString(9, newBlog.getReviewerId());
-            stm.setLong(10, newBlog.getReviewDateTime());
-            stm.setString(11, newBlog.getHistoryId());
+            stm.setString(1, newBlog.getThumbnailUrl());
+            stm.setNString(2, newBlog.getTitle());
+            stm.setNString(3, newBlog.getContent());
+            stm.setNString(4, newBlog.getDescription());
+            stm.setLong(5, newBlog.getUpdatedDatetime());
+            stm.setString(6, newBlog.getStatusId());
+            stm.setString(7, newBlog.getReviewerId());
+            stm.setLong(8, newBlog.getReviewDateTime());
+            stm.setString(9, newBlog.getHistoryId());
 
             ResultSet resultSet = stm.executeQuery();
             if (resultSet.next()) {
@@ -104,11 +102,11 @@ public class ImplBlogDAO implements IBlogDAO {
             return false;
         }
 
-        String sql = "UPDATE blog "
-                + "SET thumbnail_url = ISNULL(?, thumbnail_url) , title = ISNULL(?, title), " +
+        String sql = "UPDATE blog " +
+                "SET thumbnail_url = ISNULL(?, thumbnail_url) , title = ISNULL(?, title), " +
                 "content = ISNULL(?, content), description = ISNULL(?, description), " +
-                "status_id = ISNULL(?, status_id), category_id = ISNULL(?, category_id), " +
-                "reviewer_id = ISNULL(?, reviewer_id), review_datetime = ISNULL(?, review_datetime) " +
+                "status_id = ISNULL(?, status_id), reviewer_id = ISNULL(?, reviewer_id), " +
+                "review_datetime = ISNULL(?, review_datetime) " +
                 "WHERE id = ?";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
@@ -117,10 +115,9 @@ public class ImplBlogDAO implements IBlogDAO {
             stm.setNString(3, updatedBlog.getContent());
             stm.setNString(4, updatedBlog.getDescription());
             stm.setString(5, updatedBlog.getStatusId());
-            stm.setString(6, updatedBlog.getCategoryId());
-            stm.setString(7, updatedBlog.getReviewerId());
-            stm.setLong(8, updatedBlog.getReviewDateTime());
-            stm.setString(9, updatedBlog.getId());
+            stm.setString(6, updatedBlog.getReviewerId());
+            stm.setLong(7, updatedBlog.getReviewDateTime());
+            stm.setString(8, updatedBlog.getId());
 
             int effectRow = stm.executeUpdate();
             if (effectRow > 0) {
@@ -307,7 +304,7 @@ public class ImplBlogDAO implements IBlogDAO {
                 "FROM blog " +
                 "INNER JOIN blog_status status on status.id = blog.status_id " +
                 "INNER JOIN blog_history history on history.id = blog.blog_history_id " +
-                "WHERE blog.category_id = ? AND (status.name = 'pending approved' " +
+                "WHERE history.category_id = ? AND (status.name = 'pending approved' " +
                 "OR status.name = 'pending deleted' OR status.name = 'pending updated' )";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
@@ -344,7 +341,7 @@ public class ImplBlogDAO implements IBlogDAO {
                 "FROM blog " +
                 "INNER JOIN blog_status status ON blog.status_id = status.id " +
                 "INNER JOIN blog_history history ON blog.blog_history_id = history.id " +
-                "INNER JOIN category on blog.category_id = category.id " +
+                "INNER JOIN category on history.category_id = category.id " +
                 "WHERE (status.name = 'approved' OR status.name = 'pending deleted') AND category.field_id = ? " +
                 "ORDER BY blog.id DESC " +
                 "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";

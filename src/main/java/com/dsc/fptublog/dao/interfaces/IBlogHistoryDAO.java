@@ -9,4 +9,6 @@ import java.sql.SQLException;
 public interface IBlogHistoryDAO {
 
     BlogHistory insertByBlogHistory(BlogHistory blogHistory) throws SQLException;
+
+    BlogHistory getByBlogId(String blogId) throws SQLException;
 }

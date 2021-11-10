@@ -28,9 +28,10 @@ public class ImplVoteDAO implements IVoteDAO {
 
         VoteEntity result = null;
 
-        String sql = "SELECT id, rate_id " +
+        String sql = "SELECT vote.id, rate_id " +
                 "FROM vote " +
-                "WHERE account_id = ? AND blog_id = ?";
+                "INNER JOIN blog ON vote.blog_history_id = blog.blog_history_id " +
+                "WHERE account_id = ? AND blog.id = ?";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setString(1, accountId);
@@ -56,7 +57,8 @@ public class ImplVoteDAO implements IVoteDAO {
         }
 
         String sql = "DELETE FROM vote " +
-                "WHERE account_id = ? AND blog_id = ?";
+                "WHERE account_id = ? " +
+                "AND blog_history_id = (SELECT blog_history_id FROM blog WHERE blog.id = ?)";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setString(1, accountId);
@@ -78,12 +80,12 @@ public class ImplVoteDAO implements IVoteDAO {
             return false;
         }
 
-        String sql = "INSERT INTO vote (account_id, blog_id, rate_id) " +
+        String sql = "INSERT INTO vote (account_id, blog_history_id, rate_id) " +
                 "VALUES (?, ?, ?)";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setString(1, vote.getAccountId());
-            stm.setString(2, vote.getBlogId());
+            stm.setString(2, vote.getBlogHistoryId());
             stm.setString(3, vote.getRateId());
 
             int effectedRow = stm.executeUpdate();
