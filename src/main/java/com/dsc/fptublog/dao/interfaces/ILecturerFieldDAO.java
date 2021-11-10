@@ -1,6 +1,7 @@
 package com.dsc.fptublog.dao.interfaces;
 
 import com.dsc.fptublog.entity.FieldEntity;
+import com.dsc.fptublog.entity.LecturerEntity;
 import com.dsc.fptublog.entity.LecturerFieldEntity;
 import org.jvnet.hk2.annotations.Contract;
 
@@ -16,4 +17,6 @@ public interface ILecturerFieldDAO {
             throws SQLException;
 
     boolean deleteByLecturerId(String lecturerId) throws SQLException;
+
+    List<String> getLecturersIdByFieldId(String fieldId) throws SQLException;
 }

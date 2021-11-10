@@ -1,6 +1,7 @@
 package com.dsc.fptublog.service.interfaces;
 
 import com.dsc.fptublog.entity.FieldEntity;
+import com.dsc.fptublog.entity.LecturerEntity;
 import org.jvnet.hk2.annotations.Contract;
 
 import java.sql.SQLException;
@@ -18,4 +19,6 @@ public interface IFieldService {
     boolean addLecturerFields(String lecturerId, List<FieldEntity> fieldList) throws SQLException;
 
     List<FieldEntity> getTopFields() throws SQLException;
+
+    List<LecturerEntity> getLecturersByFieldId(String fieldId) throws SQLException;
 }
