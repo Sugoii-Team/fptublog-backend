@@ -39,4 +39,6 @@ public interface IBlogService {
     BlogEntity updateBlog(String authorId, BlogEntity updatedBlog) throws Exception;
 
     List<BlogEntity> getBlogsOfFields(String fieldId, int limit, int page) throws SQLException;
+
+    boolean undoPendingDeleted(String userId, String blogId) throws Exception;
 }

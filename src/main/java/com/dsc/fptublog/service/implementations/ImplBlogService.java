@@ -527,4 +527,38 @@ public class ImplBlogService implements IBlogService {
         }
         return result;
     }
+
+    @Override
+    public boolean undoPendingDeleted(String userId, String blogId) throws Exception {
+        boolean result = false;
+        try {
+            connectionWrapper.beginTransaction();
+
+            BlogEntity pendingDeletedBlog = blogDAO.getById(blogId);
+            if (!userId.equals(pendingDeletedBlog.getAuthorId())) {
+                throw new Exception("The user does not own this blog");
+            }
+
+            String pendingDeletedStatutsId = blogStatusDAO.getByName("pending deleted").getId();
+            if (!pendingDeletedStatutsId.equals(pendingDeletedBlog.getStatusId())) {
+                throw new Exception("This blog is not in pending deleted status");
+            }
+
+            // undo pending delete is set status to approved
+            String approvedStatusId = blogStatusDAO.getByName("approved").getId();
+            pendingDeletedBlog.setStatusId(approvedStatusId);
+            if (blogDAO.updateByBlog(pendingDeletedBlog)) {
+                result = true;
+            }
+
+            connectionWrapper.commit();
+        } catch (SQLException ex) {
+            connectionWrapper.rollback();
+            throw ex;
+        } finally {
+            connectionWrapper.close();
+        }
+
+        return result;
+    }
 }
