@@ -19,6 +19,8 @@ public class AccountEntity {
     protected String description;
     protected String statusId;
     protected String role;
+    protected int blogsNumber;
+    protected float avgRate;
 
     public void setAccountInfo(AccountEntity account) {
         this.id = account.getId();
@@ -29,5 +31,7 @@ public class AccountEntity {
         this.avatarUrl = account.getAvatarUrl();
         this.description = account.getDescription();
         this.statusId = account.getStatusId();
+        this.blogsNumber = account.getBlogsNumber();
+        this.avgRate = account.getAvgRate();
     }
 }

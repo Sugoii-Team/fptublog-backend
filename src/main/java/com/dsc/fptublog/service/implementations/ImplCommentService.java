@@ -1,8 +1,6 @@
 package com.dsc.fptublog.service.implementations;
 
-import com.dsc.fptublog.dao.interfaces.ICommentDAO;
 import com.dsc.fptublog.database.ConnectionWrapper;
-import com.dsc.fptublog.entity.CommentEntity;
 import com.dsc.fptublog.service.interfaces.ICommentService;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.jvnet.hk2.annotations.Service;

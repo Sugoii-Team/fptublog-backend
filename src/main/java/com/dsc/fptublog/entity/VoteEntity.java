@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 public class VoteEntity {
     private String id;
     private String accountId;
-    private String blogId;
+    private String blogHistoryId;
     private String rateId;
 }

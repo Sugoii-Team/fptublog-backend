@@ -1,5 +1,6 @@
 package com.dsc.fptublog.service.implementations;
 
+import com.dsc.fptublog.dao.interfaces.IBlogHistoryDAO;
 import com.dsc.fptublog.dao.interfaces.IBlogRateDAO;
 import com.dsc.fptublog.dao.interfaces.IRateDAO;
 import com.dsc.fptublog.dao.interfaces.IVoteDAO;
@@ -31,6 +32,9 @@ public class ImplRateService implements IRateService {
 
     @Inject
     private IVoteDAO voteDAO;
+
+    @Inject
+    private IBlogHistoryDAO blogHistoryDAO;
 
     @Override
     public BlogRateModel getRateOfBlog(String blogId) throws SQLException {
@@ -107,13 +111,15 @@ public class ImplRateService implements IRateService {
 
             // check this user voted for this blog before, then remove its vote
             VoteEntity voteEntity = voteDAO.getByAccountIdAndBlogId(userId, blogId);
+
             if (voteDAO.deleteByAccountIdAndBlogId(userId, blogId)) {
                 blogRateDAO.decreaseAmount(blogId, voteEntity.getRateId());
             }
 
             // insert new Vote
             String rateId = rateDAO.getByName(star).getId();
-            voteEntity = new VoteEntity(null, userId, blogId, rateId);
+            String blogHistoryId = blogHistoryDAO.getByBlogId(blogId).getId();
+            voteEntity = new VoteEntity(null, userId, blogHistoryId, rateId);
             if (voteDAO.insertByVoteEntity(voteEntity)) {
                 // check existed blog_rate tuple for update
                 BlogRateEntity blogRate = blogRateDAO.getByBlogIdAndRateID(blogId, rateId);

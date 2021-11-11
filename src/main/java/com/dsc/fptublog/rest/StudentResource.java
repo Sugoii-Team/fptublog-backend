@@ -37,7 +37,7 @@ public class StudentResource {
             result = studentService.getAllStudents();
         } catch (SQLException ex) {
             log.error(ex);
-            return Response.status(Response.Status.EXPECTATION_FAILED).entity("LOAD DATABASE FAILED").build();
+            return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
         }
 
         return Response.ok(result).build();
@@ -52,7 +52,7 @@ public class StudentResource {
             student = studentService.getStudent(id);
         } catch (SQLException ex) {
             log.error(ex);
-            return Response.status(Response.Status.EXPECTATION_FAILED).entity("LOAD DATABASE FAILED").build();
+            return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
         }
         return Response.ok(student).build();
     }
@@ -77,7 +77,7 @@ public class StudentResource {
             updatedStudent = studentService.updateStudent(student);
         } catch (SQLException ex) {
             log.error(ex);
-            return Response.status(Response.Status.EXPECTATION_FAILED).entity("LOAD DATABASE FAILED").build();
+            return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
         }
         return Response.ok(updatedStudent).build();
     }

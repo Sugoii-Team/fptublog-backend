@@ -1,6 +1,5 @@
 package com.dsc.fptublog.service.interfaces;
 
-import com.dsc.fptublog.entity.CommentEntity;
 import org.jvnet.hk2.annotations.Contract;
 
 import java.sql.SQLException;

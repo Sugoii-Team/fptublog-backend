@@ -122,7 +122,8 @@ public class ImplFieldDAO implements IFieldDAO {
                 "     ( " +
                 "         SELECT blog.id, category_id " +
                 "         FROM blog " +
-                "                  INNER JOIN blog_status status ON blog.status_id = status.id " +
+                "         INNER JOIN blog_status status ON blog.status_id = status.id " +
+                "         INNER JOIN blog_history history on history.id = blog.blog_history_id " +
                 "         WHERE status.name = 'approved' OR status.name = 'pending deleted' " +
                 "     ) AS b " +
                 "ON category.id = b.category_id " +

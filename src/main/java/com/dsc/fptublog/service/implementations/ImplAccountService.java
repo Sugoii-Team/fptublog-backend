@@ -70,7 +70,7 @@ public class ImplAccountService implements IAccountService {
         try {
             connectionWrapper.beginTransaction();
 
-            result = accountDAO.getBannedAccounts();
+            result = accountDAO.getAllBannedAccounts();
 
             connectionWrapper.commit();
         } finally {

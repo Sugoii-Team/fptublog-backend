@@ -31,7 +31,8 @@ public class ImplAccountDAO implements IAccountDAO {
 
         AccountEntity result = null;
 
-        String sql = "SELECT account.id, alternative_email, firstname, lastname, avatar_url, description, status_id " +
+        String sql = "SELECT account.id, alternative_email, firstname, lastname, avatar_url, description, " +
+                "status_id, role, blogs_number, avg_rate " +
                 "FROM account " +
                 "INNER JOIN account_status status on status.id = account.status_id " +
                 "WHERE email = ? AND status.name != 'deleted'";
@@ -48,6 +49,9 @@ public class ImplAccountDAO implements IAccountDAO {
                 String avatarUrl = resultSet.getString(5);
                 String description = resultSet.getNString(6);
                 String statusId = resultSet.getString(7);
+                String role = resultSet.getString(8);
+                int blogsNumber = resultSet.getInt(9);
+                float avgRate = resultSet.getFloat(10);
 
                 result = AccountEntity.builder()
                         .id(id)
@@ -58,6 +62,9 @@ public class ImplAccountDAO implements IAccountDAO {
                         .avatarUrl(avatarUrl)
                         .description(description)
                         .statusId(statusId)
+                        .role(role)
+                        .blogsNumber(blogsNumber)
+                        .avgRate(avgRate)
                         .build();
             }
         }
@@ -74,7 +81,8 @@ public class ImplAccountDAO implements IAccountDAO {
 
         AccountEntity result = null;
 
-        String sql = "SELECT account.id, email, firstname, lastname, avatar_url, description, status_id " +
+        String sql = "SELECT account.id, email, firstname, lastname, avatar_url, description, " +
+                "status_id, role, blogs_number, avg_rate " +
                 "FROM account " +
                 "INNER JOIN account_status status on status.id = account.status_id " +
                 "WHERE alternative_email = ? AND status.name != 'deleted'";
@@ -91,6 +99,9 @@ public class ImplAccountDAO implements IAccountDAO {
                 String avatarUrl = resultSet.getString(5);
                 String description = resultSet.getNString(6);
                 String statusId = resultSet.getString(7);
+                String role = resultSet.getString(8);
+                int blogsNumber = resultSet.getInt(9);
+                float avgRate = resultSet.getFloat(10);
 
                 result = AccountEntity.builder()
                         .id(id)
@@ -101,6 +112,9 @@ public class ImplAccountDAO implements IAccountDAO {
                         .avatarUrl(avatarUrl)
                         .description(description)
                         .statusId(statusId)
+                        .role(role)
+                        .blogsNumber(blogsNumber)
+                        .avgRate(avgRate)
                         .build();
             }
         }
@@ -133,7 +147,7 @@ public class ImplAccountDAO implements IAccountDAO {
             stm.setNString(4, "");
             stm.setString(5, avatarUrl);
             stm.setString(6, statusId);
-            stm.setString(7,role);
+            stm.setString(7, role);
 
             ResultSet resultSet = stm.executeQuery();
             if (resultSet.next()) {
@@ -164,7 +178,8 @@ public class ImplAccountDAO implements IAccountDAO {
 
         AccountEntity result = null;
 
-        String sql = "SELECT email, alternative_email, firstname, lastname, avatar_url, description, status_id, role " +
+        String sql = "SELECT email, alternative_email, firstname, lastname, avatar_url, description, " +
+                "status_id, role, blogs_number, avg_rate " +
                 "FROM account " +
                 "WHERE id = ?";
 
@@ -181,6 +196,8 @@ public class ImplAccountDAO implements IAccountDAO {
                 String description = resultSet.getNString(6);
                 String statusId = resultSet.getString(7);
                 String role = resultSet.getString(8);
+                int blogsNumber = resultSet.getInt(9);
+                float avgRate = resultSet.getFloat(10);
 
                 result = AccountEntity.builder()
                         .id(id)
@@ -192,6 +209,8 @@ public class ImplAccountDAO implements IAccountDAO {
                         .description(description)
                         .statusId(statusId)
                         .role(role)
+                        .blogsNumber(blogsNumber)
+                        .avgRate(avgRate)
                         .build();
             }
         }
@@ -205,9 +224,11 @@ public class ImplAccountDAO implements IAccountDAO {
         if (connection == null) {
             return false;
         }
-        String sql = "UPDATE account "
-                + "SET alternative_email = ISNULL(?, alternative_email), firstname = ISNULL(?, firstname), lastname = ISNULL(?, lastname), avatar_url = ISNULL(?, avatar_url), description = ISNULL(?, description), status_id = ISNULL(?, status_id), role = ISNULL(?, role) "
-                + "WHERE id = ?";
+        String sql = "UPDATE account " +
+                "SET alternative_email = ISNULL(?, alternative_email), firstname = ISNULL(?, firstname), " +
+                "lastname = ISNULL(?, lastname), avatar_url = ISNULL(?, avatar_url), " +
+                "description = ISNULL(?, description), status_id = ISNULL(?, status_id), role = ISNULL(?, role) " +
+                "WHERE id = ?";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setString(1, updatedAccount.getAlternativeEmail());
@@ -230,14 +251,18 @@ public class ImplAccountDAO implements IAccountDAO {
     @Override
     public List<AccountEntity> getAllAccounts() throws SQLException {
         Connection connection = connectionWrapper.getConnection();
-        List<AccountEntity> accountList = null;
         if (connection == null) {
             return null;
         }
-        String sql = "SELECT account.id, email, alternative_email, firstname, lastname, status_id, role "
-                + "FROM account "
-                + "INNER JOIN account_status status ON account.status_id = status.id "
-                + "WHERE status.name = 'activated'";
+
+        List<AccountEntity> accountList = null;
+
+        String sql = "SELECT account.id, email, alternative_email, firstname, lastname, avatar_url, description, " +
+                "status_id, role, blogs_number, avg_rate " +
+                "FROM account " +
+                "INNER JOIN account_status status ON account.status_id = status.id " +
+                "WHERE status.name = 'activated'";
+
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             ResultSet result = stm.executeQuery();
             while (result.next()) {
@@ -246,19 +271,31 @@ public class ImplAccountDAO implements IAccountDAO {
                 String alternativeEmail = result.getString(3);
                 String firstName = result.getNString(4);
                 String lastName = result.getNString(5);
-                String statusId = result.getString(6);
-                String role = result.getString(7);
+                String avatarUrl = result.getString(6);
+                String desciption = result.getString(7);
+                String statusId = result.getString(8);
+                String role = result.getString(9);
+                int blogsNumber = result.getInt(10);
+                float avgRate = result.getFloat(11);
+
                 if (accountList == null) {
                     accountList = new ArrayList<>();
                 }
+
                 accountList.add(AccountEntity.builder()
                         .id(id)
                         .email(email)
                         .alternativeEmail(alternativeEmail)
                         .firstName(firstName)
                         .lastName(lastName)
+                        .avatarUrl(avatarUrl)
+                        .description(desciption)
                         .statusId(statusId)
-                        .role(role).build());
+                        .role(role)
+                        .blogsNumber(blogsNumber)
+                        .avgRate(avgRate)
+                        .build()
+                );
             }
         }
         return accountList;
@@ -322,40 +359,46 @@ public class ImplAccountDAO implements IAccountDAO {
     }
 
     @Override
-    public List<AccountEntity> getBannedAccounts() throws SQLException {
+    public boolean decreaseNumberOfBlog(String id) throws SQLException {
         Connection connection = connectionWrapper.getConnection();
         if (connection == null) {
-            return null;
+            return false;
         }
 
-        List<AccountEntity> result = null;
-
-        String sql = "SELECT account.id, email, alternative_email, firstname, lastname, avatar_url, description, status_id, role " +
-                "FROM account " +
-                "INNER JOIN account_status AS status ON account.status_id = status.id " +
-                "WHERE status.name = 'banned'";
+        String sql = "UPDATE account SET blogs_number = blogs_number - 1 " +
+                "WHERE id = ?";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
-            ResultSet resultSet = stm.executeQuery();
-            while (resultSet.next()) {
-                String id = resultSet.getString(1);
-                String email = resultSet.getString(2);
-                String alternativeEmail = resultSet.getString(3);
-                String firstname = resultSet.getNString(4);
-                String lastname = resultSet.getNString(5);
-                String avatarUrl = resultSet.getString(6);
-                String description = resultSet.getNString(7);
-                String statusId = resultSet.getString(8);
-                String role = resultSet.getString(9);
+            stm.setString(1, id);
 
-                if (result == null) {
-                    result = new ArrayList<>();
-                }
-                result.add(new AccountEntity(id, email, alternativeEmail, firstname, lastname, avatarUrl,
-                        description, statusId, role));
+            int effectedRow = stm.executeUpdate();
+            if (effectedRow > 0) {
+                return true;
             }
         }
 
-        return result;
+        return false;
+    }
+
+    @Override
+    public boolean increaseNumberOfBlog(String id) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return false;
+        }
+
+        String sql = "UPDATE account SET blogs_number = blogs_number + 1 " +
+                "WHERE id = ?";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, id);
+
+            int effectedRow = stm.executeUpdate();
+            if (effectedRow > 0) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

@@ -1,12 +1,6 @@
 package com.dsc.fptublog.service.implementations;
 
-import com.dsc.fptublog.dao.interfaces.IBlogDAO;
-import com.dsc.fptublog.dao.interfaces.IBlogHistoryDAO;
-import com.dsc.fptublog.dao.interfaces.IBlogStatusDAO;
-import com.dsc.fptublog.dao.interfaces.IBlogTagDAO;
-import com.dsc.fptublog.dao.interfaces.ICategoryDAO;
-import com.dsc.fptublog.dao.interfaces.ILecturerFieldDAO;
-import com.dsc.fptublog.dao.interfaces.ITagDAO;
+import com.dsc.fptublog.dao.interfaces.*;
 import com.dsc.fptublog.database.ConnectionWrapper;
 import com.dsc.fptublog.entity.BlogEntity;
 import com.dsc.fptublog.entity.BlogHistory;
@@ -48,6 +42,9 @@ public class ImplBlogService implements IBlogService {
 
     @Inject
     private IBlogTagDAO blogTagDAO;
+
+    @Inject
+    private IAccountDAO accountDAO;
 
     @Override
     public BlogEntity getById(String id) throws SQLException {
@@ -139,7 +136,7 @@ public class ImplBlogService implements IBlogService {
             // create blog history list
             long createdDateTime = System.currentTimeMillis();
             BlogHistory blogHistory =
-                    blogHistoryDAO.insertByBlogHistory(new BlogHistory(null, createdDateTime, 0));
+                    blogHistoryDAO.insertByBlogHistory(new BlogHistory(null, newBlog.getAuthorId(), newBlog.getCategoryId(), createdDateTime, 0, 0));
             newBlog.setHistoryId(blogHistory.getId());
 
             pendingStatus = blogStatusDAO.getByName("pending approved");
@@ -262,7 +259,8 @@ public class ImplBlogService implements IBlogService {
         return result;
     }
 
-    private boolean processApprove(BlogEntity oldBlog, String pendingDeletedStatusId, String pendingUpdatedStatusId)
+    private boolean processApprove(BlogEntity oldBlog, String pendingDeletedStatusId,
+                                   String pendingUpdatedStatusId, String pendingApprovedStatusId)
             throws SQLException {
 
         // pending deleting
@@ -272,7 +270,11 @@ public class ImplBlogService implements IBlogService {
             oldBlog.setStatusId(deletedStatusId);
             oldBlog.setReviewDateTime(System.currentTimeMillis());
 
-            return blogDAO.updateByBlog(oldBlog);
+            if (accountDAO.decreaseNumberOfBlog(oldBlog.getAuthorId())) {
+                return blogDAO.updateByBlog(oldBlog);
+            } else {
+                return false;
+            }
         }
 
         // pending updated
@@ -283,6 +285,11 @@ public class ImplBlogService implements IBlogService {
         }
 
         // pending update or pending approved
+        if (oldBlog.getStatusId().equals(pendingApprovedStatusId)) {
+            if (!accountDAO.increaseNumberOfBlog(oldBlog.getAuthorId())) {
+                return false;
+            }
+        }
         String approvedStatusId = blogStatusDAO.getByName("approved").getId();
         oldBlog.setStatusId(approvedStatusId);
         oldBlog.setReviewDateTime(System.currentTimeMillis());
@@ -340,7 +347,8 @@ public class ImplBlogService implements IBlogService {
 
             oldBlog.setReviewerId(reviewerId);
             if ("approve".equals(reviewModel.getAction())) {
-                result = processApprove(oldBlog, pendingDeletedStatusId, pendingUpdatedStatusId);
+                result = processApprove(oldBlog, pendingDeletedStatusId,
+                        pendingUpdatedStatusId, pendingApprovedStatusId);
             }
             if ("reject".equals(reviewModel.getAction())) {
                 result = processReject(oldBlog, pendingDeletedStatusId);

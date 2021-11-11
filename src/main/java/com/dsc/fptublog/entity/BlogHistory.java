@@ -9,6 +9,9 @@ import lombok.NoArgsConstructor;
 @Data
 public class BlogHistory {
     private String id;
+    private String authorId;
+    private String categoryId;
     private long createdDatetime;
     private int views;
+    private float avgRate;
 }
