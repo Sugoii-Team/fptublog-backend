@@ -511,7 +511,7 @@ public class ImplBlogDAO implements IBlogDAO {
             return false;
         }
 
-        String sql = "SELECT id " +
+        String sql = "SELECT blog.id " +
                 "FROM blog " +
                 "INNER JOIN blog_status status ON blog.status_id = status.id " +
                 "WHERE status.name = 'approved' AND blog_history_id = (SELECT blog_history_id FROM blog WHERE id = ?)";
@@ -535,7 +535,7 @@ public class ImplBlogDAO implements IBlogDAO {
             return false;
         }
 
-        String sql = "SELECT id " +
+        String sql = "SELECT blog.id " +
                 "FROM blog " +
                 "INNER JOIN blog_status status ON blog.status_id = status.id " +
                 "WHERE status.name = 'pending updated' " +
@@ -560,7 +560,7 @@ public class ImplBlogDAO implements IBlogDAO {
             return null;
         }
 
-        String sql = "SELECT id " +
+        String sql = "SELECT blog.id " +
                 "FROM blog " +
                 "INNER JOIN blog_status status ON blog.status_id = status.id " +
                 "WHERE status.name = 'pending updated' " +
