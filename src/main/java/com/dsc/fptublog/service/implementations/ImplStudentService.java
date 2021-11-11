@@ -7,14 +7,20 @@ import com.dsc.fptublog.database.ConnectionWrapper;
 import com.dsc.fptublog.entity.AccountEntity;
 import com.dsc.fptublog.entity.MajorEntity;
 import com.dsc.fptublog.entity.StudentEntity;
+import com.dsc.fptublog.model.Top30DaysStudentModel;
 import com.dsc.fptublog.service.interfaces.IStudentService;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.jvnet.hk2.annotations.Service;
 
 import javax.inject.Inject;
 import java.sql.SQLException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequestScoped
@@ -81,5 +87,38 @@ public class ImplStudentService implements IStudentService {
             connectionWrapper.close();
         }
         return null;
+    }
+
+    @Override
+    public List<Top30DaysStudentModel> getTopIn30Days() throws SQLException {
+        List<Top30DaysStudentModel> result;
+
+        try {
+            connectionWrapper.beginTransaction();
+
+            // Get the timestamp of 30 days before in long
+            Instant currentDateTime = Instant.now();
+            Instant before30DaysDateTime = currentDateTime.minus(30, ChronoUnit.DAYS);
+            long before30DaysTimeStamp = before30DaysDateTime.toEpochMilli();
+
+            // Get the order list of studentId and Count blogs
+            result = studentDAO.getTop30Days(before30DaysTimeStamp);
+            if (result == null) {
+                return Collections.emptyList();
+            }
+
+            // Get full info studentId
+            for (var model : result) {
+                String id = model.getStudent().getId();
+                StudentEntity student = studentDAO.getById(id);
+                model.setStudent(student);
+            }
+
+            connectionWrapper.commit();
+        } finally {
+            connectionWrapper.close();
+        }
+
+        return result;
     }
 }
