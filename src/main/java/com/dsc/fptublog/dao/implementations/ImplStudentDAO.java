@@ -4,16 +4,16 @@ import com.dsc.fptublog.dao.interfaces.IStudentDAO;
 import com.dsc.fptublog.database.ConnectionWrapper;
 import com.dsc.fptublog.entity.AccountEntity;
 import com.dsc.fptublog.entity.StudentEntity;
+import com.dsc.fptublog.model.Top30DaysStudentModel;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.jvnet.hk2.annotations.Service;
 
 import javax.inject.Inject;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequestScoped
@@ -234,5 +234,88 @@ public class ImplStudentDAO implements IStudentDAO {
         }
 
         return false;
+    }
+
+    @Override
+    public List<Top30DaysStudentModel> getTop30Days(long before30DaysTimeStamp) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return null;
+        }
+
+        List<Top30DaysStudentModel> result = null;
+
+        String sql = "SELECT account.id, COUNT(history.id) AS blogs_number_in_30_days " +
+                "FROM account " +
+                "INNER JOIN account_status ON account.status_id = account_status.id " +
+                "INNER JOIN blog_history history ON account.id = history.author_id " +
+                "INNER JOIN blog ON history.id = blog.blog_history_id " +
+                "INNER JOIN blog_status ON blog.status_id = blog_status.id " +
+                "WHERE account_status.name = 'activated' AND account.role = 'STUDENT' " +
+                "AND history.created_datetime > ? " +
+                "AND (blog_status.name = 'approved' OR blog_status.name = 'pending deleted') " +
+                "GROUP BY account.id " +
+                "ORDER BY blogs_number_in_30_days DESC";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setLong(1, before30DaysTimeStamp);
+
+            ResultSet resultSet = stm.executeQuery();
+            while (resultSet.next()) {
+                String id = resultSet.getString(1);
+                int numberOfBlogIn30Days = resultSet.getInt(2);
+
+                if (result == null) {
+                    result = new ArrayList<>();
+                }
+                result.add(
+                        new Top30DaysStudentModel(StudentEntity.builder().id(id).build(), numberOfBlogIn30Days)
+                );
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    public StudentEntity getById(String id) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return null;
+        }
+
+        String sql = "SELECT email, alternative_email, firstname, lastname, avatar_url, description, " +
+                "status_id, role, blogs_number, avg_rate, school_year, major_id, experience_point " +
+                "FROM account " +
+                "INNER JOIN account_student student on account.id = student.id " +
+                "WHERE account.id = ?";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, id);
+
+            ResultSet resultSet = stm.executeQuery();
+            while (resultSet.next()) {
+                String email = resultSet.getString(1);
+                String alternativeEmail = resultSet.getString(2);
+                String firstname = resultSet.getNString(3);
+                String lastname = resultSet.getNString(4);
+                String avatarUrl = resultSet.getString(5);
+                String description = resultSet.getString(6);
+                String statusId = resultSet.getString(7);
+                String role = resultSet.getString(8);
+                int blogsNumber = resultSet.getInt(9);
+                float avgRate = resultSet.getFloat(10);
+                byte schoolYear = resultSet.getByte(11);
+                String majorId = resultSet.getString(12);
+                int experiencePoint = resultSet.getInt(13);
+
+                return StudentEntity.builder().id(id).email(email).alternativeEmail(alternativeEmail)
+                        .firstName(firstname).lastName(lastname).avatarUrl(avatarUrl).description(description)
+                        .statusId(statusId).role(role).blogsNumber(blogsNumber).avgRate(avgRate).schoolYear(schoolYear)
+                        .majorId(majorId).experiencePoint(experiencePoint).build();
+            }
+        }
+
+        return null;
     }
 }
