@@ -443,7 +443,7 @@ public class ImplBlogService implements IBlogService {
     }
 
     @Override
-    public BlogEntity updateBlog(String authorId, BlogEntity updatedBlog) throws SQLException {
+    public BlogEntity updateBlog(String authorId, BlogEntity updatedBlog) throws Exception {
         BlogEntity result = null;
         try {
             connectionWrapper.beginTransaction();
@@ -454,22 +454,43 @@ public class ImplBlogService implements IBlogService {
                 return null;
             }
 
+            long currentTime = System.currentTimeMillis();
+
+            oldBlog.setThumbnailUrl(updatedBlog.getThumbnailUrl());
+            oldBlog.setTitle(updatedBlog.getTitle());
+            oldBlog.setContent(updatedBlog.getContent());
+            oldBlog.setDescription(updatedBlog.getDescription());
+            oldBlog.setUpdatedDatetime(currentTime);
+            oldBlog.setReviewerId(null);
+            oldBlog.setReviewDateTime(0);
+
             String draftStatusId = blogStatusDAO.getByName("draft").getId();
+            String pendingApprovedStatusId = blogStatusDAO.getByName("pending approved").getId();
+            String pendingUpdatedStatusId = blogStatusDAO.getByName("pending updated").getId();
+            String pendingDeletedStatusId = blogStatusDAO.getByName("pending deleted").getId();
+
             if (draftStatusId.equals(oldBlog.getStatusId())) {
+                if (blogDAO.isApproved(oldBlog.getId())) {
+                    oldBlog.setStatusId(pendingUpdatedStatusId);
+                } else {
+                    oldBlog.setStatusId(pendingApprovedStatusId);
+                }
+
                 if (blogDAO.updateByBlog(oldBlog)) {
                     result = oldBlog;
                 }
-            } else {
-                String pendingUpdatedStatusId = blogStatusDAO.getByName("pending updated").getId();
-                long currentTime = System.currentTimeMillis();
-
-                oldBlog.setThumbnailUrl(updatedBlog.getThumbnailUrl());
-                oldBlog.setTitle(updatedBlog.getTitle());
-                oldBlog.setContent(updatedBlog.getContent());
-                oldBlog.setDescription(updatedBlog.getDescription());
-                oldBlog.setUpdatedDatetime(currentTime);
-                oldBlog.setReviewerId(null);
-                oldBlog.setReviewDateTime(0);
+            } else if (pendingApprovedStatusId.equals(oldBlog.getStatusId()) || pendingUpdatedStatusId.equals(oldBlog.getStatusId())) {
+                if (blogDAO.updateByBlog(oldBlog)) {
+                    result = oldBlog;
+                }
+            } else if (pendingDeletedStatusId.equals(oldBlog.getStatusId())) {
+                throw new Exception("Cannot update a pending deleted blog");
+            } else { // its status is approved
+                // Check if existed another "pending update" of it -> override to this update
+                if (blogDAO.isExistedPendingUpdateBlogInTheSameBlogHistory(oldBlog.getId())) {
+                    String pendingUpdatedBlogId = blogDAO.getPendingUpdateBlogIdInTheSameHistory(oldBlog.getId());
+                    oldBlog.setId(pendingUpdatedBlogId);
+                }
 
                 oldBlog.setStatusId(pendingUpdatedStatusId);
                 // update to DB

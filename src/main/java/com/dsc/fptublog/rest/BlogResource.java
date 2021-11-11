@@ -113,7 +113,7 @@ public class BlogResource {
             } else {
                 response = Response.ok(result).build();
             }
-        } catch (SQLException ex) {
+        } catch (Exception ex) {
             log.error(ex);
             response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
         }

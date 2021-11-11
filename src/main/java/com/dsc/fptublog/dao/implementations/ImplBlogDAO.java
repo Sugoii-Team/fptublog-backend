@@ -504,5 +504,79 @@ public class ImplBlogDAO implements IBlogDAO {
         return result;
     }
 
+    @Override
+    public boolean isApproved(String blogId) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return false;
+        }
+
+        String sql = "SELECT id " +
+                "FROM blog " +
+                "INNER JOIN blog_status status ON blog.status_id = status.id " +
+                "WHERE status.name = 'approved' AND blog_history_id = (SELECT blog_history_id FROM blog WHERE id = ?)";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, blogId);
+
+            ResultSet resultSet = stm.executeQuery();
+            if (resultSet.next()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean isExistedPendingUpdateBlogInTheSameBlogHistory(String blogId) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return false;
+        }
+
+        String sql = "SELECT id " +
+                "FROM blog " +
+                "INNER JOIN blog_status status ON blog.status_id = status.id " +
+                "WHERE status.name = 'pending updated' " +
+                "AND blog_history_id = (SELECT blog_history_id FROM blog WHERE id = ?)";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, blogId);
+
+            ResultSet resultSet = stm.executeQuery();
+            if (resultSet.next()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    @Override
+    public String getPendingUpdateBlogIdInTheSameHistory(String blogId) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return null;
+        }
+
+        String sql = "SELECT id " +
+                "FROM blog " +
+                "INNER JOIN blog_status status ON blog.status_id = status.id " +
+                "WHERE status.name = 'pending updated' " +
+                "AND blog_history_id = (SELECT blog_history_id FROM blog WHERE id = ?)";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, blogId);
+
+            ResultSet resultSet = stm.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getString(1);
+            }
+        }
+
+        return null;
+    }
+
 
 }
