@@ -3,6 +3,7 @@ package com.dsc.fptublog.dao.implementations;
 import com.dsc.fptublog.dao.interfaces.ILecturerFieldDAO;
 import com.dsc.fptublog.database.ConnectionWrapper;
 import com.dsc.fptublog.entity.FieldEntity;
+import com.dsc.fptublog.entity.LecturerEntity;
 import com.dsc.fptublog.entity.LecturerFieldEntity;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.jvnet.hk2.annotations.Service;
@@ -102,5 +103,30 @@ public class ImplLecturerFieldDAO implements ILecturerFieldDAO {
         }
 
         return result;
+    }
+
+    @Override
+    public List<String> getLecturersIdByFieldId(String fieldId) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        ResultSet result = null;
+        List<String> lecturersList = null;
+        if(connection == null){
+            return null;
+        }
+        String sql = "SELECT lecturer_id "
+                    +"FROM account_lecturer_field "
+                    +"WHERE field_id = ?";
+        try(PreparedStatement stm = connection.prepareStatement(sql)){
+            stm.setString(1,fieldId);
+            result = stm.executeQuery();
+            while (result.next()){
+                String lecturerId = result.getString(1);
+                if(lecturersList == null){
+                    lecturersList = new ArrayList<>();
+                }
+                lecturersList.add(lecturerId);
+            }
+        }
+        return lecturersList;
     }
 }
