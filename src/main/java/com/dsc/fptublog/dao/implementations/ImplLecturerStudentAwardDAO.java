@@ -29,13 +29,14 @@ public class ImplLecturerStudentAwardDAO implements ILecturerStudentAwardDAO {
         }
 
         String sql = "INSERT INTO lecturer_student_award " +
-                "(lecturer_id, student_id, award_id) " +
-                "VALUES (?, ?, ?)";
+                "(lecturer_id, student_id, award_id, datetime) " +
+                "VALUES (?, ?, ?, ?)";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setString(1, lecturerStudentAward.getLecturerId());
             stm.setString(2, lecturerStudentAward.getStudentId());
             stm.setString(3, lecturerStudentAward.getAwardId());
+            stm.setLong(4, lecturerStudentAward.getDatetime());
 
             int effectedRow = stm.executeUpdate();
             if (effectedRow > 0) {
@@ -47,6 +48,31 @@ public class ImplLecturerStudentAwardDAO implements ILecturerStudentAwardDAO {
     }
 
     @Override
+    public long getLastAwardDatetimeOfLecturerForStudent(String lecturerId, String studentId) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return -1;
+        }
+
+        String sql = "SELECT TOP 1 datetime " +
+                "FROM lecturer_student_award " +
+                "WHERE lecturer_id = ? AND student_id = ? " +
+                "ORDER BY datetime DESC ";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, lecturerId);
+            stm.setString(2, studentId);
+
+            ResultSet resultSet = stm.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getLong(1);
+            }
+        }
+
+        return -1;
+    }
+
+    @Override
     public List<LecturerStudentAwardEntity> getByStudentId(String studentId) throws SQLException {
         Connection connection = connectionWrapper.getConnection();
         if (connection == null) {
@@ -55,7 +81,7 @@ public class ImplLecturerStudentAwardDAO implements ILecturerStudentAwardDAO {
 
         List<LecturerStudentAwardEntity> result = null;
 
-        String sql = "SELECT id, lecturer_id, award_id " +
+        String sql = "SELECT id, lecturer_id, award_id, datetime " +
                 "FROM lecturer_student_award " +
                 "WHERE student_id = ?";
 
@@ -67,11 +93,12 @@ public class ImplLecturerStudentAwardDAO implements ILecturerStudentAwardDAO {
                 String id = resultSet.getString(1);
                 String lecturerId = resultSet.getString(2);
                 String awardId = resultSet.getString(3);
+                long datetime = resultSet.getLong(4);
 
                 if (result == null) {
                     result = new ArrayList<>();
                 }
-                result.add(new LecturerStudentAwardEntity(id, lecturerId, studentId, awardId));
+                result.add(new LecturerStudentAwardEntity(id, lecturerId, studentId, awardId, datetime));
             }
         }
 
@@ -87,7 +114,7 @@ public class ImplLecturerStudentAwardDAO implements ILecturerStudentAwardDAO {
 
         LecturerStudentAwardEntity result = null;
 
-        String sql = "SELECT lecturer_id, student_id, award_id " +
+        String sql = "SELECT lecturer_id, student_id, award_id, datetime " +
                 "FROM lecturer_student_award " +
                 "WHERE id = ?";
 
@@ -99,8 +126,9 @@ public class ImplLecturerStudentAwardDAO implements ILecturerStudentAwardDAO {
                 String lecturerId = resultSet.getString(1);
                 String studentId = resultSet.getString(2);
                 String awardId = resultSet.getString(3);
+                long datetime = resultSet.getLong(4);
 
-                result = new LecturerStudentAwardEntity(id, lecturerId, studentId, awardId);
+                result = new LecturerStudentAwardEntity(id, lecturerId, studentId, awardId, datetime);
             }
         }
 

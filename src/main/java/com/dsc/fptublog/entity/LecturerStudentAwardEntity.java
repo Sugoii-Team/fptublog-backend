@@ -12,4 +12,5 @@ public class LecturerStudentAwardEntity {
     private String lecturerId;
     private String studentId;
     private String awardId;
+    private long datetime;
 }
