@@ -1,13 +1,16 @@
 package com.dsc.fptublog.rest;
 
+import com.dsc.fptublog.config.Role;
 import com.dsc.fptublog.entity.BlogEntity;
 import com.dsc.fptublog.entity.CategoryEntity;
 import com.dsc.fptublog.entity.FieldEntity;
+import com.dsc.fptublog.entity.LecturerEntity;
 import com.dsc.fptublog.service.interfaces.IBlogService;
 import com.dsc.fptublog.service.interfaces.ICategoryService;
 import com.dsc.fptublog.service.interfaces.IFieldService;
 import lombok.extern.log4j.Log4j;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -99,5 +102,22 @@ public class FieldResource {
         }
 
         return Response.ok(result).build();
+    }
+
+    @GET
+    @Path("/{field_id}/lecturers")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAllLecturers(@PathParam("field_id")String fieldId){
+        List<LecturerEntity> lecturersList;
+        try{
+            lecturersList = fieldService.getLecturersByFieldId(fieldId);
+            if(lecturersList == null){
+                return Response.status(Response.Status.EXPECTATION_FAILED).entity("No lecturers found").build();
+            }else{
+                return Response.ok(lecturersList).build();
+            }
+        }catch (SQLException ex){
+            return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
     }
 }

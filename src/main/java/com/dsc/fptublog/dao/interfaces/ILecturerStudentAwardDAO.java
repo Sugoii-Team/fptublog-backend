@@ -11,6 +11,8 @@ public interface ILecturerStudentAwardDAO {
 
     boolean insertByLecturerStudentAward(LecturerStudentAwardEntity lecturerStudentAward) throws SQLException;
 
+    long getLastAwardDatetimeOfLecturerForStudent(String lecturerId, String studentId) throws SQLException;
+
     List<LecturerStudentAwardEntity> getByStudentId(String studentId) throws SQLException;
 
     LecturerStudentAwardEntity getById(String id) throws SQLException;

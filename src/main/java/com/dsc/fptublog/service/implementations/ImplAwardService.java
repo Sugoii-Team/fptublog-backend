@@ -12,6 +12,8 @@ import org.jvnet.hk2.annotations.Service;
 
 import javax.inject.Inject;
 import java.sql.SQLException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -66,13 +68,31 @@ public class ImplAwardService implements IAwardService {
     }
 
     @Override
-    public boolean giveAward(LecturerStudentAwardEntity lecturerStudentAward) throws SQLException {
+    public boolean giveAward(LecturerStudentAwardEntity lecturerStudentAward) throws Exception {
         boolean result = false;
 
         try {
             connectionWrapper.beginTransaction();
 
-            result = lecturerStudentAwardDAO.insertByLecturerStudentAward(lecturerStudentAward);
+            long currentDatetime = System.currentTimeMillis();
+            Instant currentDatetimeInstant = Instant.ofEpochMilli(currentDatetime);
+
+            // get last award of this student
+            long lastAwardDatetime =
+                    lecturerStudentAwardDAO.getLastAwardDatetimeOfLecturerForStudent(lecturerStudentAward.getLecturerId(),
+                            lecturerStudentAward.getStudentId());
+            Instant lastAwardDatetimeInstant = Instant.ofEpochMilli(lastAwardDatetime);
+
+            // get the time after 30days
+            Instant after30DaysInstant = lastAwardDatetimeInstant.plus(30, ChronoUnit.DAYS);
+
+            // check current is over 30 days
+            if (currentDatetimeInstant.isAfter(after30DaysInstant)) {
+                lecturerStudentAward.setDatetime(currentDatetime);
+                result = lecturerStudentAwardDAO.insertByLecturerStudentAward(lecturerStudentAward);
+            } else {
+                throw new Exception("Already given award in last 30 days");
+            }
 
             connectionWrapper.commit();
         } catch (SQLException ex) {

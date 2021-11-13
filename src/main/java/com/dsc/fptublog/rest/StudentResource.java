@@ -2,6 +2,8 @@ package com.dsc.fptublog.rest;
 
 import com.dsc.fptublog.config.Role;
 import com.dsc.fptublog.entity.StudentEntity;
+import com.dsc.fptublog.model.MessageModel;
+import com.dsc.fptublog.model.Top30DaysStudentModel;
 import com.dsc.fptublog.service.interfaces.IStudentService;
 
 import lombok.extern.log4j.Log4j;
@@ -19,7 +21,11 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Log4j
 @Path("/students")
@@ -81,4 +87,21 @@ public class StudentResource {
         }
         return Response.ok(updatedStudent).build();
     }
+
+    @GET
+    @Path("/top")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getTopStudentIn30Day() {
+        List<Top30DaysStudentModel> result;
+
+        try {
+            result = studentService.getTopIn30Days();
+        } catch (SQLException ex) {
+            log.error(ex);
+            return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+
+        return Response.ok(result).build();
+    }
+
 }

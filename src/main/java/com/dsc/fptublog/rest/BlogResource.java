@@ -113,7 +113,7 @@ public class BlogResource {
             } else {
                 response = Response.ok(result).build();
             }
-        } catch (SQLException ex) {
+        } catch (Exception ex) {
             log.error(ex);
             response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
         }
@@ -143,6 +143,25 @@ public class BlogResource {
         }
 
         return response;
+    }
+
+    @POST
+    @Path("/{id}/undo_delete")
+    @RolesAllowed({Role.STUDENT, Role.LECTURER})
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response undoDelete(@Context SecurityContext sc, @PathParam("id") String id) {
+        String userId = sc.getUserPrincipal().getName();
+
+        try {
+            if (blogService.undoPendingDeleted(userId, id)) {
+                return Response.ok("Undo deleted successfully!").build();
+            } else {
+                return Response.status(Response.Status.EXPECTATION_FAILED).entity("Cannot undo delete this blog").build();
+            }
+        } catch (Exception ex) {
+            log.error(ex);
+            return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
     }
 
     @GET
