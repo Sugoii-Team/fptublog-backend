@@ -1,7 +1,9 @@
 package com.dsc.fptublog.service.implementations;
 
+import com.dsc.fptublog.dao.interfaces.IBlogDAO;
 import com.dsc.fptublog.dao.interfaces.ICategoryDAO;
 import com.dsc.fptublog.database.ConnectionWrapper;
+import com.dsc.fptublog.entity.BlogEntity;
 import com.dsc.fptublog.entity.CategoryEntity;
 import com.dsc.fptublog.service.interfaces.ICategoryService;
 import org.glassfish.jersey.process.internal.RequestScoped;
@@ -21,6 +23,9 @@ public class ImplCategoryService implements ICategoryService {
 
     @Inject
     private ICategoryDAO categoryDAO;
+
+    @Inject
+    private IBlogDAO blogDAO;
 
     @Override
     public CategoryEntity getCategory(String id) throws SQLException {
@@ -72,6 +77,20 @@ public class ImplCategoryService implements ICategoryService {
 
         if (result == null) {
             result = Collections.emptyList();
+        }
+        return result;
+    }
+
+    @Override
+    public List<BlogEntity> getBlogsByCategoryId(String categoryId) throws SQLException {
+        List<BlogEntity> result;
+
+        try{
+            connectionWrapper.beginTransaction();
+            result = blogDAO.getByCategoryId(categoryId);
+            connectionWrapper.commit();
+        }finally {
+            connectionWrapper.close();
         }
         return result;
     }

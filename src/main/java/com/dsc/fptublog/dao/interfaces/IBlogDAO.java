@@ -38,6 +38,8 @@ public interface IBlogDAO {
 
     boolean deleteReviewerId(String reviewerId) throws SQLException;
 
+    List<BlogEntity> getByCategoryId(String categoryId) throws SQLException;
+
     boolean isApproved(String blogId) throws SQLException;
 
     boolean isExistedPendingUpdateBlogInTheSameBlogHistory(String blogId) throws SQLException;
