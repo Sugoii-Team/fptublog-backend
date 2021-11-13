@@ -15,7 +15,7 @@ public interface IAwardService {
 
     AwardEntity getAward(String id) throws SQLException;
 
-    boolean giveAward(LecturerStudentAwardEntity lecturerStudentAward) throws SQLException;
+    boolean giveAward(LecturerStudentAwardEntity lecturerStudentAward) throws Exception;
 
     List<AwardModel> getAllAwardOfStudent(String studentId) throws SQLException;
 

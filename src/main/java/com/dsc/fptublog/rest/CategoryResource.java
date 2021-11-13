@@ -52,4 +52,6 @@ public class CategoryResource {
         return Response.ok(categoryList).build();
     }
 
+
+
 }

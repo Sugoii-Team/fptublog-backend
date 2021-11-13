@@ -68,7 +68,7 @@ public class ImplAwardService implements IAwardService {
     }
 
     @Override
-    public boolean giveAward(LecturerStudentAwardEntity lecturerStudentAward) throws SQLException {
+    public boolean giveAward(LecturerStudentAwardEntity lecturerStudentAward) throws Exception {
         boolean result = false;
 
         try {
@@ -90,6 +90,8 @@ public class ImplAwardService implements IAwardService {
             if (currentDatetimeInstant.isAfter(after30DaysInstant)) {
                 lecturerStudentAward.setDatetime(currentDatetime);
                 result = lecturerStudentAwardDAO.insertByLecturerStudentAward(lecturerStudentAward);
+            } else {
+                throw new Exception("Already given award in last 30 days");
             }
 
             connectionWrapper.commit();
