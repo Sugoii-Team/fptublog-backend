@@ -1,5 +1,6 @@
 package com.dsc.fptublog.rest;
 
+import com.dsc.fptublog.entity.BlogEntity;
 import com.dsc.fptublog.entity.CategoryEntity;
 import com.dsc.fptublog.service.interfaces.ICategoryService;
 import lombok.extern.log4j.Log4j;
@@ -50,6 +51,22 @@ public class CategoryResource {
         }
 
         return Response.ok(categoryList).build();
+    }
+
+    @GET
+    @Path("/{category_id}/blogs")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getBlogsByCategoryId(@PathParam("category_id") String categoryId){
+        List<BlogEntity> result;
+        try{
+            result = categoryService.getBlogsByCategoryId(categoryId);
+            if(result == null){
+                return Response.status(Response.Status.EXPECTATION_FAILED).entity("No Blogs Found").build();
+            }
+        }catch (SQLException ex){
+            return  Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+        return Response.ok(result).build();
     }
 
 }

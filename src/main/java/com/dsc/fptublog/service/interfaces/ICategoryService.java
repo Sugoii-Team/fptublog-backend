@@ -1,5 +1,6 @@
 package com.dsc.fptublog.service.interfaces;
 
+import com.dsc.fptublog.entity.BlogEntity;
 import com.dsc.fptublog.entity.CategoryEntity;
 import org.jvnet.hk2.annotations.Contract;
 
@@ -14,4 +15,6 @@ public interface ICategoryService {
     List<CategoryEntity> getCategories() throws SQLException;
 
     List<CategoryEntity> getCategoriesOfField(String fieldId) throws SQLException;
+
+    List<BlogEntity> getBlogsByCategoryId(String categoryId) throws SQLException;
 }

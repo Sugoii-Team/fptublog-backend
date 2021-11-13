@@ -37,4 +37,6 @@ public interface IBlogDAO {
     boolean hideBlogInHistory(String blogHistoryId) throws SQLException;
 
     boolean deleteReviewerId(String reviewerId) throws SQLException;
+
+    List<BlogEntity> getByCategoryId(String categoryId) throws SQLException;
 }
