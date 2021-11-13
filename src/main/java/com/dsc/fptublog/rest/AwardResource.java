@@ -99,13 +99,9 @@ public class AwardResource {
             }
         } catch (SQLException ex) {
             log.error(ex);
-            if (ex.getMessage().contains("UNIQUE KEY")) {
-                response = Response.status(Response.Status.EXPECTATION_FAILED)
-                        .entity("Award already given to this user")
-                        .build();
-            } else {
-                response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
-            }
+            response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        } catch (Exception ex) {
+            response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex.getMessage()).build();
         }
 
         return response;
