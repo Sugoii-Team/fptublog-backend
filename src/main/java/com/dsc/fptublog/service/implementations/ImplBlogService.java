@@ -374,9 +374,41 @@ public class ImplBlogService implements IBlogService {
 
             int offset = limit * (page - 1);
             if (sortByField != null && orderByType != null) {
+                if ("created_datetime".equals(sortByField)) {
+                    sortByField = "history.created_datetime";
+                }
                 result = blogDAO.getByAuthorId(authorId, limit, offset, sortByField, orderByType);
             } else {
                 result = blogDAO.getByAuthorId(authorId, limit, offset);
+            }
+            if (result == null) {
+                result = Collections.emptyList();
+            }
+
+            connectionWrapper.commit();
+        } finally {
+            connectionWrapper.close();
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<BlogEntity> getAllApprovedBlogsOfAuthor(String authorId, int limit, int page,
+                                                        String sortByField, String orderByType) throws SQLException {
+        List<BlogEntity> result;
+
+        try {
+            connectionWrapper.beginTransaction();
+
+            int offset = limit * (page - 1);
+            if (sortByField != null && orderByType != null) {
+                if ("created_datetime".equals(sortByField)) {
+                    sortByField = "history.created_datetime";
+                }
+                result = blogDAO.getApprovedBlogByAuthorId(authorId, limit, offset, sortByField, orderByType);
+            } else {
+                result = blogDAO.getApprovedBlogByAuthorId(authorId, limit, offset);
             }
             if (result == null) {
                 result = Collections.emptyList();
