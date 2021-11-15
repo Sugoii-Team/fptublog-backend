@@ -12,6 +12,8 @@ public interface IAccountService {
 
     AccountEntity getById(String id) throws SQLException;
 
+    List<AccountEntity> getTopAccount(int limit, int page) throws SQLException;
+
     boolean updateByAccount(AccountEntity updatedAccount) throws SQLException;
 
     List<AccountEntity> getBannedAccounts() throws SQLException;

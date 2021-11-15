@@ -17,6 +17,8 @@ public interface IAccountDAO {
 
     AccountEntity getById(String id) throws SQLException;
 
+    List<AccountEntity> getTopAccounts(int limit, int offset) throws SQLException;
+
     boolean updateByAccount(AccountEntity updatedAccount) throws SQLException;
 
     List<AccountEntity> getAllAccounts() throws SQLException;

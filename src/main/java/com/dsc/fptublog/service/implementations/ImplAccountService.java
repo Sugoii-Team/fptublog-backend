@@ -44,6 +44,27 @@ public class ImplAccountService implements IAccountService {
     }
 
     @Override
+    public List<AccountEntity> getTopAccount(int limit, int page) throws SQLException {
+        List<AccountEntity> result = null;
+
+        try {
+            connectionWrapper.beginTransaction();
+
+            int offset = limit * (page - 1);
+            result = accountDAO.getTopAccounts(limit, offset);
+
+            connectionWrapper.commit();
+        } finally {
+            connectionWrapper.close();
+        }
+
+        if (result == null) {
+            result = Collections.emptyList();
+        }
+        return result;
+    }
+
+    @Override
     public boolean updateByAccount(AccountEntity account) throws SQLException {
         boolean result;
 
