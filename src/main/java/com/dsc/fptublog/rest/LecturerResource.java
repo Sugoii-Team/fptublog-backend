@@ -80,12 +80,8 @@ public class LecturerResource {
     @RolesAllowed(Role.ADMIN)
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addFieldForLecturer(@Context SecurityContext sc, @PathParam("id") String lecturerId,
+    public Response addFieldForLecturer(@PathParam("id") String lecturerId,
                                         List<FieldEntity> fieldList) {
-        if (!sc.getUserPrincipal().getName().equals(lecturerId)) {
-            return Response.status(Response.Status.UNAUTHORIZED).build();
-        }
-
         Response response;
 
         try {
