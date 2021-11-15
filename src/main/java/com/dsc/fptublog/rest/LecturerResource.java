@@ -77,7 +77,7 @@ public class LecturerResource {
 
     @PUT
     @Path("/{id}/fields")
-    @RolesAllowed(Role.LECTURER)
+    @RolesAllowed(Role.ADMIN)
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response addFieldForLecturer(@Context SecurityContext sc, @PathParam("id") String lecturerId,
