@@ -53,6 +53,22 @@ public class TagResource {
         return Response.ok(tag).build();
     }
 
+    @GET
+    @Path("/top")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getTopTag(@QueryParam("limit") int limit, @QueryParam("page") int page) {
+        List<TagEntity> result;
+
+        try {
+            result = tagService.getTopTag(limit, page);
+        } catch (SQLException ex) {
+            log.error(ex);
+            return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+
+        return Response.ok(result).build();
+    }
+
     @POST
     @RolesAllowed({Role.STUDENT, Role.LECTURER, Role.ADMIN})
     @Consumes(MediaType.APPLICATION_JSON)
