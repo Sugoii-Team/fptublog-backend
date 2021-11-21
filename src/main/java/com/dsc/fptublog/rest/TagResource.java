@@ -1,6 +1,7 @@
 package com.dsc.fptublog.rest;
 
 import com.dsc.fptublog.config.Role;
+import com.dsc.fptublog.entity.BlogEntity;
 import com.dsc.fptublog.entity.TagEntity;
 import com.dsc.fptublog.service.interfaces.ITagService;
 import lombok.extern.log4j.Log4j;
@@ -150,5 +151,24 @@ public class TagResource {
         }
 
         return response;
+    }
+
+    @GET
+    @Path("/{tag_id}/blogs")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getBlogsOfTag(@PathParam("tag_id") String tagId,
+                                  @QueryParam("limit") int limit, @QueryParam("page") int page) {
+        Response response;
+
+        try {
+            List<BlogEntity> result = tagService.getBlogsOfTag(tagId, limit, page);
+            response = Response.ok(result).build();
+        } catch (SQLException ex) {
+            log.error(ex);
+            response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+
+        return response;
+
     }
 }
