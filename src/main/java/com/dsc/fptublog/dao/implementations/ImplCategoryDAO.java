@@ -141,4 +141,47 @@ public class ImplCategoryDAO implements ICategoryDAO {
         return result;
     }
 
+    @Override
+    public boolean updateCategory(CategoryEntity updateCategory) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if(connection == null){
+            return false;
+        }
+        String sql ="UPDATE category "
+                    +"SET name = ISNULL(?, name), field_id = ISNULL(?, field_id) "
+                    +"WHERE id = ?";
+        try(PreparedStatement stm = connection.prepareStatement(sql)){
+            stm.setString(1, updateCategory.getName());
+            stm.setString(2, updateCategory.getFieldId());
+            stm.setString(3, updateCategory.getId());
+            int effectRow = stm.executeUpdate();
+            if(effectRow > 0){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public CategoryEntity createCategory(CategoryEntity newCategory) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if(connection == null){
+            return null;
+        }
+        String sql ="INSERT INTO category (name, field_id) "
+                    +"OUTPUT inserted.id "
+                    +"VALUES (?, ?)";
+        try(PreparedStatement stm = connection.prepareStatement(sql)){
+            stm.setString(1, newCategory.getName());
+            stm.setString(2, newCategory.getFieldId());
+            ResultSet result = stm.executeQuery();
+            if(result.next()){
+                String categoryId = result.getString(1);
+                newCategory.setId(categoryId);
+                return newCategory;
+            }
+        }
+        return null;
+    }
+
 }

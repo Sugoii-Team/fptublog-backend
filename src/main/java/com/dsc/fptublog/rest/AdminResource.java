@@ -3,8 +3,10 @@ package com.dsc.fptublog.rest;
 import com.dsc.fptublog.config.Role;
 import com.dsc.fptublog.entity.AccountEntity;
 import com.dsc.fptublog.entity.AdminEntity;
+import com.dsc.fptublog.entity.CategoryEntity;
 import com.dsc.fptublog.entity.FieldEntity;
 import com.dsc.fptublog.service.interfaces.IAdminService;
+import com.dsc.fptublog.service.interfaces.ICategoryService;
 import com.dsc.fptublog.service.interfaces.IFieldService;
 import com.dsc.fptublog.util.JwtUtil;
 import lombok.extern.log4j.Log4j;
@@ -35,6 +37,9 @@ public class AdminResource {
 
     @Inject
     private IFieldService fieldService;
+
+    @Inject
+    private ICategoryService categoryService;
 
 
     @POST
@@ -242,6 +247,75 @@ public class AdminResource {
             result = fieldService.createField(newField);
             if(result == null){
                 response = Response.status(Response.Status.EXPECTATION_FAILED).entity("Create field failed").build();
+                return response;
+            }
+            response = Response.ok(result).build();
+        }catch (SQLException ex){
+            log.error(ex);
+            response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+        return response;
+    }
+
+    @GET
+    @Path("/categories")
+    @RolesAllowed(Role.ADMIN)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAllCategories(){
+        Response response;
+        List<CategoryEntity> result;
+        try{
+            result = categoryService.getCategories();
+            response = Response.ok(result).build();
+        }catch (SQLException ex){
+            log.error(ex);
+            response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+        return response;
+    }
+
+    @PUT
+    @Path("/categories/{id}")
+    @RolesAllowed(Role.ADMIN)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response updateCategory(@PathParam("id")String categoryId,CategoryEntity updateCategory){
+        Response response;
+        boolean result;
+        CategoryEntity existedCategory;
+        try{
+            existedCategory = categoryService.getCategory(categoryId);
+            if(existedCategory == null){
+                response = Response.status(Response.Status.EXPECTATION_FAILED).entity("Category does not exist").build();
+                return response;
+            }
+            updateCategory.setId(existedCategory.getId());
+            result = categoryService.updateCategory(updateCategory);
+            if(result){
+                response = Response.ok("Update category successfully").build();
+            }else{
+                response = Response.status(Response.Status.EXPECTATION_FAILED).entity("Update category failed").build();
+                return response;
+            }
+        }catch (SQLException ex){
+            log.error(ex);
+            response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+        return response;
+    }
+
+    @POST
+    @Path("/categories")
+    @RolesAllowed(Role.ADMIN)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response createCategory(CategoryEntity newCategory){
+        Response response;
+        CategoryEntity result;
+        try{
+            result = categoryService.createCategory(newCategory);
+            if(result == null){
+                response = Response.status(Response.Status.EXPECTATION_FAILED).entity("Create category failed").build();
                 return response;
             }
             response = Response.ok(result).build();

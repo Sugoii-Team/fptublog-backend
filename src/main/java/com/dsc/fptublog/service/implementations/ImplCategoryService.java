@@ -94,4 +94,36 @@ public class ImplCategoryService implements ICategoryService {
         }
         return result;
     }
+
+    @Override
+    public boolean updateCategory(CategoryEntity updateCategory) throws SQLException {
+        boolean result;
+        try {
+            connectionWrapper.beginTransaction();
+            result = categoryDAO.updateCategory(updateCategory);
+            connectionWrapper.commit();
+        }catch (SQLException ex){
+            connectionWrapper.rollback();
+            throw ex;
+        }finally {
+            connectionWrapper.close();
+        }
+        return result;
+    }
+
+    @Override
+    public CategoryEntity createCategory(CategoryEntity newCategory) throws SQLException {
+        CategoryEntity result;
+        try {
+            connectionWrapper.beginTransaction();
+            result = categoryDAO.createCategory(newCategory);
+            connectionWrapper.commit();
+        }catch (SQLException ex){
+            connectionWrapper.rollback();
+            throw ex;
+        }finally {
+            connectionWrapper.close();
+        }
+        return result;
+    }
 }
