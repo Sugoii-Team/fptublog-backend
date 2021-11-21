@@ -166,5 +166,37 @@ public class ImplFieldService implements IFieldService {
         }
     }
 
+    @Override
+    public boolean updateField(FieldEntity updateField) throws SQLException {
+        boolean result = false;
+        try{
+            connectionWrapper.beginTransaction();
+            result = fieldDAO.updateField(updateField);
+            connectionWrapper.commit();
+        }catch (SQLException ex){
+            connectionWrapper.rollback();
+            throw ex;
+        }finally {
+            connectionWrapper.close();
+        }
+        return result;
+    }
+
+    @Override
+    public FieldEntity createField(FieldEntity newField) throws SQLException {
+        FieldEntity result = null;
+        try{
+            connectionWrapper.beginTransaction();
+            result = fieldDAO.createField(newField);
+            connectionWrapper.commit();
+        }catch (SQLException ex){
+            connectionWrapper.rollback();
+            throw ex;
+        }finally {
+            connectionWrapper.close();
+        }
+        return result;
+    }
+
 
 }

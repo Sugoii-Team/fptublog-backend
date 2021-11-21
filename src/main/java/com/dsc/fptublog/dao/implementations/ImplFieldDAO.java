@@ -145,4 +145,46 @@ public class ImplFieldDAO implements IFieldDAO {
 
         return result;
     }
+
+    @Override
+    public boolean updateField(FieldEntity updateField) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        int effectRow;
+        if(connection == null){
+            return false;
+        }
+        String sql = "UPDATE field " +
+                "SET name = ISNULL(?, thumbnail_url) " +
+                "WHERE id = ?";
+        try(PreparedStatement stm = connection.prepareStatement(sql)){
+            stm.setString(1,updateField.getId());
+            effectRow = stm.executeUpdate();
+            if(effectRow > 0){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public FieldEntity createField(FieldEntity newField) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        ResultSet result = null;
+        if(connection == null){
+            return null;
+        }
+        String sql = "INSERT INTO field (name) "
+                    +"OUTPUT inserted.id "
+                    +"VALUES (?)";
+        try(PreparedStatement stm = connection.prepareStatement(sql)){
+            stm.setString(1, newField.getName());
+            result = stm.executeQuery();
+            if(result.next()){
+                String fieldId = result.getString(1);
+                newField.setId(fieldId);
+                return newField;
+            }
+        }
+        return null;
+    }
 }

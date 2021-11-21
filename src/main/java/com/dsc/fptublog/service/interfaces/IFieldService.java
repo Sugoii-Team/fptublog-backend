@@ -21,4 +21,9 @@ public interface IFieldService {
     List<FieldEntity> getTopFields() throws SQLException;
 
     List<LecturerEntity> getLecturersByFieldId(String fieldId) throws SQLException;
+
+    boolean updateField(FieldEntity updateField) throws SQLException;
+
+    FieldEntity createField(FieldEntity newField) throws SQLException;
+
 }

@@ -3,7 +3,9 @@ package com.dsc.fptublog.rest;
 import com.dsc.fptublog.config.Role;
 import com.dsc.fptublog.entity.AccountEntity;
 import com.dsc.fptublog.entity.AdminEntity;
+import com.dsc.fptublog.entity.FieldEntity;
 import com.dsc.fptublog.service.interfaces.IAdminService;
+import com.dsc.fptublog.service.interfaces.IFieldService;
 import com.dsc.fptublog.util.JwtUtil;
 import lombok.extern.log4j.Log4j;
 
@@ -30,6 +32,9 @@ public class AdminResource {
 
     @Inject
     private IAdminService adminService;
+
+    @Inject
+    private IFieldService fieldService;
 
 
     @POST
@@ -177,5 +182,73 @@ public class AdminResource {
         }else{
             return Response.status(Response.Status.EXPECTATION_FAILED).entity("Unban Account Failed").build();
         }
+    }
+
+    @GET
+    @Path("/fields")
+    @RolesAllowed({Role.ADMIN})
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAllFields(){
+        Response response;
+        List<FieldEntity> result = null;
+        try{
+            result = fieldService.getAllFields();
+            response = Response.ok(result).build();
+        }catch (SQLException ex){
+            log.error(ex);
+            response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+        return response;
+    }
+
+    @PUT
+    @Path("/fields/{id}")
+    @RolesAllowed(Role.ADMIN)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response updateField(@PathParam("id")String fieldId,FieldEntity updatedField){
+        boolean result;
+        Response response;
+        FieldEntity existedField;
+        try {
+            existedField = fieldService.getFieldById(fieldId);
+            if(existedField == null){//field does not exist
+                response = Response.status(Response.Status.EXPECTATION_FAILED).entity("Field does not exist").build();
+                return response;
+            }
+            updatedField.setId(fieldId);
+            result =  fieldService.updateField(updatedField);
+            if(result){ // update successfully
+                response = Response.ok("Update Field Successfully").build();
+            }else { //update failed
+                response = Response.status(Response.Status.EXPECTATION_FAILED).entity("Update Field Failed").build();
+            }
+        }catch (SQLException ex){
+            log.error(ex);
+            response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+        return response;
+    }
+
+    @POST
+    @Path("/fields")
+    @RolesAllowed(Role.ADMIN)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response createField(FieldEntity newField){
+        Response response;
+        FieldEntity result;
+        try{
+            result = fieldService.createField(newField);
+            if(result == null){
+                response = Response.status(Response.Status.EXPECTATION_FAILED).entity("Create field failed").build();
+                return response;
+            }
+            response = Response.ok(result).build();
+        }catch (SQLException ex){
+            log.error(ex);
+            response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+        return response;
     }
 }
