@@ -6,10 +6,7 @@ import com.dsc.fptublog.service.interfaces.ICategoryService;
 import lombok.extern.log4j.Log4j;
 
 import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.sql.SQLException;
@@ -56,15 +53,16 @@ public class CategoryResource {
     @GET
     @Path("/{category_id}/blogs")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getBlogsByCategoryId(@PathParam("category_id") String categoryId){
+    public Response getBlogsByCategoryId(@PathParam("category_id") String categoryId,
+                                         @QueryParam("limit") int limit, @QueryParam("page") int page) {
         List<BlogEntity> result;
-        try{
-            result = categoryService.getBlogsByCategoryId(categoryId);
-            if(result == null){
+        try {
+            result = categoryService.getBlogsByCategoryId(categoryId, limit, page);
+            if (result == null) {
                 return Response.status(Response.Status.EXPECTATION_FAILED).entity("No Blogs Found").build();
             }
-        }catch (SQLException ex){
-            return  Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        } catch (SQLException ex) {
+            return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
         }
         return Response.ok(result).build();
     }

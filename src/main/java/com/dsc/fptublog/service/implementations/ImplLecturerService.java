@@ -73,13 +73,16 @@ public class ImplLecturerService implements ILecturerService {
     }
 
     @Override
-    public boolean banStudent(String studentId, String message) throws SQLException {
+    public boolean banStudent(String studentId, String message) throws Exception {
         boolean result = false;
         try {
             connectionWrapper.beginTransaction();
             // Set ban status Id for student account
             AccountStatusEntity banStatus = accountStatusDAO.getByName("banned");
             AccountEntity bannedStudentAccount = accountDAO.getById(studentId);
+            if (!bannedStudentAccount.getRole().equals("STUDENT")) {
+                throw new Exception("This account is not student");
+            }
             if (bannedStudentAccount == null) {
                 return false;
             }

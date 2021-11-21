@@ -16,5 +16,5 @@ public interface ICategoryService {
 
     List<CategoryEntity> getCategoriesOfField(String fieldId) throws SQLException;
 
-    List<BlogEntity> getBlogsByCategoryId(String categoryId) throws SQLException;
+    List<BlogEntity> getBlogsByCategoryId(String categoryId, int limit, int page) throws SQLException;
 }

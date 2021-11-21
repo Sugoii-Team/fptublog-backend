@@ -20,7 +20,7 @@ public interface IAdminService {
 
     boolean getAuthentication(AdminEntity admin) throws SQLException, NoSuchAlgorithmException;
 
-    boolean banAccount(AccountEntity account) throws SQLException;
+    boolean banAccount(String accountId, String message) throws SQLException;
 
     List<AccountEntity> getAllBannedAccounts() throws SQLException;
 
