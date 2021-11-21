@@ -2,9 +2,11 @@ package com.dsc.fptublog.service.implementations;
 
 import com.dsc.fptublog.dao.interfaces.IBlogDAO;
 import com.dsc.fptublog.dao.interfaces.ICategoryDAO;
+import com.dsc.fptublog.dao.interfaces.IFieldCategoryStatusDAO;
 import com.dsc.fptublog.database.ConnectionWrapper;
 import com.dsc.fptublog.entity.BlogEntity;
 import com.dsc.fptublog.entity.CategoryEntity;
+import com.dsc.fptublog.entity.FieldCategoryStatusEntity;
 import com.dsc.fptublog.service.interfaces.ICategoryService;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.jvnet.hk2.annotations.Service;
@@ -26,6 +28,9 @@ public class ImplCategoryService implements ICategoryService {
 
     @Inject
     private IBlogDAO blogDAO;
+
+    @Inject
+    private IFieldCategoryStatusDAO fieldCategoryStatusDAO;
 
     @Override
     public CategoryEntity getCategory(String id) throws SQLException {
@@ -125,5 +130,30 @@ public class ImplCategoryService implements ICategoryService {
             connectionWrapper.close();
         }
         return result;
+    }
+
+    @Override
+    public boolean deleteCategory(String categoryId) throws SQLException {
+        boolean isDeletedCategory;
+        FieldCategoryStatusEntity deleteStatus;
+        CategoryEntity deleteCategory;
+        try {
+            connectionWrapper.beginTransaction();
+            deleteStatus = fieldCategoryStatusDAO.getByName("inactive");
+            deleteCategory = categoryDAO.getById(categoryId);
+            if(deleteCategory == null){
+                return false;
+            }
+            deleteCategory.setStatusId(deleteStatus.getId());
+            isDeletedCategory = categoryDAO.deleteCategory(deleteCategory); // set category status to inactive
+            if(isDeletedCategory){
+
+            }
+
+        }catch (SQLException ex){
+
+        }finally {
+
+        }
     }
 }

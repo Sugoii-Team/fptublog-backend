@@ -20,4 +20,6 @@ public interface ICategoryDAO {
     boolean updateCategory(CategoryEntity updateCategory) throws SQLException;
 
     CategoryEntity createCategory(CategoryEntity newCategory) throws SQLException;
+
+    boolean deleteCategory(CategoryEntity category) throws SQLException;
 }

@@ -44,7 +44,7 @@ public class ImplFieldDAO implements IFieldDAO {
                     if (result == null) {
                         result = new ArrayList<>();
                     }
-                    result.add(new FieldEntity(fieldId, name));
+                    result.add(FieldEntity.builder().id(fieldId).name(name).build());
                 }
             }
         }
@@ -74,7 +74,7 @@ public class ImplFieldDAO implements IFieldDAO {
                 if (result == null) {
                     result = new ArrayList<>();
                 }
-                result.add(new FieldEntity(id, name));
+                result.add(FieldEntity.builder().id(id).name(name).build());
             }
         }
 
@@ -99,7 +99,7 @@ public class ImplFieldDAO implements IFieldDAO {
             if (resultSet.next()) {
                 String name = resultSet.getNString(1);
 
-                return new FieldEntity(id, name);
+                return FieldEntity.builder().id(id).name(name).build();
             }
         }
 
@@ -139,7 +139,7 @@ public class ImplFieldDAO implements IFieldDAO {
                 if (result == null) {
                     result = new ArrayList<>();
                 }
-                result.add(new FieldEntity(id, name));
+                result.add(FieldEntity.builder().id(id).name(name).build());
             }
         }
 

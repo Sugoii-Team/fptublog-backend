@@ -21,4 +21,6 @@ public interface ICategoryService {
     boolean updateCategory(CategoryEntity updateCategory) throws SQLException;
 
     CategoryEntity createCategory(CategoryEntity newCategory) throws SQLException;
+
+    boolean deleteCategory(String categoryId) throws SQLException;
 }

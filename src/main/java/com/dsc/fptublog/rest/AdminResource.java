@@ -257,6 +257,21 @@ public class AdminResource {
         return response;
     }
 
+    @DELETE
+    @Path("/fields/{id}")
+    @RolesAllowed(Role.ADMIN)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deleteCategory(@PathParam("id")String fieldId){
+        Response response;
+
+        try{
+
+        }catch (SQLException ex){
+
+        }
+        return response;
+    }
+
     @GET
     @Path("/categories")
     @RolesAllowed(Role.ADMIN)
@@ -274,35 +289,35 @@ public class AdminResource {
         return response;
     }
 
-    @PUT
-    @Path("/categories/{id}")
-    @RolesAllowed(Role.ADMIN)
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response updateCategory(@PathParam("id")String categoryId,CategoryEntity updateCategory){
-        Response response;
-        boolean result;
-        CategoryEntity existedCategory;
-        try{
-            existedCategory = categoryService.getCategory(categoryId);
-            if(existedCategory == null){
-                response = Response.status(Response.Status.EXPECTATION_FAILED).entity("Category does not exist").build();
-                return response;
-            }
-            updateCategory.setId(existedCategory.getId());
-            result = categoryService.updateCategory(updateCategory);
-            if(result){
-                response = Response.ok("Update category successfully").build();
-            }else{
-                response = Response.status(Response.Status.EXPECTATION_FAILED).entity("Update category failed").build();
-                return response;
-            }
-        }catch (SQLException ex){
-            log.error(ex);
-            response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
-        }
-        return response;
-    }
+//    @PUT
+//    @Path("/categories/{id}")
+//    @RolesAllowed(Role.ADMIN)
+//    @Consumes(MediaType.APPLICATION_JSON)
+//    @Produces(MediaType.APPLICATION_JSON)
+//    public Response updateCategory(@PathParam("id")String categoryId,CategoryEntity updateCategory){
+//        Response response;
+//        boolean result;
+//        CategoryEntity existedCategory;
+//        try{
+//            existedCategory = categoryService.getCategory(categoryId);
+//            if(existedCategory == null){
+//                response = Response.status(Response.Status.EXPECTATION_FAILED).entity("Category does not exist").build();
+//                return response;
+//            }
+//            updateCategory.setId(existedCategory.getId());
+//            result = categoryService.updateCategory(updateCategory);
+//            if(result){
+//                response = Response.ok("Update category successfully").build();
+//            }else{
+//                response = Response.status(Response.Status.EXPECTATION_FAILED).entity("Update category failed").build();
+//                return response;
+//            }
+//        }catch (SQLException ex){
+//            log.error(ex);
+//            response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+//        }
+//        return response;
+//    }
 
     @POST
     @Path("/categories")
@@ -322,6 +337,21 @@ public class AdminResource {
         }catch (SQLException ex){
             log.error(ex);
             response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+        return response;
+    }
+
+    @DELETE
+    @Path("/categories/{id}")
+    @RolesAllowed(Role.ADMIN)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deleteCategory(@PathParam("id")String categoryId){
+        Response response;
+        boolean result;
+        try{
+
+        }catch (SQLException ex){
+
         }
         return response;
     }

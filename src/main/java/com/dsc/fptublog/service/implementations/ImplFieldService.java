@@ -198,5 +198,10 @@ public class ImplFieldService implements IFieldService {
         return result;
     }
 
+    @Override
+    public boolean deleteField(String fieldId) throws SQLException {
+        return false;
+    }
+
 
 }

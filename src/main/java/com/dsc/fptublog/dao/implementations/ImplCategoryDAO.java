@@ -41,7 +41,7 @@ public class ImplCategoryDAO implements ICategoryDAO {
             if (resultSet.next()) {
                 String name = resultSet.getNString(1);
                 String fieldId = resultSet.getString(2);
-                result = new CategoryEntity(id, name, fieldId);
+                result = CategoryEntity.builder().id(id).name(name).fieldId(fieldId).build();
             }
         }
 
@@ -70,7 +70,7 @@ public class ImplCategoryDAO implements ICategoryDAO {
                 if (result == null) {
                     result = new ArrayList<>();
                 }
-                result.add(new CategoryEntity(id, name, fieldId));
+                result.add(CategoryEntity.builder().id(id).name(name).fieldId(fieldId).build());
             }
         }
 
@@ -102,11 +102,10 @@ public class ImplCategoryDAO implements ICategoryDAO {
                     if (result == null) {
                         result = new ArrayList<>();
                     }
-                    result.add(new CategoryEntity(id, name, fieldId));
+                    result.add(CategoryEntity.builder().id(id).name(name).fieldId(fieldId).build());
                 }
             }
         }
-
         return result;
     }
 
@@ -134,7 +133,7 @@ public class ImplCategoryDAO implements ICategoryDAO {
                 if (result == null) {
                     result = new ArrayList<>();
                 }
-                result.add(new CategoryEntity(id, name, fieldId));
+                result.add(CategoryEntity.builder().id(id).name(name).fieldId(fieldId).build());
             }
         }
 
@@ -182,6 +181,26 @@ public class ImplCategoryDAO implements ICategoryDAO {
             }
         }
         return null;
+    }
+
+    @Override
+    public boolean deleteCategory(CategoryEntity category) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if(connection == null){
+            return false;
+        }
+        String sql ="UPDATE category "
+                +"SET status_id = ISNUll(?, status_id) "
+                +"WHERE id = ?";
+        try(PreparedStatement stm = connection.prepareStatement(sql)){
+            stm.setString(1, category.getStatusId());
+            stm.setString(2,category.getId());
+            int effectRow = stm.executeUpdate();
+            if(effectRow > 0){
+                return true;
+            }
+        }
+        return false;
     }
 
 }

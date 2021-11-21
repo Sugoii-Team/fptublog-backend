@@ -26,4 +26,6 @@ public interface IFieldService {
 
     FieldEntity createField(FieldEntity newField) throws SQLException;
 
+    boolean deleteField(String fieldId) throws SQLException;
+
 }
