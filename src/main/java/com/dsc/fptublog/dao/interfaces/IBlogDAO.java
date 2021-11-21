@@ -50,4 +50,6 @@ public interface IBlogDAO {
     boolean isExistedPendingUpdateBlogInTheSameBlogHistory(String blogId) throws SQLException;
 
     String getPendingUpdateBlogIdInTheSameHistory(String blogId) throws SQLException;
+
+    List<BlogEntity> getByTagId(String tagId, int limit, int offset) throws SQLException;
 }
