@@ -162,6 +162,8 @@ public class LecturerResource {
         } catch (SQLException ex) {
             log.error(ex);
             return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        } catch (Exception ex) {
+            return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex.getMessage()).build();
         }
         if (result) {
             return Response.ok("Ban student successfully!").build();
@@ -170,7 +172,7 @@ public class LecturerResource {
         }
     }
 
-    @PATCH
+    @POST
     @Path("/{lecturer_id}/unbanningstudent/{student_id}")
     @RolesAllowed(Role.LECTURER)
     @Produces(MediaType.APPLICATION_JSON)
