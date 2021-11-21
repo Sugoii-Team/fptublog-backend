@@ -458,4 +458,37 @@ public class ImplAccountDAO implements IAccountDAO {
 
         return false;
     }
+
+    @Override
+    public boolean updateNumberOfBlogAndAvgRate(String id) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return false;
+        }
+
+        String sql = "BEGIN " +
+                "    DECLARE @sum_avg_rate_blog FLOAT; " +
+                "    DECLARE @count INT; " +
+                "    SELECT @count = COUNT(*), @sum_avg_rate_blog = SUM(avg_rate) " +
+                "    FROM blog_history " +
+                "             INNER JOIN blog on blog_history.id = blog.blog_history_id " +
+                "             INNER JOIN blog_status status on status.id = blog.status_id " +
+                "    WHERE author_id = ? AND (status.name = 'approved' OR status.name = 'pending deleted'); " +
+                "    UPDATE account " +
+                "    SET blogs_number = @count, avg_rate = @sum_avg_rate_blog / @count " +
+                "    WHERE id = ?; " +
+                "END";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, id);
+            stm.setString(2, id);
+
+            int effectedRow = stm.executeUpdate();
+            if (effectedRow > 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
