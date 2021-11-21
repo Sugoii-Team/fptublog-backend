@@ -30,4 +30,6 @@ public interface IAccountDAO {
     boolean decreaseNumberOfBlog(String id) throws SQLException;
 
     boolean increaseNumberOfBlog(String id) throws SQLException;
+
+    boolean updateNumberOfBlogAndAvgRate(String id) throws SQLException;
 }

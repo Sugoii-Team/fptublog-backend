@@ -270,8 +270,8 @@ public class ImplBlogService implements IBlogService {
             oldBlog.setStatusId(deletedStatusId);
             oldBlog.setReviewDateTime(System.currentTimeMillis());
 
-            if (accountDAO.decreaseNumberOfBlog(oldBlog.getAuthorId())) {
-                return blogDAO.updateByBlog(oldBlog);
+            if (blogDAO.updateByBlog(oldBlog)) {
+                return accountDAO.updateNumberOfBlogAndAvgRate(oldBlog.getAuthorId());
             } else {
                 return false;
             }
@@ -285,16 +285,15 @@ public class ImplBlogService implements IBlogService {
         }
 
         // pending update or pending approved
-        if (oldBlog.getStatusId().equals(pendingApprovedStatusId)) {
-            if (!accountDAO.increaseNumberOfBlog(oldBlog.getAuthorId())) {
-                return false;
-            }
-        }
         String approvedStatusId = blogStatusDAO.getByName("approved").getId();
         oldBlog.setStatusId(approvedStatusId);
         oldBlog.setReviewDateTime(System.currentTimeMillis());
 
-        return blogDAO.updateByBlog(oldBlog);
+        if (blogDAO.updateByBlog(oldBlog)) {
+            return accountDAO.updateNumberOfBlogAndAvgRate(oldBlog.getAuthorId());
+        } else {
+            return false;
+        }
     }
 
     private boolean processReject(BlogEntity oldBlog, String pendingDeletedStatusId) throws SQLException {
