@@ -32,7 +32,7 @@ public class ImplFieldDAO implements IFieldDAO {
 
         String sql = "SELECT name " +
                 "FROM field " +
-                "WHERE id = ?";
+                "WHERE id = ? AND status_id = (SELECT id FROM field_category_status WHERE name = 'active')";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             for (var fieldId : fieldIdList) {
@@ -62,7 +62,8 @@ public class ImplFieldDAO implements IFieldDAO {
         List<FieldEntity> result = null;
 
         String sql = "SELECT id, name " +
-                "FROM field";
+                "FROM field " +
+                "WHERE status_id = (SELECT id FROM field_category_status WHERE name = 'active')";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             ResultSet resultSet = stm.executeQuery();
@@ -90,7 +91,7 @@ public class ImplFieldDAO implements IFieldDAO {
 
         String sql = "SELECT name " +
                 "FROM field " +
-                "WHERE id = ?";
+                "WHERE id = ? AND status_id = (SELECT id FROM field_category_status WHERE name = 'active')";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setString(1, id);
@@ -127,6 +128,7 @@ public class ImplFieldDAO implements IFieldDAO {
                 "         WHERE status.name = 'approved' OR status.name = 'pending deleted' " +
                 "     ) AS b " +
                 "ON category.id = b.category_id " +
+                "WHERE field.status_id = (SELECT id FROM field_category_status WHERE name = 'active') " +
                 "GROUP BY field.id, field.name " +
                 "ORDER BY blog_number DESC";
 
@@ -155,7 +157,7 @@ public class ImplFieldDAO implements IFieldDAO {
         }
         String sql = "UPDATE field " +
                 "SET name = ISNULL(?, name), status_id = ISNULL(?, status_id) " +
-                "WHERE id = ?";
+                "WHERE id = ? AND status_id = (SELECT id FROM field_category_status WHERE name = 'active')";
         try(PreparedStatement stm = connection.prepareStatement(sql)){
             stm.setString(1,updateField.getName());
             stm.setString(2,updateField.getStatusId());
@@ -175,11 +177,12 @@ public class ImplFieldDAO implements IFieldDAO {
         if(connection == null){
             return null;
         }
-        String sql = "INSERT INTO field (name) "
+        String sql = "INSERT INTO field (name, status_id) "
                     +"OUTPUT inserted.id "
-                    +"VALUES (?)";
+                    +"VALUES (?,?)";
         try(PreparedStatement stm = connection.prepareStatement(sql)){
             stm.setString(1, newField.getName());
+            stm.setString(2, newField.getStatusId());
             result = stm.executeQuery();
             if(result.next()){
                 String fieldId = result.getString(1);

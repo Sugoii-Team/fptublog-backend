@@ -75,7 +75,6 @@ public class ImplFieldService implements IFieldService {
         FieldEntity result;
         try {
             connectionWrapper.beginTransaction();
-
             result = fieldDAO.getById(id);
 
             connectionWrapper.commit();
@@ -200,8 +199,11 @@ public class ImplFieldService implements IFieldService {
     @Override
     public FieldEntity createField(FieldEntity newField) throws SQLException {
         FieldEntity result = null;
+        FieldCategoryStatusEntity activeStatus;
         try {
             connectionWrapper.beginTransaction();
+            activeStatus = fieldCategoryStatusDAO.getByName("active");
+            newField.setStatusId(activeStatus.getId());
             result = fieldDAO.createField(newField);
             connectionWrapper.commit();
         } catch (SQLException ex) {
@@ -238,7 +240,6 @@ public class ImplFieldService implements IFieldService {
                 List<BlogEntity> deleteBlogs = blogDAO.getByCategoryId(deleteCategory.getId());
                 if(deleteBlogs != null){ // if that category has blogs
                     for (BlogEntity deleteBlog : deleteBlogs) {
-                        System.out.println("Delete Blog: " +deleteBlog);
                         deleteBlog.setStatusId(deleteStatus.getId()); // set Blog's status to delete
                         resultDeleteBlog = blogDAO.updateByBlog(deleteBlog); // change blog's status to delete in database
                         if(resultDeleteBlog == false){

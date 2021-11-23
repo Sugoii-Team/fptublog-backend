@@ -129,8 +129,11 @@ public class ImplCategoryService implements ICategoryService {
     @Override
     public CategoryEntity createCategory(CategoryEntity newCategory) throws SQLException {
         CategoryEntity result;
+        FieldCategoryStatusEntity activeStatus;
         try {
             connectionWrapper.beginTransaction();
+            activeStatus = fieldCategoryStatusDAO.getByName("active");
+            newCategory.setStatusId(activeStatus.getId());
             result = categoryDAO.createCategory(newCategory);
             connectionWrapper.commit();
         }catch (SQLException ex){
@@ -161,12 +164,16 @@ public class ImplCategoryService implements ICategoryService {
             deleteCategory.setStatusId(inactiveStatus.getId()); // set category status to inactive
             resultDeletedCategory = categoryDAO.deleteCategory(deleteCategory); // update category status in database
             deleteBlogs = blogDAO.getByCategoryId(categoryId); // get all blogs of deleted category
-            for(BlogEntity deleteBlog : deleteBlogs) {
-                deleteStatus = blogStatusDAO.getByName("deleted"); // get delete status
-                deleteBlog.setStatusId(deleteStatus.getId()); // set Blog's status to delete
-                resultDeleteBlog = blogDAO.updateByBlog(deleteBlog); // change blog's status to delete in database
-                if (resultDeleteBlog == false) {
-                    break;
+            if(deleteBlogs == null){ //if category has no blogs
+                resultDeleteBlog = true;
+            }else{
+                for(BlogEntity deleteBlog : deleteBlogs) {
+                    deleteStatus = blogStatusDAO.getByName("deleted"); // get delete status
+                    deleteBlog.setStatusId(deleteStatus.getId()); // set Blog's status to delete
+                    resultDeleteBlog = blogDAO.updateByBlog(deleteBlog); // change blog's status to delete in database
+                    if (resultDeleteBlog == false) {
+                        break;
+                    }
                 }
             }
             connectionWrapper.commit();

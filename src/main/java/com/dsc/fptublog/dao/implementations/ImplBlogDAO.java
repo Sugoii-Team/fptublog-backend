@@ -336,7 +336,7 @@ public class ImplBlogDAO implements IBlogDAO {
         List<BlogEntity> result = null;
 
         String sql = "SELECT blog.id AS blog_id, author_id, thumbnail_url, title, description, " +
-                "blog.created_datetime AS updated_datetime, status_id, category_id, reviewer_id, review_datetime, " +
+                "blog.created_datetime AS updated_datetime, blog.status_id, category_id, reviewer_id, review_datetime, " +
                 "blog_history_id, history.created_datetime AS created_datetime, views, avg_rate " +
                 "FROM blog " +
                 "INNER JOIN blog_status status ON blog.status_id = status.id " +
@@ -586,29 +586,23 @@ public class ImplBlogDAO implements IBlogDAO {
         Connection connection = connectionWrapper.getConnection();
         ResultSet result = null;
         List<BlogEntity> blogsList = null;
-        System.out.println("Before ");
         if (connection == null) {
             return null;
         }
-        System.out.println( " Category in DAO:  "+categoryId);
         String sql = "SELECT blog.id AS blog_id, author_id, thumbnail_url, title, content, description, " +
                 "blog.created_datetime AS updated_datetime, status_id, category_id, reviewer_id, review_datetime, " +
                 "blog_history_id, history.created_datetime AS created_datetime, views, avg_rate " +
                 "FROM blog INNER JOIN blog_history history on history.id = blog.blog_history_id " +
                 "WHERE category_id = ? AND status_id = (SELECT id FROM blog_status WHERE name = 'approved') ";
-        System.out.println("Before prepare Statement ");
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setString(1, categoryId);
-            System.out.println("Category In prepare statement" + categoryId);
             result = stm.executeQuery();
             while (result.next()) {
-                System.out.println("Before get Blog Content");
                 BlogEntity blog = this.getBlogWithoutContent(result);
                 if (blogsList == null) {
                     System.out.println("In IF clause");
                     blogsList = new ArrayList<>();
                 }
-                System.out.println("blog in DAO" +blog);
                 blogsList.add(blog);
             }
         }

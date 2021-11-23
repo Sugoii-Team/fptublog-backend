@@ -32,7 +32,7 @@ public class ImplCategoryDAO implements ICategoryDAO {
 
         String sql = "SELECT name, field_id "
                 + "FROM category "
-                + "WHERE id = ?";
+                + "WHERE id = ? AND status_id = (SELECT id FROM field_category_status WHERE name = 'active')";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setString(1, id);
@@ -58,7 +58,8 @@ public class ImplCategoryDAO implements ICategoryDAO {
         List<CategoryEntity> result = null;
 
         String sql = "SELECT id, name, field_id " +
-                "FROM category";
+                "FROM category " +
+                "WHERE status_id = (SELECT id FROM field_category_status WHERE name = 'active')";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             ResultSet resultSet = stm.executeQuery();
@@ -88,7 +89,7 @@ public class ImplCategoryDAO implements ICategoryDAO {
 
         String sql = "SELECT id, name " +
                 "FROM category " +
-                "WHERE field_id = ?";
+                "WHERE field_id = ? AND status_id = (SELECT id FROM field_category_status WHERE name = 'active')";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             for (String fieldId : fieldIdList) {
@@ -120,7 +121,7 @@ public class ImplCategoryDAO implements ICategoryDAO {
 
         String sql = "SELECT id, name " +
                 "FROM category " +
-                "WHERE field_id = ?";
+                "WHERE field_id = ? AND status_id = (SELECT id FROM field_category_status WHERE name = 'active')";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setString(1, fieldId);
@@ -167,12 +168,13 @@ public class ImplCategoryDAO implements ICategoryDAO {
         if(connection == null){
             return null;
         }
-        String sql ="INSERT INTO category (name, field_id) "
+        String sql ="INSERT INTO category (name, field_id, status_id) "
                     +"OUTPUT inserted.id "
-                    +"VALUES (?, ?)";
+                    +"VALUES (?, ?, ?)";
         try(PreparedStatement stm = connection.prepareStatement(sql)){
             stm.setString(1, newCategory.getName());
             stm.setString(2, newCategory.getFieldId());
+            stm.setString(3, newCategory.getStatusId());
             ResultSet result = stm.executeQuery();
             if(result.next()){
                 String categoryId = result.getString(1);
@@ -191,7 +193,7 @@ public class ImplCategoryDAO implements ICategoryDAO {
         }
         String sql ="UPDATE category "
                 +"SET status_id = ISNUll(?, status_id) "
-                +"WHERE id = ?";
+                +"WHERE id = ? AND status_id = (SELECT id FROM field_category_status WHERE name = 'active')";
         try(PreparedStatement stm = connection.prepareStatement(sql)){
             stm.setString(1, category.getStatusId());
             stm.setString(2,category.getId());
