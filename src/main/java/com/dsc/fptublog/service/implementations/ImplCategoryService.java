@@ -15,8 +15,8 @@ import org.glassfish.jersey.process.internal.RequestScoped;
 import org.jvnet.hk2.annotations.Service;
 
 import javax.inject.Inject;
-import javax.ws.rs.core.Response;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -127,14 +127,20 @@ public class ImplCategoryService implements ICategoryService {
     }
 
     @Override
-    public CategoryEntity createCategory(CategoryEntity newCategory) throws SQLException {
-        CategoryEntity result;
+    public List<CategoryEntity> createCategory(List<CategoryEntity> newCategories) throws SQLException {
+        List<CategoryEntity> resultList = new ArrayList<>();
         FieldCategoryStatusEntity activeStatus;
         try {
             connectionWrapper.beginTransaction();
             activeStatus = fieldCategoryStatusDAO.getByName("active");
-            newCategory.setStatusId(activeStatus.getId());
-            result = categoryDAO.createCategory(newCategory);
+            for(CategoryEntity newCategory : newCategories){
+                newCategory.setStatusId(activeStatus.getId());
+                CategoryEntity result = categoryDAO.createCategory(newCategory);
+                if(result == null){
+                    return null;
+                }
+                resultList.add(result);
+            }
             connectionWrapper.commit();
         }catch (SQLException ex){
             connectionWrapper.rollback();
@@ -142,7 +148,7 @@ public class ImplCategoryService implements ICategoryService {
         }finally {
             connectionWrapper.close();
         }
-        return result;
+        return resultList;
     }
 
     @Override

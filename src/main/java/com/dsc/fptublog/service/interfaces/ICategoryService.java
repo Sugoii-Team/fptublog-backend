@@ -20,7 +20,7 @@ public interface ICategoryService {
 
     boolean updateCategory(CategoryEntity updateCategory) throws SQLException;
 
-    CategoryEntity createCategory(CategoryEntity newCategory) throws SQLException;
+    List<CategoryEntity> createCategory(List<CategoryEntity> newCategories) throws SQLException;
 
     boolean deleteCategory(String categoryId) throws SQLException;
 }

@@ -25,6 +25,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Log4j
@@ -333,16 +334,16 @@ public class AdminResource {
     @RolesAllowed(Role.ADMIN)
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response createCategory(CategoryEntity newCategory){
+    public Response createCategory(List<CategoryEntity> newCategories){
         Response response;
-        CategoryEntity result;
+        List<CategoryEntity> resultList;
         try{
-            result = categoryService.createCategory(newCategory);
-            if(result == null){
-                response = Response.status(Response.Status.EXPECTATION_FAILED).entity("Create category failed").build();
-                return response;
-            }
-            response = Response.ok(result).build();
+                resultList = categoryService.createCategory(newCategories);
+                if(resultList == null){
+                    response = Response.status(Response.Status.EXPECTATION_FAILED).entity("Create category failed").build();
+                    return response;
+                }
+            response = Response.ok(resultList).build();
         }catch (SQLException ex){
             log.error(ex);
             response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
