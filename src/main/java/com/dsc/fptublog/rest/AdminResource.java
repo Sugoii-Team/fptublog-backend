@@ -1,15 +1,14 @@
 package com.dsc.fptublog.rest;
 
 import com.dsc.fptublog.config.Role;
-import com.dsc.fptublog.entity.AccountEntity;
-import com.dsc.fptublog.entity.AdminEntity;
-import com.dsc.fptublog.entity.CategoryEntity;
-import com.dsc.fptublog.entity.FieldEntity;
+import com.dsc.fptublog.entity.*;
 import com.dsc.fptublog.service.interfaces.IAdminService;
+import com.dsc.fptublog.service.interfaces.IBlogService;
 import com.dsc.fptublog.service.interfaces.ICategoryService;
 import com.dsc.fptublog.service.interfaces.IFieldService;
 import com.dsc.fptublog.util.JwtUtil;
 import lombok.extern.log4j.Log4j;
+import org.glassfish.jersey.process.internal.RequestScoped;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -40,6 +39,10 @@ public class AdminResource {
 
     @Inject
     private ICategoryService categoryService;
+
+    @Inject
+    private IBlogService blogService;
+
 
 
     @POST
@@ -206,34 +209,34 @@ public class AdminResource {
         return response;
     }
 
-    @PUT
-    @Path("/fields/{id}")
-    @RolesAllowed(Role.ADMIN)
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response updateField(@PathParam("id")String fieldId,FieldEntity updatedField){
-        boolean result;
-        Response response;
-        FieldEntity existedField;
-        try {
-            existedField = fieldService.getFieldById(fieldId);
-            if(existedField == null){//field does not exist
-                response = Response.status(Response.Status.EXPECTATION_FAILED).entity("Field does not exist").build();
-                return response;
-            }
-            updatedField.setId(fieldId);
-            result =  fieldService.updateField(updatedField);
-            if(result){ // update successfully
-                response = Response.ok("Update Field Successfully").build();
-            }else { //update failed
-                response = Response.status(Response.Status.EXPECTATION_FAILED).entity("Update Field Failed").build();
-            }
-        }catch (SQLException ex){
-            log.error(ex);
-            response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
-        }
-        return response;
-    }
+//    @PUT
+//    @Path("/fields/{id}")
+//    @RolesAllowed(Role.ADMIN)
+//    @Consumes(MediaType.APPLICATION_JSON)
+//    @Produces(MediaType.APPLICATION_JSON)
+//    public Response updateField(@PathParam("id")String fieldId,FieldEntity updatedField){
+//        boolean result;
+//        Response response;
+//        FieldEntity existedField;
+//        try {
+//            existedField = fieldService.getFieldById(fieldId);
+//            if(existedField == null){//field does not exist
+//                response = Response.status(Response.Status.EXPECTATION_FAILED).entity("Field does not exist").build();
+//                return response;
+//            }
+//            updatedField.setId(fieldId);
+//            result =  fieldService.updateField(updatedField);
+//            if(result){ // update successfully
+//                response = Response.ok("Update Field Successfully").build();
+//            }else { //update failed
+//                response = Response.status(Response.Status.EXPECTATION_FAILED).entity("Update Field Failed").build();
+//            }
+//        }catch (SQLException ex){
+//            log.error(ex);
+//            response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+//        }
+//        return response;
+//    }
 
     @POST
     @Path("/fields")
@@ -261,13 +264,19 @@ public class AdminResource {
     @Path("/fields/{id}")
     @RolesAllowed(Role.ADMIN)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response deleteCategory(@PathParam("id")String fieldId){
-        Response response;
-
+    public Response deleteField(@PathParam("id")String fieldId){
+        Response response = null;
+        boolean result;
         try{
-
+            result = fieldService.deleteField(fieldId);
+            if(result){
+                response = Response.ok("Delete Field successfully").build();
+            }else{
+                response = Response.status(Response.Status.EXPECTATION_FAILED).entity("Delete Field Failed").build();
+            }
         }catch (SQLException ex){
-
+            log.error(ex);
+            response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
         }
         return response;
     }
@@ -349,9 +358,15 @@ public class AdminResource {
         Response response;
         boolean result;
         try{
-
+            result = categoryService.deleteCategory(categoryId);
+            if(result){
+                response = Response.ok("Delete Category Successfully").build();
+            }else {
+                response = Response.status(Response.Status.EXPECTATION_FAILED).entity("Delete Category Failed").build();
+            }
         }catch (SQLException ex){
-
+            log.error(ex);
+             response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
         }
         return response;
     }

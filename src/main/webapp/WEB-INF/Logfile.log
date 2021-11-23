@@ -1,0 +1,6 @@
+ERROR   2021-11-22 12:41:06,234 [http-nio-8080-exec-5] com.dsc.fptublog.rest.AdminResource  - com.microsoft.sqlserver.jdbc.SQLServerException: The value is not set for the parameter number 2.
+ERROR   2021-11-22 12:50:34,054 [http-nio-8080-exec-5] com.dsc.fptublog.rest.AdminResource  - com.microsoft.sqlserver.jdbc.SQLServerException: Invalid column name 'thumbnail_url'.
+ERROR   2021-11-23 11:08:35,436 [http-nio-8080-exec-4] com.dsc.fptublog.rest.FieldResource  - com.microsoft.sqlserver.jdbc.SQLServerException: Ambiguous column name 'status_id'.
+ERROR   2021-11-23 11:08:38,737 [http-nio-8080-exec-5] com.dsc.fptublog.rest.FieldResource  - com.microsoft.sqlserver.jdbc.SQLServerException: Ambiguous column name 'status_id'.
+ERROR   2021-11-23 11:09:06,621 [http-nio-8080-exec-10] com.dsc.fptublog.rest.FieldResource  - com.microsoft.sqlserver.jdbc.SQLServerException: Ambiguous column name 'status_id'.
+ERROR   2021-11-23 11:09:14,351 [http-nio-8080-exec-8] com.dsc.fptublog.rest.FieldResource  - com.microsoft.sqlserver.jdbc.SQLServerException: Ambiguous column name 'status_id'.

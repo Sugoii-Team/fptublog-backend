@@ -154,10 +154,12 @@ public class ImplFieldDAO implements IFieldDAO {
             return false;
         }
         String sql = "UPDATE field " +
-                "SET name = ISNULL(?, thumbnail_url) " +
+                "SET name = ISNULL(?, name), status_id = ISNULL(?, status_id) " +
                 "WHERE id = ?";
         try(PreparedStatement stm = connection.prepareStatement(sql)){
-            stm.setString(1,updateField.getId());
+            stm.setString(1,updateField.getName());
+            stm.setString(2,updateField.getStatusId());
+            stm.setString(3,updateField.getId());
             effectRow = stm.executeUpdate();
             if(effectRow > 0){
                 return true;

@@ -1,13 +1,10 @@
 package com.dsc.fptublog.service.implementations;
 
 
-import com.dsc.fptublog.dao.interfaces.IFieldDAO;
-import com.dsc.fptublog.dao.interfaces.ILecturerDAO;
-import com.dsc.fptublog.dao.interfaces.ILecturerFieldDAO;
+import com.dsc.fptublog.dao.interfaces.*;
 import com.dsc.fptublog.database.ConnectionWrapper;
-import com.dsc.fptublog.entity.FieldEntity;
-import com.dsc.fptublog.entity.LecturerEntity;
-import com.dsc.fptublog.entity.LecturerFieldEntity;
+import com.dsc.fptublog.entity.*;
+import com.dsc.fptublog.service.interfaces.ICategoryService;
 import com.dsc.fptublog.service.interfaces.IFieldService;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.jvnet.hk2.annotations.Service;
@@ -34,6 +31,24 @@ public class ImplFieldService implements IFieldService {
 
     @Inject
     private ILecturerDAO lecturerDAO;
+
+    @Inject
+    private IAccountLecturerFieldDAO accountLecturerFieldDAO;
+
+    @Inject
+    private IFieldCategoryStatusDAO fieldCategoryStatusDAO;
+
+
+    @Inject
+    private ICategoryDAO categoryDAO;
+
+
+    @Inject
+    private IBlogDAO blogDAO;
+
+    @Inject
+    private IBlogStatusDAO blogStatusDAO;
+
 
     @Override
     public List<FieldEntity> getAllFields() throws SQLException {
@@ -151,8 +166,8 @@ public class ImplFieldService implements IFieldService {
         List<LecturerEntity> lecturersList = new ArrayList<>();
         try {
             connectionWrapper.beginTransaction();
-            List<String> lecturersIdList= lecturerFieldDAO.getLecturersIdByFieldId(fieldId);
-            if(lecturersIdList == null){
+            List<String> lecturersIdList = lecturerFieldDAO.getLecturersIdByFieldId(fieldId);
+            if (lecturersIdList == null) {
                 return null;
             }
             for (String lecturerId : lecturersIdList) {
@@ -161,7 +176,7 @@ public class ImplFieldService implements IFieldService {
             }
             connectionWrapper.commit();
             return lecturersList;
-        }finally {
+        } finally {
             connectionWrapper.close();
         }
     }
@@ -169,14 +184,14 @@ public class ImplFieldService implements IFieldService {
     @Override
     public boolean updateField(FieldEntity updateField) throws SQLException {
         boolean result = false;
-        try{
+        try {
             connectionWrapper.beginTransaction();
             result = fieldDAO.updateField(updateField);
             connectionWrapper.commit();
-        }catch (SQLException ex){
+        } catch (SQLException ex) {
             connectionWrapper.rollback();
             throw ex;
-        }finally {
+        } finally {
             connectionWrapper.close();
         }
         return result;
@@ -185,14 +200,14 @@ public class ImplFieldService implements IFieldService {
     @Override
     public FieldEntity createField(FieldEntity newField) throws SQLException {
         FieldEntity result = null;
-        try{
+        try {
             connectionWrapper.beginTransaction();
             result = fieldDAO.createField(newField);
             connectionWrapper.commit();
-        }catch (SQLException ex){
+        } catch (SQLException ex) {
             connectionWrapper.rollback();
             throw ex;
-        }finally {
+        } finally {
             connectionWrapper.close();
         }
         return result;
@@ -200,7 +215,50 @@ public class ImplFieldService implements IFieldService {
 
     @Override
     public boolean deleteField(String fieldId) throws SQLException {
-        return false;
+        FieldEntity deleteField;
+        FieldCategoryStatusEntity inactiveStatus;
+        boolean resultDeleteAccountLecturerField;
+        boolean resultDeleteField;
+        boolean isSuccessful = false;
+        boolean resultDeleteBlog = false;
+        boolean resultDeletedCategory = false;
+        try {
+            connectionWrapper.beginTransaction();
+            deleteField = fieldDAO.getById(fieldId);
+            inactiveStatus = fieldCategoryStatusDAO.getByName("inactive");
+            deleteField.setStatusId(inactiveStatus.getId());
+            resultDeleteField = fieldDAO.updateField(deleteField);
+            resultDeleteAccountLecturerField = accountLecturerFieldDAO.deleteAccountLecturerField(fieldId); // delete in database
+            List<CategoryEntity> deleteCategories = categoryDAO.getByFieldId(fieldId);
+            BlogStatusEntity deleteStatus = blogStatusDAO.getByName("deleted"); // get delete status
+
+            for (CategoryEntity deleteCategory : deleteCategories) {
+                deleteCategory.setStatusId(inactiveStatus.getId()); //set inactive status delete
+                resultDeletedCategory = categoryDAO.deleteCategory(deleteCategory); // update category status in database
+                List<BlogEntity> deleteBlogs = blogDAO.getByCategoryId(deleteCategory.getId());
+                if(deleteBlogs != null){ // if that category has blogs
+                    for (BlogEntity deleteBlog : deleteBlogs) {
+                        System.out.println("Delete Blog: " +deleteBlog);
+                        deleteBlog.setStatusId(deleteStatus.getId()); // set Blog's status to delete
+                        resultDeleteBlog = blogDAO.updateByBlog(deleteBlog); // change blog's status to delete in database
+                        if(resultDeleteBlog == false){
+                            break;
+                        }
+                    }
+                }else{ //if category has no blogs
+                    resultDeleteBlog = true;
+                }
+
+            }
+            isSuccessful = (resultDeleteField && resultDeleteAccountLecturerField && resultDeletedCategory && resultDeleteBlog);
+            connectionWrapper.commit();
+            return isSuccessful;
+        } catch (SQLException ex) {
+            connectionWrapper.rollback();
+            throw ex;
+        } finally {
+            connectionWrapper.close();
+        }
     }
 
 
