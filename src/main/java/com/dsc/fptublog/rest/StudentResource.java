@@ -2,7 +2,6 @@ package com.dsc.fptublog.rest;
 
 import com.dsc.fptublog.config.Role;
 import com.dsc.fptublog.entity.StudentEntity;
-import com.dsc.fptublog.model.MessageModel;
 import com.dsc.fptublog.model.Top30DaysStudentModel;
 import com.dsc.fptublog.service.interfaces.IStudentService;
 
@@ -21,11 +20,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Log4j
 @Path("/students")

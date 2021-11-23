@@ -23,18 +23,18 @@ public class ImplFieldCategoryStatusDAO implements IFieldCategoryStatusDAO {
     public FieldCategoryStatusEntity getById(String id) throws SQLException {
         Connection connection = connectionWrapper.getConnection();
         FieldCategoryStatusEntity fieldCategoryStatusEntity;
-        if (connection == null){
+        if (connection == null) {
             return null;
         }
         String sql = "SELECT name "
-                    +"FROM field_category_status "
-                    +"WHERE id = ?";
-        try(PreparedStatement stm = connection.prepareStatement(sql)){
-            stm.setString(1,id);
+                + "FROM field_category_status "
+                + "WHERE id = ?";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, id);
             ResultSet result = stm.executeQuery();
-            if(result.next()){
+            if (result.next()) {
                 String name = result.getString(2);
-                fieldCategoryStatusEntity = new FieldCategoryStatusEntity(id,name);
+                fieldCategoryStatusEntity = new FieldCategoryStatusEntity(id, name);
                 return fieldCategoryStatusEntity;
             }
         }
@@ -45,18 +45,18 @@ public class ImplFieldCategoryStatusDAO implements IFieldCategoryStatusDAO {
     public FieldCategoryStatusEntity getByName(String name) throws SQLException {
         Connection connection = connectionWrapper.getConnection();
         FieldCategoryStatusEntity fieldCategoryStatusEntity;
-        if (connection == null){
+        if (connection == null) {
             return null;
         }
         String sql = "SELECT id "
-                +"FROM field_category_status "
-                +"WHERE name = ?";
-        try(PreparedStatement stm = connection.prepareStatement(sql)){
-            stm.setString(1,name);
+                + "FROM field_category_status "
+                + "WHERE name = ?";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, name);
             ResultSet result = stm.executeQuery();
-            if(result.next()){
+            if (result.next()) {
                 String id = result.getString(1);
-                fieldCategoryStatusEntity = new FieldCategoryStatusEntity(id,name);
+                fieldCategoryStatusEntity = new FieldCategoryStatusEntity(id, name);
                 return fieldCategoryStatusEntity;
             }
         }

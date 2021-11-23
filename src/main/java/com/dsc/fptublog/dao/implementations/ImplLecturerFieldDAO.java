@@ -110,18 +110,18 @@ public class ImplLecturerFieldDAO implements ILecturerFieldDAO {
         Connection connection = connectionWrapper.getConnection();
         ResultSet result = null;
         List<String> lecturersList = null;
-        if(connection == null){
+        if (connection == null) {
             return null;
         }
         String sql = "SELECT lecturer_id "
-                    +"FROM account_lecturer_field "
-                    +"WHERE field_id = ?";
-        try(PreparedStatement stm = connection.prepareStatement(sql)){
-            stm.setString(1,fieldId);
+                + "FROM account_lecturer_field "
+                + "WHERE field_id = ?";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, fieldId);
             result = stm.executeQuery();
-            while (result.next()){
+            while (result.next()) {
                 String lecturerId = result.getString(1);
-                if(lecturersList == null){
+                if (lecturersList == null) {
                     lecturersList = new ArrayList<>();
                 }
                 lecturersList.add(lecturerId);

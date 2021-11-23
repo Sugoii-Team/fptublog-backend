@@ -45,7 +45,5 @@ public interface IBlogService {
 
     boolean undoPendingDeleted(String userId, String blogId) throws Exception;
 
-    List<BlogEntity> getBlogsByCategoryId(String categoryId) throws SQLException;
-
     boolean deleteBlog(BlogEntity deleteBlog) throws SQLException;
 }

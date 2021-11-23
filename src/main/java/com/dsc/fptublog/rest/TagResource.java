@@ -113,7 +113,7 @@ public class TagResource {
             if (tagList != null) {
                 response = Response.ok(tagList).build();
             } else {
-                response =  Response.status(Response.Status.EXPECTATION_FAILED)
+                response = Response.status(Response.Status.EXPECTATION_FAILED)
                         .entity("Insert Tag list for blog " + blogId + " fail")
                         .build();
             }

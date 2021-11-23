@@ -100,12 +100,12 @@ public class ImplCategoryService implements ICategoryService {
     public List<BlogEntity> getBlogsByCategoryId(String categoryId, int limit, int page) throws SQLException {
         List<BlogEntity> result;
 
-        try{
+        try {
             connectionWrapper.beginTransaction();
             int offset = (page - 1) * limit;
             result = blogDAO.getByCategoryId(categoryId, limit, offset);
             connectionWrapper.commit();
-        }finally {
+        } finally {
             connectionWrapper.close();
         }
 
@@ -122,10 +122,10 @@ public class ImplCategoryService implements ICategoryService {
             connectionWrapper.beginTransaction();
             result = categoryDAO.updateCategory(updateCategory);
             connectionWrapper.commit();
-        }catch (SQLException ex){
+        } catch (SQLException ex) {
             connectionWrapper.rollback();
             throw ex;
-        }finally {
+        } finally {
             connectionWrapper.close();
         }
         return result;
@@ -138,19 +138,19 @@ public class ImplCategoryService implements ICategoryService {
         try {
             connectionWrapper.beginTransaction();
             activeStatus = fieldCategoryStatusDAO.getByName("active");
-            for(CategoryEntity newCategory : newCategories){
+            for (CategoryEntity newCategory : newCategories) {
                 newCategory.setStatusId(activeStatus.getId());
                 CategoryEntity result = categoryDAO.createCategory(newCategory);
-                if(result == null){
+                if (result == null) {
                     return null;
                 }
                 resultList.add(result);
             }
             connectionWrapper.commit();
-        }catch (SQLException ex){
+        } catch (SQLException ex) {
             connectionWrapper.rollback();
             throw ex;
-        }finally {
+        } finally {
             connectionWrapper.close();
         }
         return resultList;
@@ -169,16 +169,16 @@ public class ImplCategoryService implements ICategoryService {
             connectionWrapper.beginTransaction();
             inactiveStatus = fieldCategoryStatusDAO.getByName("inactive");
             deleteCategory = categoryDAO.getById(categoryId); // get category
-            if(deleteCategory == null){
+            if (deleteCategory == null) {
                 return false;
             }
             deleteCategory.setStatusId(inactiveStatus.getId()); // set category status to inactive
             resultDeletedCategory = categoryDAO.deleteCategory(deleteCategory); // update category status in database
             deleteBlogs = blogDAO.getByCategoryId(categoryId); // get all blogs of deleted category
-            if(deleteBlogs == null){ //if category has no blogs
+            if (deleteBlogs == null) { //if category has no blogs
                 resultDeleteBlog = true;
-            }else{
-                for(BlogEntity deleteBlog : deleteBlogs) {
+            } else {
+                for (BlogEntity deleteBlog : deleteBlogs) {
                     deleteStatus = blogStatusDAO.getByName("deleted"); // get delete status
                     deleteBlog.setStatusId(deleteStatus.getId()); // set Blog's status to delete
                     resultDeleteBlog = blogDAO.updateByBlog(deleteBlog); // change blog's status to delete in database
@@ -189,10 +189,10 @@ public class ImplCategoryService implements ICategoryService {
             }
             connectionWrapper.commit();
             isSuccessful = (resultDeletedCategory && resultDeleteBlog);
-        }catch (SQLException ex){
+        } catch (SQLException ex) {
             connectionWrapper.rollback();
             throw ex;
-        }finally {
+        } finally {
             connectionWrapper.close();
         }
         return isSuccessful;

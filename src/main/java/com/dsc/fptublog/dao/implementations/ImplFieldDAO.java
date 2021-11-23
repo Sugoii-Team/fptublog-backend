@@ -152,18 +152,18 @@ public class ImplFieldDAO implements IFieldDAO {
     public boolean updateField(FieldEntity updateField) throws SQLException {
         Connection connection = connectionWrapper.getConnection();
         int effectRow;
-        if(connection == null){
+        if (connection == null) {
             return false;
         }
         String sql = "UPDATE field " +
                 "SET name = ISNULL(?, name), status_id = ISNULL(?, status_id) " +
                 "WHERE id = ? AND status_id = (SELECT id FROM field_category_status WHERE name = 'active')";
-        try(PreparedStatement stm = connection.prepareStatement(sql)){
-            stm.setString(1,updateField.getName());
-            stm.setString(2,updateField.getStatusId());
-            stm.setString(3,updateField.getId());
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, updateField.getName());
+            stm.setString(2, updateField.getStatusId());
+            stm.setString(3, updateField.getId());
             effectRow = stm.executeUpdate();
-            if(effectRow > 0){
+            if (effectRow > 0) {
                 return true;
             }
         }
@@ -174,17 +174,17 @@ public class ImplFieldDAO implements IFieldDAO {
     public FieldEntity createField(FieldEntity newField) throws SQLException {
         Connection connection = connectionWrapper.getConnection();
         ResultSet result = null;
-        if(connection == null){
+        if (connection == null) {
             return null;
         }
         String sql = "INSERT INTO field (name, status_id) "
-                    +"OUTPUT inserted.id "
-                    +"VALUES (?,?)";
-        try(PreparedStatement stm = connection.prepareStatement(sql)){
+                + "OUTPUT inserted.id "
+                + "VALUES (?,?)";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setString(1, newField.getName());
             stm.setString(2, newField.getStatusId());
             result = stm.executeQuery();
-            if(result.next()){
+            if (result.next()) {
                 String fieldId = result.getString(1);
                 newField.setId(fieldId);
                 return newField;

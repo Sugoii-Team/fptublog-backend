@@ -6,6 +6,7 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 
 public class ApplicationConfig extends ResourceConfig {
+
     public ApplicationConfig() {
         packages("com.dsc.fptublog.rest");
         register(HK2AutoScanFeature.class);
@@ -13,4 +14,5 @@ public class ApplicationConfig extends ResourceConfig {
         register(new CORSFilter());
         register(new AuthFilter());
     }
+
 }

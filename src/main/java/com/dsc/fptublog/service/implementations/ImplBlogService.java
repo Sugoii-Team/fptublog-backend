@@ -594,19 +594,6 @@ public class ImplBlogService implements IBlogService {
     }
 
     @Override
-    public List<BlogEntity> getBlogsByCategoryId(String categoryId) throws SQLException {
-        List<BlogEntity> result;
-        try{
-            connectionWrapper.beginTransaction();
-            result = blogDAO.getByCategoryId(categoryId);
-            connectionWrapper.commit();
-        }finally {
-            connectionWrapper.close();
-        }
-        return result;
-    }
-
-    @Override
     public boolean deleteBlog(BlogEntity deleteBlog) throws SQLException {
         boolean result;
         BlogStatusEntity deleteStatus;
@@ -616,10 +603,10 @@ public class ImplBlogService implements IBlogService {
             deleteBlog.setStatusId(deleteStatus.getId()); // set Blog's status to delete
             result = blogDAO.updateByBlog(deleteBlog); // change blog's status to delete in database
             connectionWrapper.commit();
-        }catch (SQLException ex){
+        } catch (SQLException ex) {
             connectionWrapper.rollback();
             throw ex;
-        }finally {
+        } finally {
             connectionWrapper.close();
         }
         return result;

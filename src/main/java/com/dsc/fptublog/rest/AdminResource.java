@@ -2,19 +2,19 @@ package com.dsc.fptublog.rest;
 
 import com.dsc.fptublog.config.Role;
 import com.dsc.fptublog.entity.*;
+import com.dsc.fptublog.model.MessageModel;
 import com.dsc.fptublog.service.interfaces.IAdminService;
-import com.dsc.fptublog.service.interfaces.IBlogService;
 import com.dsc.fptublog.service.interfaces.ICategoryService;
 import com.dsc.fptublog.service.interfaces.IFieldService;
-import com.dsc.fptublog.service.interfaces.IBlogService;
 import com.dsc.fptublog.util.JwtUtil;
 import lombok.extern.log4j.Log4j;
-import org.glassfish.jersey.process.internal.RequestScoped;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.*;
-import javax.ws.rs.core.*;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.List;
@@ -31,16 +31,6 @@ public class AdminResource {
 
     @Inject
     private ICategoryService categoryService;
-
-    @Inject
-    private IBlogService blogService;
-
-
-    @Inject
-    private IBlogService blogService;
-
-    @Inject
-    private IAccountService accountService;
 
     @POST
     @Path("/login")
