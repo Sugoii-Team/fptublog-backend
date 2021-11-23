@@ -4,6 +4,7 @@ import com.dsc.fptublog.config.Role;
 import com.dsc.fptublog.entity.AccountEntity;
 import com.dsc.fptublog.entity.AdminEntity;
 import com.dsc.fptublog.entity.BlogEntity;
+import com.dsc.fptublog.model.MessageModel;
 import com.dsc.fptublog.service.interfaces.IAccountService;
 import com.dsc.fptublog.service.interfaces.IAdminService;
 import com.dsc.fptublog.service.interfaces.IBlogService;
@@ -13,9 +14,7 @@ import lombok.extern.log4j.Log4j;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.*;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.core.*;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.List;
@@ -32,7 +31,6 @@ public class AdminResource {
 
     @Inject
     private IAccountService accountService;
-
 
     @POST
     @Path("/login")
@@ -110,17 +108,17 @@ public class AdminResource {
     @RolesAllowed(Role.ADMIN)
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updateRoleOrBan(@PathParam("id") String id, AccountEntity account) {
+    public Response updateRole(@PathParam("id") String id, AccountEntity account) {
         account.setId(id);
         boolean result = false;
         try {
             //Ban an account
-            if (account.getRole() == null) {
+            /*if (account.getRole() == null) {
                 result = adminService.banAccount(account);
                 if (result) {
                     return Response.ok("Ban account successfully!!").build();
                 }
-            }
+            }*/
             //Update role cho 1 acc
             if (account.getRole() != null) {
                 account = adminService.updateRole(account);
@@ -134,16 +132,36 @@ public class AdminResource {
         return Response.ok("Update Role Successfully").build();
     }
 
+    @POST
+    @Path("/accounts/banningstudent/{account_id}")
+    @RolesAllowed(Role.ADMIN)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response banStudentAccount(@PathParam("account_id") String accountId, MessageModel messageModel) {
+        boolean result;
+        try {
+            result = adminService.banAccount(accountId, messageModel.getMessage());
+        } catch (SQLException ex) {
+            log.error(ex);
+            return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+        if (result) {
+            return Response.ok("Ban student successfully!").build();
+        } else {
+            return Response.status(Response.Status.EXPECTATION_FAILED).entity("Ban student failed!").build();
+        }
+    }
+
 
     @GET
     @Path("/accounts/bannedaccounts")
     @RolesAllowed(Role.ADMIN)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getAllBannedAccounts(){
+    public Response getAllBannedAccounts() {
         List<AccountEntity> bannedAccounts;
-        try{
+        try {
             bannedAccounts = adminService.getAllBannedAccounts();
-        }catch (SQLException ex){
+        } catch (SQLException ex) {
             log.error(ex);
             return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
         }
@@ -175,16 +193,16 @@ public class AdminResource {
     @Path("/accounts/unbanningaccount/{account_id}")
     @RolesAllowed(Role.ADMIN)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response unbanAccount(@PathParam("account_id")String accountId){
+    public Response unbanAccount(@PathParam("account_id") String accountId) {
         boolean result = false;
-        try{
+        try {
             result = adminService.unbanAccount(accountId);
-        }catch (SQLException ex){
+        } catch (SQLException ex) {
             return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
         }
-        if (result){
+        if (result) {
             return Response.ok("Unban account Successfully!").build();
-        }else{
+        } else {
             return Response.status(Response.Status.EXPECTATION_FAILED).entity("Unban Account Failed").build();
         }
     }

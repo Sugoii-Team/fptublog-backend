@@ -59,6 +59,9 @@ public class ImplAdminService implements IAdminService {
 
     @Inject
     private ICategoryDAO categoryDAO;
+  
+    @Inject
+    private IBannedInfoDAO bannedInfoDAO;
 
     @Override
     public List<AccountEntity> getAllAccounts() throws SQLException {
@@ -158,13 +161,13 @@ public class ImplAdminService implements IAdminService {
             AccountStatusEntity deleteStatus = accountStatusDAO.getByName("deleted");
             deleteAccount.setStatusId(deleteStatus.getId());
             boolean result = accountDAO.deleteAccount(deleteAccount);
-            if (result){
+            if (result) {
                 connectionWrapper.commit();
             }
-        }catch (SQLException ex){
-                connectionWrapper.rollback();
-                throw ex;
-        }finally {
+        } catch (SQLException ex) {
+            connectionWrapper.rollback();
+            throw ex;
+        } finally {
             connectionWrapper.close();
         }
     }
@@ -187,22 +190,29 @@ public class ImplAdminService implements IAdminService {
     }
 
     @Override
-    public boolean banAccount(AccountEntity account) throws SQLException {
+    public boolean banAccount(String accountId, String message) throws SQLException {
         boolean result = false;
-        try{
+        try {
             connectionWrapper.beginTransaction();
-            //set ban status Id for account
+            // Set ban status Id for student account
             AccountStatusEntity banStatus = accountStatusDAO.getByName("banned");
-            account.setStatusId(banStatus.getId());
-            result = accountDAO.updateByAccount(account);
-            if(result){
-                connectionWrapper.commit();
-                return result;
+            AccountEntity bannedStudentAccount = accountDAO.getById(accountId);
+            if (bannedStudentAccount == null) {
+                return false;
             }
-        }catch (SQLException ex){
+            bannedStudentAccount.setStatusId(banStatus.getId());
+            result = accountDAO.updateByAccount(bannedStudentAccount);
+
+            // add Banned message
+            result &= bannedInfoDAO.insertByAccountIdAndMessage(accountId, message);
+
+            if (result) {
+                connectionWrapper.commit();
+            }
+        } catch (SQLException ex) {
             connectionWrapper.rollback();
             throw ex;
-        }finally {
+        } finally {
             connectionWrapper.close();
         }
         return result;
@@ -211,11 +221,11 @@ public class ImplAdminService implements IAdminService {
     @Override
     public List<AccountEntity> getAllBannedAccounts() throws SQLException {
         List<AccountEntity> bannedAccounts;
-        try{
+        try {
             connectionWrapper.beginTransaction();
             bannedAccounts = accountDAO.getAllBannedAccounts();
             connectionWrapper.commit();
-        }finally {
+        } finally {
             connectionWrapper.close();
         }
         return bannedAccounts;
@@ -223,20 +233,20 @@ public class ImplAdminService implements IAdminService {
 
     @Override
     public boolean deleteBlog(String id) throws SQLException {
-        try{
+        try {
             connectionWrapper.beginTransaction();
             BlogEntity deleteBlog = blogDAO.blogIdIsExistent(id); // check blog is exist
             BlogStatusEntity deleteStatus = blogStatusDAO.getByName("deleted");
             deleteBlog.setStatusId(deleteStatus.getId()); // set delete status id into blog
             boolean result = blogDAO.updateByBlog(deleteBlog); //update Blog's status to deleted
-            if(result){
+            if (result) {
                 connectionWrapper.commit();
                 return true;
             }
-        }catch (SQLException ex){
+        } catch (SQLException ex) {
             connectionWrapper.rollback();
             throw ex;
-        }finally {
+        } finally {
             connectionWrapper.close();
         }
         return false;
@@ -245,21 +255,21 @@ public class ImplAdminService implements IAdminService {
     @Override
     public boolean unbanAccount(String accountId) throws SQLException {
         boolean result = false;
-        try{
+        try {
             connectionWrapper.beginTransaction();
             //set active statusId for account
             AccountStatusEntity activeStatus = accountStatusDAO.getByName("activated");
             AccountEntity account = AccountEntity.builder().id(accountId).build();
             account.setStatusId(activeStatus.getId());
             result = accountDAO.updateByAccount(account);
-            if(result){
+            if (result) {
                 connectionWrapper.commit();
                 return result;
             }
-        }catch (SQLException ex){
+        } catch (SQLException ex) {
             connectionWrapper.rollback();
             throw ex;
-        }finally {
+        } finally {
             connectionWrapper.close();
         }
         return result;

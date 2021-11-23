@@ -100,6 +100,27 @@ public class ImplTagService implements ITagService {
     }
 
     @Override
+    public List<TagEntity> getTopTag(int limit, int page) throws SQLException {
+        List<TagEntity> result = null;
+
+        try {
+            connectionWrapper.beginTransaction();
+
+            int offset = limit * (page - 1);
+            result = tagDAO.getTopTags(limit, offset);
+
+            connectionWrapper.commit();
+        } finally {
+            connectionWrapper.close();
+        }
+
+        if (result == null) {
+            result = Collections.emptyList();
+        }
+        return result;
+    }
+
+    @Override
     public TagEntity createTag(TagEntity newTag) throws SQLException {
         try {
             connectionWrapper.beginTransaction();
@@ -175,5 +196,26 @@ public class ImplTagService implements ITagService {
         }
 
         return result ? tagList : null;
+    }
+
+    @Override
+    public List<BlogEntity> getBlogsOfTag(String tagId, int limit, int page) throws SQLException {
+        List<BlogEntity> result;
+
+        try {
+            connectionWrapper.beginTransaction();
+
+            int offset = (page - 1) * limit;
+            result = blogDAO.getByTagId(tagId, limit, offset);
+
+            connectionWrapper.commit();
+        } finally {
+            connectionWrapper.close();
+        }
+
+        if (result == null) {
+            result = Collections.emptyList();
+        }
+        return result;
     }
 }

@@ -28,21 +28,28 @@ public interface IBlogDAO {
     List<BlogEntity> getApprovedBlogByFieldId(String fieldId, int limit, int offset) throws SQLException;
 
     BlogEntity blogIdIsExistent(String blogId) throws SQLException;
-      
+
     List<BlogEntity> getByAuthorId(String authorId, int limit, int offset) throws SQLException;
 
     List<BlogEntity> getByAuthorId(String authorId, int limit, int offset, String sortByField, String orderByType)
             throws SQLException;
 
+    List<BlogEntity> getApprovedBlogByAuthorId(String authorId, int limit, int offset) throws SQLException;
+
+    List<BlogEntity> getApprovedBlogByAuthorId(String authorId, int limit, int offset, String sortByField,
+                                               String orderByType) throws SQLException;
+
     boolean hideBlogInHistory(String blogHistoryId) throws SQLException;
 
     boolean deleteReviewerId(String reviewerId) throws SQLException;
 
-    List<BlogEntity> getByCategoryId(String categoryId) throws SQLException;
+    List<BlogEntity> getByCategoryId(String categoryId, int limit, int offset) throws SQLException;
 
     boolean isApproved(String blogId) throws SQLException;
 
     boolean isExistedPendingUpdateBlogInTheSameBlogHistory(String blogId) throws SQLException;
 
     String getPendingUpdateBlogIdInTheSameHistory(String blogId) throws SQLException;
+
+    List<BlogEntity> getByTagId(String tagId, int limit, int offset) throws SQLException;
 }

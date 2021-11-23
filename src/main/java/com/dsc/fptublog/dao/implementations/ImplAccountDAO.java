@@ -219,6 +219,63 @@ public class ImplAccountDAO implements IAccountDAO {
     }
 
     @Override
+    public List<AccountEntity> getTopAccounts(int limit, int offset) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return null;
+        }
+
+        List<AccountEntity> result = null;
+
+        String sql = "SELECT id, email, alternative_email, firstname, lastname, avatar_url, description, " +
+                "status_id, role, blogs_number, avg_rate " +
+                "FROM account " +
+                "ORDER BY avg_rate " +
+                "OFFSET ? ROW FETCH NEXT ? ROWS ONLY";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setInt(1, offset);
+            stm.setInt(2, limit);
+
+            ResultSet resultSet = stm.executeQuery();
+            while (resultSet.next()) {
+                String id = resultSet.getString(1);
+                String email = resultSet.getString(2);
+                String alternativeEmail = resultSet.getString(3);
+                String firstName = resultSet.getNString(4);
+                String lastName = resultSet.getNString(5);
+                String avatarUrl = resultSet.getString(6);
+                String description = resultSet.getNString(7);
+                String statusId = resultSet.getString(8);
+                String role = resultSet.getString(9);
+                int blogsNumber = resultSet.getInt(10);
+                float avgRate = resultSet.getFloat(11);
+
+                AccountEntity account = AccountEntity.builder()
+                        .id(id)
+                        .email(email)
+                        .alternativeEmail(alternativeEmail)
+                        .firstName(firstName)
+                        .lastName(lastName)
+                        .avatarUrl(avatarUrl)
+                        .description(description)
+                        .statusId(statusId)
+                        .role(role)
+                        .blogsNumber(blogsNumber)
+                        .avgRate(avgRate)
+                        .build();
+
+                if (result == null) {
+                    result = new ArrayList<>();
+                }
+                result.add(account);
+            }
+        }
+
+        return result;
+    }
+
+    @Override
     public boolean updateByAccount(AccountEntity updatedAccount) throws SQLException {
         Connection connection = connectionWrapper.getConnection();
         if (connection == null) {
@@ -421,5 +478,38 @@ public class ImplAccountDAO implements IAccountDAO {
             }
         }
         return adminAccount;
+    }
+  
+    @Override
+    public boolean updateNumberOfBlogAndAvgRate(String id) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return false;
+        }
+
+        String sql = "BEGIN " +
+                "    DECLARE @sum_avg_rate_blog FLOAT; " +
+                "    DECLARE @count INT; " +
+                "    SELECT @count = COUNT(*), @sum_avg_rate_blog = SUM(avg_rate) " +
+                "    FROM blog_history " +
+                "             INNER JOIN blog on blog_history.id = blog.blog_history_id " +
+                "             INNER JOIN blog_status status on status.id = blog.status_id " +
+                "    WHERE author_id = ? AND (status.name = 'approved' OR status.name = 'pending deleted'); " +
+                "    UPDATE account " +
+                "    SET blogs_number = @count, avg_rate = @sum_avg_rate_blog / @count " +
+                "    WHERE id = ?; " +
+                "END";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, id);
+            stm.setString(2, id);
+
+            int effectedRow = stm.executeUpdate();
+            if (effectedRow > 0) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

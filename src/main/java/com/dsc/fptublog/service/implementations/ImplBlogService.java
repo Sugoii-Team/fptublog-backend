@@ -270,8 +270,8 @@ public class ImplBlogService implements IBlogService {
             oldBlog.setStatusId(deletedStatusId);
             oldBlog.setReviewDateTime(System.currentTimeMillis());
 
-            if (accountDAO.decreaseNumberOfBlog(oldBlog.getAuthorId())) {
-                return blogDAO.updateByBlog(oldBlog);
+            if (blogDAO.updateByBlog(oldBlog)) {
+                return accountDAO.updateNumberOfBlogAndAvgRate(oldBlog.getAuthorId());
             } else {
                 return false;
             }
@@ -285,16 +285,15 @@ public class ImplBlogService implements IBlogService {
         }
 
         // pending update or pending approved
-        if (oldBlog.getStatusId().equals(pendingApprovedStatusId)) {
-            if (!accountDAO.increaseNumberOfBlog(oldBlog.getAuthorId())) {
-                return false;
-            }
-        }
         String approvedStatusId = blogStatusDAO.getByName("approved").getId();
         oldBlog.setStatusId(approvedStatusId);
         oldBlog.setReviewDateTime(System.currentTimeMillis());
 
-        return blogDAO.updateByBlog(oldBlog);
+        if (blogDAO.updateByBlog(oldBlog)) {
+            return accountDAO.updateNumberOfBlogAndAvgRate(oldBlog.getAuthorId());
+        } else {
+            return false;
+        }
     }
 
     private boolean processReject(BlogEntity oldBlog, String pendingDeletedStatusId) throws SQLException {
@@ -374,9 +373,41 @@ public class ImplBlogService implements IBlogService {
 
             int offset = limit * (page - 1);
             if (sortByField != null && orderByType != null) {
+                if ("created_datetime".equals(sortByField)) {
+                    sortByField = "history.created_datetime";
+                }
                 result = blogDAO.getByAuthorId(authorId, limit, offset, sortByField, orderByType);
             } else {
                 result = blogDAO.getByAuthorId(authorId, limit, offset);
+            }
+            if (result == null) {
+                result = Collections.emptyList();
+            }
+
+            connectionWrapper.commit();
+        } finally {
+            connectionWrapper.close();
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<BlogEntity> getAllApprovedBlogsOfAuthor(String authorId, int limit, int page,
+                                                        String sortByField, String orderByType) throws SQLException {
+        List<BlogEntity> result;
+
+        try {
+            connectionWrapper.beginTransaction();
+
+            int offset = limit * (page - 1);
+            if (sortByField != null && orderByType != null) {
+                if ("created_datetime".equals(sortByField)) {
+                    sortByField = "history.created_datetime";
+                }
+                result = blogDAO.getApprovedBlogByAuthorId(authorId, limit, offset, sortByField, orderByType);
+            } else {
+                result = blogDAO.getApprovedBlogByAuthorId(authorId, limit, offset);
             }
             if (result == null) {
                 result = Collections.emptyList();

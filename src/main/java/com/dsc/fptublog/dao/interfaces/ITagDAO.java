@@ -14,6 +14,8 @@ public interface ITagDAO {
 
     List<TagEntity> getAll() throws SQLException;
 
+    List<TagEntity> getTopTags(int limit, int offset) throws SQLException;
+
     boolean deleteById(String deletedTagId) throws SQLException;
 
     boolean updateByTag(TagEntity updatedTag) throws SQLException;

@@ -77,15 +77,11 @@ public class LecturerResource {
 
     @PUT
     @Path("/{id}/fields")
-    @RolesAllowed(Role.LECTURER)
+    @RolesAllowed(Role.ADMIN)
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addFieldForLecturer(@Context SecurityContext sc, @PathParam("id") String lecturerId,
+    public Response addFieldForLecturer(@PathParam("id") String lecturerId,
                                         List<FieldEntity> fieldList) {
-        if (!sc.getUserPrincipal().getName().equals(lecturerId)) {
-            return Response.status(Response.Status.UNAUTHORIZED).build();
-        }
-
         Response response;
 
         try {
@@ -166,6 +162,8 @@ public class LecturerResource {
         } catch (SQLException ex) {
             log.error(ex);
             return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        } catch (Exception ex) {
+            return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex.getMessage()).build();
         }
         if (result) {
             return Response.ok("Ban student successfully!").build();
@@ -174,7 +172,7 @@ public class LecturerResource {
         }
     }
 
-    @PATCH
+    @POST
     @Path("/{lecturer_id}/unbanningstudent/{student_id}")
     @RolesAllowed(Role.LECTURER)
     @Produces(MediaType.APPLICATION_JSON)

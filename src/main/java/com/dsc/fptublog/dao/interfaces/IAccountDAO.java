@@ -17,6 +17,8 @@ public interface IAccountDAO {
 
     AccountEntity getById(String id) throws SQLException;
 
+    List<AccountEntity> getTopAccounts(int limit, int offset) throws SQLException;
+
     boolean updateByAccount(AccountEntity updatedAccount) throws SQLException;
 
     List<AccountEntity> getAllAccounts() throws SQLException;
@@ -30,4 +32,6 @@ public interface IAccountDAO {
     boolean increaseNumberOfBlog(String id) throws SQLException;
 
     AccountEntity getAdminAccount() throws SQLException;
+  
+    boolean updateNumberOfBlogAndAvgRate(String id) throws SQLException;
 }

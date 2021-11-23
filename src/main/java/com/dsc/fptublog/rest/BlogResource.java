@@ -183,6 +183,24 @@ public class BlogResource {
     }
 
     @GET
+    @Path("/authors/{author_id}/approved")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getOwnApprovedBlogs(@PathParam("author_id") String authorId,
+                                @QueryParam("limit") int limit, @QueryParam("page") int page,
+                                @QueryParam("sort_by") String sortByField, @QueryParam("order_by") String orderByType) {
+        List<BlogEntity> blogList;
+
+        try {
+            blogList = blogService.getAllApprovedBlogsOfAuthor(authorId, limit, page, sortByField, orderByType);
+        } catch (SQLException ex) {
+            log.error(ex);
+            return Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+
+        return Response.ok(blogList).build();
+    }
+
+    @GET
     @Path("/status")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllBlogStatus() {

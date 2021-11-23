@@ -441,6 +441,83 @@ public class ImplBlogDAO implements IBlogDAO {
     }
 
     @Override
+    public List<BlogEntity> getApprovedBlogByAuthorId(String authorId, int limit, int offset) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return null;
+        }
+
+        List<BlogEntity> result = null;
+
+        String sql = "SELECT blog.id AS blog_id, author_id, thumbnail_url, title, description, " +
+                "blog.created_datetime AS updated_datetime, status_id, category_id, reviewer_id, review_datetime, " +
+                "blog_history_id, history.created_datetime AS created_datetime, views, avg_rate " +
+                "FROM blog " +
+                "INNER JOIN blog_status status on status.id = blog.status_id " +
+                "INNER JOIN blog_history history on history.id = blog.blog_history_id " +
+                "WHERE author_id = ? " +
+                "AND (status.name = 'approved' OR status.name = 'pending deleted') " +
+                "ORDER BY blog.id " +
+                "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, authorId);
+            stm.setInt(2, offset);
+            stm.setInt(3, limit);
+
+            ResultSet resultSet = stm.executeQuery();
+            while (resultSet.next()) {
+                BlogEntity blog = this.getBlogWithoutContent(resultSet);
+                if (result == null) {
+                    result = new ArrayList<>();
+                }
+                result.add(blog);
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<BlogEntity> getApprovedBlogByAuthorId(String authorId, int limit, int offset, String sortByField,
+                                                      String orderByType) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return null;
+        }
+
+        List<BlogEntity> result = null;
+
+        String sql = "SELECT blog.id AS blog_id, author_id, thumbnail_url, title, description, " +
+                "blog.created_datetime AS updated_datetime, status_id, category_id, reviewer_id, review_datetime, " +
+                "blog_history_id, history.created_datetime AS created_datetime, views, avg_rate " +
+                "FROM blog " +
+                "INNER JOIN blog_status status on status.id = blog.status_id " +
+                "INNER JOIN blog_history history on history.id = blog.blog_history_id " +
+                "WHERE author_id = ? " +
+                "AND (status.name = 'approved' OR status.name = 'pending deleted') " +
+                "ORDER BY " + sortByField + " " + orderByType + " " +
+                "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, authorId);
+            stm.setInt(2, offset);
+            stm.setInt(3, limit);
+
+            ResultSet resultSet = stm.executeQuery();
+            while (resultSet.next()) {
+                BlogEntity blog = this.getBlogWithoutContent(resultSet);
+                if (result == null) {
+                    result = new ArrayList<>();
+                }
+                result.add(blog);
+            }
+        }
+
+        return result;
+    }
+
+    @Override
     public BlogEntity blogIdIsExistent(String blogId) throws SQLException {
         Connection connection = connectionWrapper.getConnection();
         ResultSet result = null;
@@ -505,24 +582,33 @@ public class ImplBlogDAO implements IBlogDAO {
     }
 
     @Override
-    public List<BlogEntity> getByCategoryId(String categoryId) throws SQLException {
+    public List<BlogEntity> getByCategoryId(String categoryId, int limit, int offset) throws SQLException {
         Connection connection = connectionWrapper.getConnection();
         ResultSet result = null;
         List<BlogEntity> blogsList = null;
-        if(connection == null){
+        if (connection == null) {
             return null;
         }
-        String sql ="SELECT blog.id AS blog_id, author_id, thumbnail_url, title, content, description, " +
+
+        String sql = "SELECT blog.id AS blog_id, author_id, thumbnail_url, title, description, " +
                 "blog.created_datetime AS updated_datetime, status_id, category_id, reviewer_id, review_datetime, " +
                 "blog_history_id, history.created_datetime AS created_datetime, views, avg_rate " +
-                "FROM blog INNER JOIN blog_history history on history.id = blog.blog_history_id " +
-                "WHERE category_id = ? AND status_id = (SELECT id FROM blog_status WHERE name = 'approved') ";
-        try(PreparedStatement stm = connection.prepareStatement(sql)){
-            stm.setString(1,categoryId);
+                "FROM blog " +
+                "INNER JOIN blog_status status ON blog.status_id = status.id " +
+                "INNER JOIN blog_history history ON blog.blog_history_id = history.id " +
+                "WHERE category_id = ? AND (status.name = 'approved' OR status.name = 'pending deleted') " +
+                "ORDER BY blog.id DESC " +
+                "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, categoryId);
+            stm.setInt(2, offset);
+            stm.setInt(3, limit);
+
             result = stm.executeQuery();
-            while (result.next()){
+            while (result.next()) {
                 BlogEntity blog = this.getBlogWithoutContent(result);
-                if(blogsList == null){
+                if (blogsList == null) {
                     blogsList = new ArrayList<>();
                 }
                 blogsList.add(blog);
@@ -530,7 +616,7 @@ public class ImplBlogDAO implements IBlogDAO {
         }
         return blogsList;
     }
-  
+
     public boolean isApproved(String blogId) throws SQLException {
         Connection connection = connectionWrapper.getConnection();
         if (connection == null) {
@@ -602,6 +688,44 @@ public class ImplBlogDAO implements IBlogDAO {
         }
 
         return null;
+    }
+
+    @Override
+    public List<BlogEntity> getByTagId(String tagId, int limit, int offset) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return null;
+        }
+
+        List<BlogEntity> result = null;
+
+        String sql = "SELECT blog.id AS blog_id, author_id, thumbnail_url, title, description, " +
+                "blog.created_datetime AS updated_datetime, status_id, category_id, reviewer_id, review_datetime, " +
+                "blog_history_id, history.created_datetime AS created_datetime, views, avg_rate " +
+                "FROM blog " +
+                "INNER JOIN blog_status status ON blog.status_id = status.id " +
+                "INNER JOIN blog_history history ON blog.blog_history_id = history.id " +
+                "INNER JOIN blog_tag on blog.id = blog_tag.blog_id " +
+                "WHERE blog_tag.tag_id = ? AND (status.name = 'approved' OR status.name = 'pending deleted') " +
+                "ORDER BY blog.id DESC " +
+                "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, tagId);
+            stm.setInt(2, offset);
+            stm.setInt(3, limit);
+
+            ResultSet resultSet = stm.executeQuery();
+            while (resultSet.next()) {
+                BlogEntity blog = this.getBlogWithoutContent(resultSet);
+                if (result == null) {
+                    result = new ArrayList<>();
+                }
+                result.add(blog);
+            }
+        }
+
+        return result;
     }
 
 
