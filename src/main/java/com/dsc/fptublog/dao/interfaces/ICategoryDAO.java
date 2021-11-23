@@ -22,4 +22,6 @@ public interface ICategoryDAO {
     CategoryEntity createCategory(CategoryEntity newCategory) throws SQLException;
 
     boolean deleteCategory(CategoryEntity category) throws SQLException;
+
+    CategoryEntity getByName(String name) throws SQLException;
 }

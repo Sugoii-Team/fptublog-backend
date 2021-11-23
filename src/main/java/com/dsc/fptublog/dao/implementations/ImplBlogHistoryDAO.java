@@ -26,11 +26,9 @@ public class ImplBlogHistoryDAO implements IBlogHistoryDAO {
         if (connection == null) {
             return null;
         }
-
         String sql = "INSERT INTO blog_history (author_id, category_id, created_datetime, views, avg_rate) " +
                 "OUTPUT inserted.id " +
                 "VALUES (?, ?, ?, ?, ?)";
-
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setString(1, blogHistory.getAuthorId());
             stm.setString(2, blogHistory.getCategoryId());

@@ -31,5 +31,7 @@ public interface IAccountDAO {
 
     boolean increaseNumberOfBlog(String id) throws SQLException;
 
+    AccountEntity getAdminAccount() throws SQLException;
+  
     boolean updateNumberOfBlogAndAvgRate(String id) throws SQLException;
 }

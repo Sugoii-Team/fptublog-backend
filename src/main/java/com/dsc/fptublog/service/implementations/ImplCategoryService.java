@@ -97,15 +97,20 @@ public class ImplCategoryService implements ICategoryService {
     }
 
     @Override
-    public List<BlogEntity> getBlogsByCategoryId(String categoryId) throws SQLException {
+    public List<BlogEntity> getBlogsByCategoryId(String categoryId, int limit, int page) throws SQLException {
         List<BlogEntity> result;
 
         try{
             connectionWrapper.beginTransaction();
-            result = blogDAO.getByCategoryId(categoryId);
+            int offset = (page - 1) * limit;
+            result = blogDAO.getByCategoryId(categoryId, limit, offset);
             connectionWrapper.commit();
         }finally {
             connectionWrapper.close();
+        }
+
+        if (result == null) {
+            result = Collections.emptyList();
         }
         return result;
     }

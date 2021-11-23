@@ -23,4 +23,6 @@ public interface ICategoryService {
     List<CategoryEntity> createCategory(List<CategoryEntity> newCategories) throws SQLException;
 
     boolean deleteCategory(String categoryId) throws SQLException;
+
+    List<BlogEntity> getBlogsByCategoryId(String categoryId, int limit, int page) throws SQLException;
 }

@@ -115,11 +115,14 @@
                 <artifactId>tomcat9-maven-plugin</artifactId>
                 <version>3.0.0</version>
                 <configuration>
-                    <!--<url>http://localhost:8080/manager/text</url>
+                    <!--<url>http://34.124.170.202/manager/text</url>
+                    <path>/fptu-blog</path>
+                    <username>lequangky</username>
+                    <password>fptudsc123</password>-->
+                    <url>http://localhost:8080/manager/text</url>
                     <path>/fptu-blog</path>
                     <username>admin</username>
-                    <password>admin</password>-->
-                    <path>/fptu-blog</path>
+                    <password>admin</password>
                 </configuration>
             </plugin>
             <plugin>

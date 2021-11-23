@@ -460,6 +460,27 @@ public class ImplAccountDAO implements IAccountDAO {
     }
 
     @Override
+    public AccountEntity getAdminAccount() throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        ResultSet result = null;
+        AccountEntity adminAccount = null;
+        if(connection == null){
+            return null;
+        }
+        String sql = "SELECT id "
+                    +"FROM account "
+                    +"WHERE email = 'admin'";
+        try(PreparedStatement stm = connection.prepareStatement(sql)){
+            result = stm.executeQuery();
+            if(result.next()){
+                String id = result.getString(1);
+                adminAccount = AccountEntity.builder().id(id).build();
+            }
+        }
+        return adminAccount;
+    }
+  
+    @Override
     public boolean updateNumberOfBlogAndAvgRate(String id) throws SQLException {
         Connection connection = connectionWrapper.getConnection();
         if (connection == null) {
