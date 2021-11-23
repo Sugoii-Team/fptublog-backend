@@ -408,7 +408,7 @@ public class ImplAccountDAO implements IAccountDAO {
         ResultSet result = null;
         AccountEntity adminAccount = null;
         if(connection == null){
-            return null
+            return null;
         }
         String sql = "SELECT id "
                     +"FROM account "

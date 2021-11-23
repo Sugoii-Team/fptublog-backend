@@ -54,6 +54,12 @@ public class ImplAdminService implements IAdminService {
     @Inject
     private IBlogHistoryDAO blogHistoryDAO;
 
+    @Inject
+    private IFieldDAO fieldDAO;
+
+    @Inject
+    private ICategoryDAO categoryDAO;
+
     @Override
     public List<AccountEntity> getAllAccounts() throws SQLException {
         List<AccountEntity> accountList;
@@ -261,14 +267,16 @@ public class ImplAdminService implements IAdminService {
 
     @Override
     public BlogEntity createBlog(BlogEntity newBlog) throws SQLException {
-        BlogEntity newBLog;
-
+        CategoryEntity announcementCategory;
         try{
             connectionWrapper.beginTransaction();
             //create blog history
             long createdDateTime = System.currentTimeMillis();
             AccountEntity adminAccount = accountDAO.getAdminAccount();
-            BlogHistory blogHistory = blogHistoryDAO.insertByBlogHistory(new BlogHistory(null,adminAccount.getId(),newBlog.getCategoryId(),createdDateTime,0,0));
+            announcementCategory = categoryDAO.getByName("Announcement");
+            newBlog.setCategoryId(announcementCategory.getId());
+            newBlog.setAuthorId(adminAccount.getId());
+            BlogHistory blogHistory = blogHistoryDAO.insertByBlogHistory(new BlogHistory(null,newBlog.getAuthorId(),newBlog.getCategoryId(),createdDateTime,0,0));
             newBlog.setHistoryId(blogHistory.getId());
             BlogStatusEntity approvedStatus = blogStatusDAO.getByName("approved");
             newBlog.setStatusId(approvedStatus.getId());

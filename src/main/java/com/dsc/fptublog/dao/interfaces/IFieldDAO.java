@@ -16,4 +16,6 @@ public interface IFieldDAO {
     FieldEntity getById(String id) throws SQLException;
 
     List<FieldEntity> getTopFields() throws SQLException;
+
+    FieldEntity getByName(String name) throws SQLException;
 }
