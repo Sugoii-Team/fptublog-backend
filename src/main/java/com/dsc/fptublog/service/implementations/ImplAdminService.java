@@ -11,6 +11,7 @@ import org.jvnet.hk2.annotations.Service;
 import javax.inject.Inject;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -317,6 +318,27 @@ public class ImplAdminService implements IAdminService {
         }finally {
             connectionWrapper.close();
         }
+        return result;
+    }
+
+    @Override
+    public List<BlogEntity> getAllBlogsOfAdmin(int limit, int page) throws SQLException {
+        List<BlogEntity> result;
+        AccountEntity adminAccount = accountDAO.getAdminAccount();
+        try {
+            connectionWrapper.beginTransaction();
+
+            int offset = limit * (page - 1);
+            result = blogDAO.getByAuthorId(adminAccount.getId(), limit, offset);
+            if (result == null) {
+                result = Collections.emptyList();
+            }
+
+            connectionWrapper.commit();
+        } finally {
+            connectionWrapper.close();
+        }
+
         return result;
     }
 

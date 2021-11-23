@@ -33,4 +33,5 @@ public interface IAdminService {
 
     BlogEntity updateBlog(BlogEntity updatedBlog) throws SQLException;
 
+    List<BlogEntity> getAllBlogsOfAdmin(int limit, int page) throws SQLException;
 }

@@ -336,7 +336,7 @@ public class ImplBlogDAO implements IBlogDAO {
         List<BlogEntity> result = null;
 
         String sql = "SELECT blog.id AS blog_id, author_id, thumbnail_url, title, description, " +
-                "blog.created_datetime AS updated_datetime, status_id, category_id, reviewer_id, review_datetime, " +
+                "blog.created_datetime AS updated_datetime, blog.status_id, category_id, reviewer_id, review_datetime, " +
                 "blog_history_id, history.created_datetime AS created_datetime, views, avg_rate " +
                 "FROM blog " +
                 "INNER JOIN blog_status status ON blog.status_id = status.id " +

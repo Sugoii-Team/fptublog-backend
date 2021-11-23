@@ -4,20 +4,15 @@ import com.dsc.fptublog.config.Role;
 import com.dsc.fptublog.entity.AccountEntity;
 import com.dsc.fptublog.entity.AdminEntity;
 import com.dsc.fptublog.entity.BlogEntity;
+import com.dsc.fptublog.service.interfaces.IAccountService;
 import com.dsc.fptublog.service.interfaces.IAdminService;
+import com.dsc.fptublog.service.interfaces.IBlogService;
 import com.dsc.fptublog.util.JwtUtil;
 import lombok.extern.log4j.Log4j;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -31,6 +26,12 @@ public class AdminResource {
 
     @Inject
     private IAdminService adminService;
+
+    @Inject
+    private IBlogService blogService;
+
+    @Inject
+    private IAccountService accountService;
 
 
     @POST
@@ -154,12 +155,20 @@ public class AdminResource {
     @RolesAllowed(Role.ADMIN)
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteBlog(@PathParam("id")String blogId){
+        Response response;
+        boolean isSuccessful = false;
         try{
-            boolean result = adminService.deleteBlog(blogId);
+            isSuccessful = adminService.deleteBlog(blogId);
+            if(isSuccessful){
+                response = Response.ok("Delete Blog Successfully").build();
+            }else{
+                response = Response.status(Response.Status.EXPECTATION_FAILED).entity("Delete Blog Failed").build();
+            }
         }catch (SQLException ex){
-            return Response.status(Response.Status.EXPECTATION_FAILED).entity("Blog does not exist").build();
+            log.error(ex);
+            response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
         }
-        return Response.ok("Delete Blog Successfully!!").build();
+        return response;
     }
 
     @PUT
@@ -220,4 +229,25 @@ public class AdminResource {
         return response;
     }
 
+    @GET
+    @Path("/blogs")
+    @RolesAllowed(Role.ADMIN)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getBlogs(@QueryParam("limit") int limit, @QueryParam("page") int page){
+        Response response;
+        List<BlogEntity> result;
+
+        try{
+            result = adminService.getAllBlogsOfAdmin(limit,page);
+            if(result != null){
+                response = Response.ok(result).build();
+            }else{
+                response = Response.status(Response.Status.EXPECTATION_FAILED).entity("Get Blogs Failed").build();
+            }
+        }catch (SQLException ex){
+            log.error(ex);
+            response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+        return response;
+    }
 }
