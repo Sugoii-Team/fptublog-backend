@@ -186,8 +186,8 @@ public class BlogResource {
     @Path("/authors/{author_id}/approved")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getOwnApprovedBlogs(@PathParam("author_id") String authorId,
-                                @QueryParam("limit") int limit, @QueryParam("page") int page,
-                                @QueryParam("sort_by") String sortByField, @QueryParam("order_by") String orderByType) {
+                                        @QueryParam("limit") int limit, @QueryParam("page") int page,
+                                        @QueryParam("sort_by") String sortByField, @QueryParam("order_by") String orderByType) {
         List<BlogEntity> blogList;
 
         try {

@@ -32,7 +32,7 @@ public class ImplFieldDAO implements IFieldDAO {
 
         String sql = "SELECT name " +
                 "FROM field " +
-                "WHERE id = ?";
+                "WHERE id = ? AND status_id = (SELECT id FROM field_category_status WHERE name = 'active')";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             for (var fieldId : fieldIdList) {
@@ -44,7 +44,7 @@ public class ImplFieldDAO implements IFieldDAO {
                     if (result == null) {
                         result = new ArrayList<>();
                     }
-                    result.add(new FieldEntity(fieldId, name));
+                    result.add(FieldEntity.builder().id(fieldId).name(name).build());
                 }
             }
         }
@@ -62,7 +62,8 @@ public class ImplFieldDAO implements IFieldDAO {
         List<FieldEntity> result = null;
 
         String sql = "SELECT id, name " +
-                "FROM field";
+                "FROM field " +
+                "WHERE status_id = (SELECT id FROM field_category_status WHERE name = 'active')";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             ResultSet resultSet = stm.executeQuery();
@@ -74,7 +75,7 @@ public class ImplFieldDAO implements IFieldDAO {
                 if (result == null) {
                     result = new ArrayList<>();
                 }
-                result.add(new FieldEntity(id, name));
+                result.add(FieldEntity.builder().id(id).name(name).build());
             }
         }
 
@@ -90,7 +91,7 @@ public class ImplFieldDAO implements IFieldDAO {
 
         String sql = "SELECT name " +
                 "FROM field " +
-                "WHERE id = ?";
+                "WHERE id = ? AND status_id = (SELECT id FROM field_category_status WHERE name = 'active')";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setString(1, id);
@@ -99,7 +100,7 @@ public class ImplFieldDAO implements IFieldDAO {
             if (resultSet.next()) {
                 String name = resultSet.getNString(1);
 
-                return new FieldEntity(id, name);
+                return FieldEntity.builder().id(id).name(name).build();
             }
         }
 
@@ -127,6 +128,7 @@ public class ImplFieldDAO implements IFieldDAO {
                 "         WHERE status.name = 'approved' OR status.name = 'pending deleted' " +
                 "     ) AS b " +
                 "ON category.id = b.category_id " +
+                "WHERE field.status_id = (SELECT id FROM field_category_status WHERE name = 'active') " +
                 "GROUP BY field.id, field.name " +
                 "ORDER BY blog_number DESC";
 
@@ -139,11 +141,56 @@ public class ImplFieldDAO implements IFieldDAO {
                 if (result == null) {
                     result = new ArrayList<>();
                 }
-                result.add(new FieldEntity(id, name));
+                result.add(FieldEntity.builder().id(id).name(name).build());
             }
         }
 
         return result;
+    }
+
+    @Override
+    public boolean updateField(FieldEntity updateField) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        int effectRow;
+        if (connection == null) {
+            return false;
+        }
+        String sql = "UPDATE field " +
+                "SET name = ISNULL(?, name), status_id = ISNULL(?, status_id) " +
+                "WHERE id = ? AND status_id = (SELECT id FROM field_category_status WHERE name = 'active')";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, updateField.getName());
+            stm.setString(2, updateField.getStatusId());
+            stm.setString(3, updateField.getId());
+            effectRow = stm.executeUpdate();
+            if (effectRow > 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public FieldEntity createField(FieldEntity newField) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        ResultSet result = null;
+        if (connection == null) {
+            return null;
+        }
+        String sql = "INSERT INTO field (name, status_id) "
+                + "OUTPUT inserted.id "
+                + "VALUES (?,?)";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, newField.getName());
+            stm.setString(2, newField.getStatusId());
+            result = stm.executeQuery();
+            if (result.next()) {
+                String fieldId = result.getString(1);
+                newField.setId(fieldId);
+                return newField;
+            }
+        }
+        return null;
     }
 
     @Override

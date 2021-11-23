@@ -59,7 +59,7 @@ public class ImplAdminService implements IAdminService {
 
     @Inject
     private ICategoryDAO categoryDAO;
-  
+
     @Inject
     private IBannedInfoDAO bannedInfoDAO;
 
@@ -278,15 +278,17 @@ public class ImplAdminService implements IAdminService {
     @Override
     public BlogEntity createBlog(BlogEntity newBlog) throws SQLException {
         CategoryEntity announcementCategory;
-        try{
+        try {
             connectionWrapper.beginTransaction();
             //create blog history
             long createdDateTime = System.currentTimeMillis();
             AccountEntity adminAccount = accountDAO.getAdminAccount();
             announcementCategory = categoryDAO.getByName("Announcement");
+            System.out.println(announcementCategory);
+            System.out.println(adminAccount);
             newBlog.setCategoryId(announcementCategory.getId());
             newBlog.setAuthorId(adminAccount.getId());
-            BlogHistory blogHistory = blogHistoryDAO.insertByBlogHistory(new BlogHistory(null,newBlog.getAuthorId(),newBlog.getCategoryId(),createdDateTime,0,0));
+            BlogHistory blogHistory = blogHistoryDAO.insertByBlogHistory(new BlogHistory(null, newBlog.getAuthorId(), newBlog.getCategoryId(), createdDateTime, 0, 0));
             newBlog.setHistoryId(blogHistory.getId());
             BlogStatusEntity approvedStatus = blogStatusDAO.getByName("approved");
             newBlog.setStatusId(approvedStatus.getId());
@@ -296,10 +298,10 @@ public class ImplAdminService implements IAdminService {
 
             newBlog = blogDAO.insertByBlog(newBlog);
             connectionWrapper.commit();
-        }catch (SQLException ex){
+        } catch (SQLException ex) {
             connectionWrapper.rollback();
             throw ex;
-        }finally {
+        } finally {
             connectionWrapper.close();
         }
         return newBlog;
@@ -314,7 +316,7 @@ public class ImplAdminService implements IAdminService {
             updatedBlog.setAuthorId(adminAccount.getId());
             //get olb blog then check authorId
             BlogEntity oldBlog = blogDAO.getById(updatedBlog.getId());
-            if (!oldBlog.getAuthorId().equals(updatedBlog.getAuthorId())){
+            if (!oldBlog.getAuthorId().equals(updatedBlog.getAuthorId())) {
                 return null;
             }
             long currentTime = System.currentTimeMillis();
@@ -328,12 +330,12 @@ public class ImplAdminService implements IAdminService {
             oldBlog.setReviewDateTime(0);
 
             //update db
-            result  = blogDAO.insertByBlog(oldBlog);
+            result = blogDAO.insertByBlog(oldBlog);
             connectionWrapper.commit();
-        }catch (SQLException ex){
+        } catch (SQLException ex) {
             connectionWrapper.rollback();
             throw ex;
-        }finally {
+        } finally {
             connectionWrapper.close();
         }
         return result;

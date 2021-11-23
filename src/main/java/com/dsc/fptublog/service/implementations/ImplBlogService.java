@@ -592,4 +592,23 @@ public class ImplBlogService implements IBlogService {
 
         return result;
     }
+
+    @Override
+    public boolean deleteBlog(BlogEntity deleteBlog) throws SQLException {
+        boolean result;
+        BlogStatusEntity deleteStatus;
+        try {
+            connectionWrapper.beginTransaction();
+            deleteStatus = blogStatusDAO.getByName("deleted"); // get delete status
+            deleteBlog.setStatusId(deleteStatus.getId()); // set Blog's status to delete
+            result = blogDAO.updateByBlog(deleteBlog); // change blog's status to delete in database
+            connectionWrapper.commit();
+        } catch (SQLException ex) {
+            connectionWrapper.rollback();
+            throw ex;
+        } finally {
+            connectionWrapper.close();
+        }
+        return result;
+    }
 }

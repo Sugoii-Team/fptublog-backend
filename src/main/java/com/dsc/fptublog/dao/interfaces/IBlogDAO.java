@@ -43,6 +43,8 @@ public interface IBlogDAO {
 
     boolean deleteReviewerId(String reviewerId) throws SQLException;
 
+    List<BlogEntity> getByCategoryId(String categoryId) throws SQLException;
+
     List<BlogEntity> getByCategoryId(String categoryId, int limit, int offset) throws SQLException;
 
     boolean isApproved(String blogId) throws SQLException;

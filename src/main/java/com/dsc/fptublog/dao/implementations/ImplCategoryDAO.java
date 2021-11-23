@@ -32,7 +32,7 @@ public class ImplCategoryDAO implements ICategoryDAO {
 
         String sql = "SELECT name, field_id "
                 + "FROM category "
-                + "WHERE id = ?";
+                + "WHERE id = ? AND status_id = (SELECT id FROM field_category_status WHERE name = 'active')";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setString(1, id);
@@ -41,7 +41,7 @@ public class ImplCategoryDAO implements ICategoryDAO {
             if (resultSet.next()) {
                 String name = resultSet.getNString(1);
                 String fieldId = resultSet.getString(2);
-                result = new CategoryEntity(id, name, fieldId);
+                result = CategoryEntity.builder().id(id).name(name).fieldId(fieldId).build();
             }
         }
 
@@ -58,7 +58,8 @@ public class ImplCategoryDAO implements ICategoryDAO {
         List<CategoryEntity> result = null;
 
         String sql = "SELECT id, name, field_id " +
-                "FROM category";
+                "FROM category " +
+                "WHERE status_id = (SELECT id FROM field_category_status WHERE name = 'active')";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             ResultSet resultSet = stm.executeQuery();
@@ -70,7 +71,7 @@ public class ImplCategoryDAO implements ICategoryDAO {
                 if (result == null) {
                     result = new ArrayList<>();
                 }
-                result.add(new CategoryEntity(id, name, fieldId));
+                result.add(CategoryEntity.builder().id(id).name(name).fieldId(fieldId).build());
             }
         }
 
@@ -88,7 +89,7 @@ public class ImplCategoryDAO implements ICategoryDAO {
 
         String sql = "SELECT id, name " +
                 "FROM category " +
-                "WHERE field_id = ?";
+                "WHERE field_id = ? AND status_id = (SELECT id FROM field_category_status WHERE name = 'active')";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             for (String fieldId : fieldIdList) {
@@ -102,11 +103,10 @@ public class ImplCategoryDAO implements ICategoryDAO {
                     if (result == null) {
                         result = new ArrayList<>();
                     }
-                    result.add(new CategoryEntity(id, name, fieldId));
+                    result.add(CategoryEntity.builder().id(id).name(name).fieldId(fieldId).build());
                 }
             }
         }
-
         return result;
     }
 
@@ -121,7 +121,7 @@ public class ImplCategoryDAO implements ICategoryDAO {
 
         String sql = "SELECT id, name " +
                 "FROM category " +
-                "WHERE field_id = ?";
+                "WHERE field_id = ? AND status_id = (SELECT id FROM field_category_status WHERE name = 'active')";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setString(1, fieldId);
@@ -134,11 +134,75 @@ public class ImplCategoryDAO implements ICategoryDAO {
                 if (result == null) {
                     result = new ArrayList<>();
                 }
-                result.add(new CategoryEntity(id, name, fieldId));
+                result.add(CategoryEntity.builder().id(id).name(name).fieldId(fieldId).build());
             }
         }
 
         return result;
+    }
+
+    @Override
+    public boolean updateCategory(CategoryEntity updateCategory) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return false;
+        }
+        String sql = "UPDATE category "
+                + "SET name = ISNULL(?, name), field_id = ISNULL(?, field_id) "
+                + "WHERE id = ?";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, updateCategory.getName());
+            stm.setString(2, updateCategory.getFieldId());
+            stm.setString(3, updateCategory.getId());
+            int effectRow = stm.executeUpdate();
+            if (effectRow > 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public CategoryEntity createCategory(CategoryEntity newCategory) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return null;
+        }
+        String sql = "INSERT INTO category (name, field_id, status_id) "
+                + "OUTPUT inserted.id "
+                + "VALUES (?, ?, ?)";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, newCategory.getName());
+            stm.setString(2, newCategory.getFieldId());
+            stm.setString(3, newCategory.getStatusId());
+            ResultSet result = stm.executeQuery();
+            if (result.next()) {
+                String categoryId = result.getString(1);
+                newCategory.setId(categoryId);
+                return newCategory;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public boolean deleteCategory(CategoryEntity category) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return false;
+        }
+        String sql = "UPDATE category "
+                + "SET status_id = ISNUll(?, status_id) "
+                + "WHERE id = ? AND status_id = (SELECT id FROM field_category_status WHERE name = 'active')";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, category.getStatusId());
+            stm.setString(2, category.getId());
+            int effectRow = stm.executeUpdate();
+            if (effectRow > 0) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

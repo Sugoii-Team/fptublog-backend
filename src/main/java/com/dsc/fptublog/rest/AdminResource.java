@@ -1,20 +1,20 @@
 package com.dsc.fptublog.rest;
 
 import com.dsc.fptublog.config.Role;
-import com.dsc.fptublog.entity.AccountEntity;
-import com.dsc.fptublog.entity.AdminEntity;
-import com.dsc.fptublog.entity.BlogEntity;
+import com.dsc.fptublog.entity.*;
 import com.dsc.fptublog.model.MessageModel;
-import com.dsc.fptublog.service.interfaces.IAccountService;
 import com.dsc.fptublog.service.interfaces.IAdminService;
-import com.dsc.fptublog.service.interfaces.IBlogService;
+import com.dsc.fptublog.service.interfaces.ICategoryService;
+import com.dsc.fptublog.service.interfaces.IFieldService;
 import com.dsc.fptublog.util.JwtUtil;
 import lombok.extern.log4j.Log4j;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.*;
-import javax.ws.rs.core.*;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.List;
@@ -27,10 +27,10 @@ public class AdminResource {
     private IAdminService adminService;
 
     @Inject
-    private IBlogService blogService;
+    private IFieldService fieldService;
 
     @Inject
-    private IAccountService accountService;
+    private ICategoryService categoryService;
 
     @POST
     @Path("/login")
@@ -112,14 +112,6 @@ public class AdminResource {
         account.setId(id);
         boolean result = false;
         try {
-            //Ban an account
-            /*if (account.getRole() == null) {
-                result = adminService.banAccount(account);
-                if (result) {
-                    return Response.ok("Ban account successfully!!").build();
-                }
-            }*/
-            //Update role cho 1 acc
             if (account.getRole() != null) {
                 account = adminService.updateRole(account);
             } else {
@@ -172,17 +164,17 @@ public class AdminResource {
     @Path("/blogs/{id}")
     @RolesAllowed(Role.ADMIN)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response deleteBlog(@PathParam("id")String blogId){
+    public Response deleteBlog(@PathParam("id") String blogId) {
         Response response;
         boolean isSuccessful = false;
-        try{
+        try {
             isSuccessful = adminService.deleteBlog(blogId);
-            if(isSuccessful){
+            if (isSuccessful) {
                 response = Response.ok("Delete Blog Successfully").build();
-            }else{
+            } else {
                 response = Response.status(Response.Status.EXPECTATION_FAILED).entity("Delete Blog Failed").build();
             }
-        }catch (SQLException ex){
+        } catch (SQLException ex) {
             log.error(ex);
             response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
         }
@@ -212,12 +204,12 @@ public class AdminResource {
     @RolesAllowed(Role.ADMIN)
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response postBlog(BlogEntity newBlog){
+    public Response postBlog(BlogEntity newBlog) {
         Response response;
-        try{
+        try {
             newBlog = adminService.createBlog(newBlog);
             response = Response.ok(newBlog).build();
-        }catch (SQLException ex){
+        } catch (SQLException ex) {
             log.error(ex);
             response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
         }
@@ -229,18 +221,18 @@ public class AdminResource {
     @RolesAllowed(Role.ADMIN)
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updateBlog(@PathParam("id")String blogId,BlogEntity updatedBlog){
+    public Response updateBlog(@PathParam("id") String blogId, BlogEntity updatedBlog) {
         Response response;
         BlogEntity result = null;
         updatedBlog.setId(blogId);
-        try{
+        try {
             result = adminService.updateBlog(updatedBlog);
-            if (result == null){
+            if (result == null) {
                 response = Response.status(Response.Status.EXPECTATION_FAILED).build();
-            }else{
+            } else {
                 response = Response.ok(result).build();
             }
-        }catch (SQLException ex){
+        } catch (SQLException ex) {
             log.error(ex);
             response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
         }
@@ -251,18 +243,138 @@ public class AdminResource {
     @Path("/blogs")
     @RolesAllowed(Role.ADMIN)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getBlogs(@QueryParam("limit") int limit, @QueryParam("page") int page){
+    public Response getBlogs(@QueryParam("limit") int limit, @QueryParam("page") int page) {
         Response response;
         List<BlogEntity> result;
 
-        try{
-            result = adminService.getAllBlogsOfAdmin(limit,page);
-            if(result != null){
+        try {
+            result = adminService.getAllBlogsOfAdmin(limit, page);
+            if (result != null) {
                 response = Response.ok(result).build();
-            }else{
+            } else {
                 response = Response.status(Response.Status.EXPECTATION_FAILED).entity("Get Blogs Failed").build();
             }
-        }catch (SQLException ex){
+        } catch (SQLException ex) {
+            log.error(ex);
+            response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+        return response;
+    }
+
+    @GET
+    @Path("/fields")
+    @RolesAllowed({Role.ADMIN})
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAllFields() {
+        Response response;
+        List<FieldEntity> result = null;
+        try {
+            result = fieldService.getAllFields();
+            response = Response.ok(result).build();
+        } catch (SQLException ex) {
+            log.error(ex);
+            response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+        return response;
+    }
+
+    @POST
+    @Path("/fields")
+    @RolesAllowed(Role.ADMIN)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response createField(FieldEntity newField) {
+        Response response;
+        FieldEntity result;
+        try {
+            result = fieldService.createField(newField);
+            if (result == null) {
+                response = Response.status(Response.Status.EXPECTATION_FAILED).entity("Create field failed").build();
+                return response;
+            }
+            response = Response.ok(result).build();
+        } catch (SQLException ex) {
+            log.error(ex);
+            response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+        return response;
+    }
+
+    @DELETE
+    @Path("/fields/{id}")
+    @RolesAllowed(Role.ADMIN)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deleteField(@PathParam("id") String fieldId) {
+        Response response = null;
+        boolean result;
+        try {
+            result = fieldService.deleteField(fieldId);
+            if (result) {
+                response = Response.ok("Delete Field successfully").build();
+            } else {
+                response = Response.status(Response.Status.EXPECTATION_FAILED).entity("Delete Field Failed").build();
+            }
+        } catch (SQLException ex) {
+            log.error(ex);
+            response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+        return response;
+    }
+
+    @GET
+    @Path("/categories")
+    @RolesAllowed(Role.ADMIN)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAllCategories() {
+        Response response;
+        List<CategoryEntity> result;
+        try {
+            result = categoryService.getCategories();
+            response = Response.ok(result).build();
+        } catch (SQLException ex) {
+            log.error(ex);
+            response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+        return response;
+    }
+
+    @POST
+    @Path("/categories")
+    @RolesAllowed(Role.ADMIN)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response createCategory(List<CategoryEntity> newCategories) {
+        Response response;
+        List<CategoryEntity> resultList;
+        try {
+            resultList = categoryService.createCategory(newCategories);
+            if (resultList == null) {
+                response = Response.status(Response.Status.EXPECTATION_FAILED).entity("Create category failed").build();
+                return response;
+            }
+            response = Response.ok(resultList).build();
+        } catch (SQLException ex) {
+            log.error(ex);
+            response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
+        }
+        return response;
+    }
+
+    @DELETE
+    @Path("/categories/{id}")
+    @RolesAllowed(Role.ADMIN)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deleteCategory(@PathParam("id") String categoryId) {
+        Response response;
+        boolean result;
+        try {
+            result = categoryService.deleteCategory(categoryId);
+            if (result) {
+                response = Response.ok("Delete Category Successfully").build();
+            } else {
+                response = Response.status(Response.Status.EXPECTATION_FAILED).entity("Delete Category Failed").build();
+            }
+        } catch (SQLException ex) {
             log.error(ex);
             response = Response.status(Response.Status.EXPECTATION_FAILED).entity(ex).build();
         }

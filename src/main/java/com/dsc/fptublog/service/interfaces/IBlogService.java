@@ -44,4 +44,6 @@ public interface IBlogService {
     List<BlogEntity> getBlogsOfFields(String fieldId, int limit, int page) throws SQLException;
 
     boolean undoPendingDeleted(String userId, String blogId) throws Exception;
+
+    boolean deleteBlog(BlogEntity deleteBlog) throws SQLException;
 }

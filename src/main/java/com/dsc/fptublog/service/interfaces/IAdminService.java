@@ -11,6 +11,7 @@ import java.util.List;
 
 @Contract
 public interface IAdminService {
+
     List<AccountEntity> getAllAccounts() throws SQLException;
 
     AccountEntity updateAccount(AccountEntity account) throws SQLException;
@@ -34,4 +35,5 @@ public interface IAdminService {
     BlogEntity updateBlog(BlogEntity updatedBlog) throws SQLException;
 
     List<BlogEntity> getAllBlogsOfAdmin(int limit, int page) throws SQLException;
+
 }

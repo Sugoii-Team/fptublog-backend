@@ -1,6 +1,5 @@
 package com.dsc.fptublog.rest;
 
-import com.dsc.fptublog.config.Role;
 import com.dsc.fptublog.entity.BlogEntity;
 import com.dsc.fptublog.entity.CategoryEntity;
 import com.dsc.fptublog.entity.FieldEntity;
@@ -10,7 +9,6 @@ import com.dsc.fptublog.service.interfaces.ICategoryService;
 import com.dsc.fptublog.service.interfaces.IFieldService;
 import lombok.extern.log4j.Log4j;
 
-import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;

@@ -13,4 +13,5 @@ public class CategoryEntity {
     private String id;
     private String name;
     private String fieldId;
+    private String statusId;
 }
