@@ -2,6 +2,7 @@ package com.dsc.fptublog.service.interfaces;
 
 import com.dsc.fptublog.entity.AccountEntity;
 import com.dsc.fptublog.entity.AdminEntity;
+import com.dsc.fptublog.entity.BlogEntity;
 import org.jvnet.hk2.annotations.Contract;
 
 import java.security.NoSuchAlgorithmException;
@@ -27,4 +28,10 @@ public interface IAdminService {
     boolean deleteBlog(String id) throws SQLException;
 
     boolean unbanAccount(String accountId) throws SQLException;
+
+    BlogEntity createBlog(BlogEntity newBlog) throws SQLException;
+
+    BlogEntity updateBlog(BlogEntity updatedBlog) throws SQLException;
+
+    List<BlogEntity> getAllBlogsOfAdmin(int limit, int page) throws SQLException;
 }

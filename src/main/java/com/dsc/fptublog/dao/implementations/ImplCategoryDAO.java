@@ -141,4 +141,31 @@ public class ImplCategoryDAO implements ICategoryDAO {
         return result;
     }
 
+    @Override
+    public CategoryEntity getByName(String name) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return null;
+        }
+
+        CategoryEntity result = null;
+
+        String sql = "SELECT id, field_id "
+                + "FROM category "
+                + "WHERE name = ? AND status_id = (SELECT id FROM field_category_status WHERE name = 'active')";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, name);
+
+            ResultSet resultSet = stm.executeQuery();
+            if (resultSet.next()) {
+                String id = resultSet.getString(1);
+                String fieldId = resultSet.getString(2);
+                result = CategoryEntity.builder().id(id).name(name).fieldId(fieldId).build();
+            }
+        }
+
+        return result;
+    }
+
 }

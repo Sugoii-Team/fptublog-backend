@@ -145,4 +145,29 @@ public class ImplFieldDAO implements IFieldDAO {
 
         return result;
     }
+
+    @Override
+    public FieldEntity getByName(String name) throws SQLException {
+        Connection connection = connectionWrapper.getConnection();
+        if (connection == null) {
+            return null;
+        }
+
+        String sql = "SELECT id " +
+                "FROM field " +
+                "WHERE name = ? AND status_id = (SELECT id FROM field_category_status WHERE name = 'active')";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, name);
+
+            ResultSet resultSet = stm.executeQuery();
+            if (resultSet.next()) {
+                String id = resultSet.getNString(1);
+
+                return FieldEntity.builder().id(id).name(name).build();
+            }
+        }
+
+        return null;
+    }
 }

@@ -11,6 +11,7 @@ import org.jvnet.hk2.annotations.Service;
 import javax.inject.Inject;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -50,6 +51,15 @@ public class ImplAdminService implements IAdminService {
     @Inject
     private IMajorDAO majorDAO;
 
+    @Inject
+    private IBlogHistoryDAO blogHistoryDAO;
+
+    @Inject
+    private IFieldDAO fieldDAO;
+
+    @Inject
+    private ICategoryDAO categoryDAO;
+  
     @Inject
     private IBannedInfoDAO bannedInfoDAO;
 
@@ -265,5 +275,89 @@ public class ImplAdminService implements IAdminService {
         return result;
     }
 
+    @Override
+    public BlogEntity createBlog(BlogEntity newBlog) throws SQLException {
+        CategoryEntity announcementCategory;
+        try{
+            connectionWrapper.beginTransaction();
+            //create blog history
+            long createdDateTime = System.currentTimeMillis();
+            AccountEntity adminAccount = accountDAO.getAdminAccount();
+            announcementCategory = categoryDAO.getByName("Announcement");
+            newBlog.setCategoryId(announcementCategory.getId());
+            newBlog.setAuthorId(adminAccount.getId());
+            BlogHistory blogHistory = blogHistoryDAO.insertByBlogHistory(new BlogHistory(null,newBlog.getAuthorId(),newBlog.getCategoryId(),createdDateTime,0,0));
+            newBlog.setHistoryId(blogHistory.getId());
+            BlogStatusEntity approvedStatus = blogStatusDAO.getByName("approved");
+            newBlog.setStatusId(approvedStatus.getId());
+            newBlog.setCreatedDateTime(createdDateTime);
+            newBlog.setUpdatedDatetime(createdDateTime);
+            newBlog.setViews(0);
+
+            newBlog = blogDAO.insertByBlog(newBlog);
+            connectionWrapper.commit();
+        }catch (SQLException ex){
+            connectionWrapper.rollback();
+            throw ex;
+        }finally {
+            connectionWrapper.close();
+        }
+        return newBlog;
+    }
+
+    @Override
+    public BlogEntity updateBlog(BlogEntity updatedBlog) throws SQLException {
+        BlogEntity result = null;
+        try {
+            connectionWrapper.beginTransaction();
+            AccountEntity adminAccount = accountDAO.getAdminAccount();
+            updatedBlog.setAuthorId(adminAccount.getId());
+            //get olb blog then check authorId
+            BlogEntity oldBlog = blogDAO.getById(updatedBlog.getId());
+            if (!oldBlog.getAuthorId().equals(updatedBlog.getAuthorId())){
+                return null;
+            }
+            long currentTime = System.currentTimeMillis();
+
+            oldBlog.setThumbnailUrl(updatedBlog.getThumbnailUrl());
+            oldBlog.setTitle(updatedBlog.getTitle());
+            oldBlog.setContent(updatedBlog.getContent());
+            oldBlog.setDescription(updatedBlog.getDescription());
+            oldBlog.setUpdatedDatetime(currentTime);
+            oldBlog.setReviewerId(null);
+            oldBlog.setReviewDateTime(0);
+
+            //update db
+            result  = blogDAO.insertByBlog(oldBlog);
+            connectionWrapper.commit();
+        }catch (SQLException ex){
+            connectionWrapper.rollback();
+            throw ex;
+        }finally {
+            connectionWrapper.close();
+        }
+        return result;
+    }
+
+    @Override
+    public List<BlogEntity> getAllBlogsOfAdmin(int limit, int page) throws SQLException {
+        List<BlogEntity> result;
+        AccountEntity adminAccount = accountDAO.getAdminAccount();
+        try {
+            connectionWrapper.beginTransaction();
+
+            int offset = limit * (page - 1);
+            result = blogDAO.getByAuthorId(adminAccount.getId(), limit, offset);
+            if (result == null) {
+                result = Collections.emptyList();
+            }
+
+            connectionWrapper.commit();
+        } finally {
+            connectionWrapper.close();
+        }
+
+        return result;
+    }
 
 }
