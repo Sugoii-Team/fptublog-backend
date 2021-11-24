@@ -233,23 +233,26 @@ public class ImplFieldService implements IFieldService {
             resultDeleteAccountLecturerField = accountLecturerFieldDAO.deleteAccountLecturerField(fieldId); // delete in database
             List<CategoryEntity> deleteCategories = categoryDAO.getByFieldId(fieldId);
             BlogStatusEntity deleteStatus = blogStatusDAO.getByName("deleted"); // get delete status
-
-            for (CategoryEntity deleteCategory : deleteCategories) {
-                deleteCategory.setStatusId(inactiveStatus.getId()); //set inactive status delete
-                resultDeletedCategory = categoryDAO.deleteCategory(deleteCategory); // update category status in database
-                List<BlogEntity> deleteBlogs = blogDAO.getByCategoryId(deleteCategory.getId());
-                if(deleteBlogs != null){ // if that category has blogs
-                    for (BlogEntity deleteBlog : deleteBlogs) {
-                        deleteBlog.setStatusId(deleteStatus.getId()); // set Blog's status to delete
-                        resultDeleteBlog = blogDAO.updateByBlog(deleteBlog); // change blog's status to delete in database
-                        if(resultDeleteBlog == false){
-                            break;
+            if (deleteCategories == null) { // if fields has no categories
+                resultDeletedCategory = true;
+                resultDeleteBlog = true;
+            } else {
+                for (CategoryEntity deleteCategory : deleteCategories) {
+                    deleteCategory.setStatusId(inactiveStatus.getId()); //set inactive status delete
+                    resultDeletedCategory = categoryDAO.deleteCategory(deleteCategory); // update category status in database
+                    List<BlogEntity> deleteBlogs = blogDAO.getByCategoryId(deleteCategory.getId());
+                    if (deleteBlogs != null) { // if that category has blogs
+                        for (BlogEntity deleteBlog : deleteBlogs) {
+                            deleteBlog.setStatusId(deleteStatus.getId()); // set Blog's status to delete
+                            resultDeleteBlog = blogDAO.updateByBlog(deleteBlog); // change blog's status to delete in database
+                            if (resultDeleteBlog == false) {
+                                break;
+                            }
                         }
+                    } else { //if category has no blogs
+                        resultDeleteBlog = true;
                     }
-                }else{ //if category has no blogs
-                    resultDeleteBlog = true;
                 }
-
             }
             isSuccessful = (resultDeleteField && resultDeleteAccountLecturerField && resultDeletedCategory && resultDeleteBlog);
             connectionWrapper.commit();
