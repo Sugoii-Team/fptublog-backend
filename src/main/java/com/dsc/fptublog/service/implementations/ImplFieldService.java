@@ -221,7 +221,7 @@ public class ImplFieldService implements IFieldService {
         FieldCategoryStatusEntity inactiveStatus;
         boolean resultDeleteAccountLecturerField;
         boolean resultDeleteField;
-        boolean isSuccessful = false;
+        boolean isSuccessful;
         boolean resultDeleteBlog = false;
         boolean resultDeletedCategory = false;
         try {
@@ -230,7 +230,12 @@ public class ImplFieldService implements IFieldService {
             inactiveStatus = fieldCategoryStatusDAO.getByName("inactive");
             deleteField.setStatusId(inactiveStatus.getId());
             resultDeleteField = fieldDAO.updateField(deleteField);
-            resultDeleteAccountLecturerField = accountLecturerFieldDAO.deleteAccountLecturerField(fieldId); // delete in database
+            List<String> lecturersId = lecturerFieldDAO.getLecturersIdByFieldId(fieldId);
+            if(lecturersId == null){
+                resultDeleteAccountLecturerField = true;
+            }else{
+                resultDeleteAccountLecturerField = accountLecturerFieldDAO.deleteAccountLecturerField(fieldId); // delete in database
+            }
             List<CategoryEntity> deleteCategories = categoryDAO.getByFieldId(fieldId);
             BlogStatusEntity deleteStatus = blogStatusDAO.getByName("deleted"); // get delete status
             if (deleteCategories == null) { // if fields has no categories
