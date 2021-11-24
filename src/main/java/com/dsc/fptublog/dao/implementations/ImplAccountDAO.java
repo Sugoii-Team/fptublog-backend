@@ -318,7 +318,7 @@ public class ImplAccountDAO implements IAccountDAO {
                 "status_id, role, blogs_number, avg_rate " +
                 "FROM account " +
                 "INNER JOIN account_status status ON account.status_id = status.id " +
-                "WHERE status.name = 'activated'";
+                "WHERE status.name = 'activated' AND email != 'admin'";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             ResultSet result = stm.executeQuery();
