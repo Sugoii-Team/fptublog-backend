@@ -284,8 +284,6 @@ public class ImplAdminService implements IAdminService {
             long createdDateTime = System.currentTimeMillis();
             AccountEntity adminAccount = accountDAO.getAdminAccount();
             announcementCategory = categoryDAO.getByName("Announcement");
-            System.out.println(announcementCategory);
-            System.out.println(adminAccount);
             newBlog.setCategoryId(announcementCategory.getId());
             newBlog.setAuthorId(adminAccount.getId());
             BlogHistory blogHistory = blogHistoryDAO.insertByBlogHistory(new BlogHistory(null, newBlog.getAuthorId(), newBlog.getCategoryId(), createdDateTime, 0, 0));
