@@ -193,7 +193,7 @@ public class ImplBlogDAO implements IBlogDAO {
                 "INNER JOIN blog_status status ON blog.status_id = status.id " +
                 "INNER JOIN blog_history history ON blog.blog_history_id = history.id " +
                 "WHERE status.name = 'approved' OR status.name = 'pending deleted' " +
-                "ORDER BY blog.id DESC " +
+                "ORDER BY history.created_datetime DESC " +
                 "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {

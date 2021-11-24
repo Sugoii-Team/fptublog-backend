@@ -344,10 +344,9 @@ public class ImplAdminService implements IAdminService {
     @Override
     public List<BlogEntity> getAllBlogsOfAdmin(int limit, int page) throws SQLException {
         List<BlogEntity> result;
-        AccountEntity adminAccount = accountDAO.getAdminAccount();
         try {
             connectionWrapper.beginTransaction();
-
+            AccountEntity adminAccount = accountDAO.getAdminAccount();
             int offset = limit * (page - 1);
             result = blogDAO.getByAuthorId(adminAccount.getId(), limit, offset);
             if (result == null) {
