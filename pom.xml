@@ -119,11 +119,10 @@
                     <path>/fptu-blog</path>
                     <username>lequangky</username>
                     <password>fptudsc123</password>
-
-<!--                    <url>http://localhost:8080/manager/text</url>-->
-<!--                    <path>/fptu-blog</path>-->
-<!--                    <username>admin</username>-->
-<!--                    <password>admin</password>-->
+                    <!--<url>http://localhost:8080/manager/text</url>
+                    <path>/fptu-blog</path>
+                    <username>admin</username>
+                    <password>admin</password>-->
                 </configuration>
             </plugin>
             <plugin>

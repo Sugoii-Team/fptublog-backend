@@ -63,7 +63,8 @@ public class ImplFieldDAO implements IFieldDAO {
 
         String sql = "SELECT id, name " +
                 "FROM field " +
-                "WHERE status_id = (SELECT id FROM field_category_status WHERE name = 'active')";
+                "WHERE status_id = (SELECT id FROM field_category_status WHERE name = 'active') " +
+                "AND name != 'Announcement'";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             ResultSet resultSet = stm.executeQuery();
